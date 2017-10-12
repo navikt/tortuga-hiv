@@ -5,11 +5,10 @@ services:
 before_script:
   - curl -sL https://github.com/nais/naisd/releases/download/127.0.0/nais-127.0.0-linux-amd64.xz | xz -d > nais && chmod +x nais
 script:
-  - ./mvnw install -B -e
   - cd hiv && docker build .
-  - cd hiv && nais validate
-  - cd hoi && docker build .
-  - cd hoi && nais validate
+  - nais validate
+  - cd ../hoi && docker build .
+  - nais validate
 branches:
   only:
     - master
