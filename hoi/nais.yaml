@@ -1,0 +1,24 @@
+name: hoi
+image: navikt/hoi
+replicas:
+  min: 1
+  max: 1
+  cpuThresholdPercentage: 50
+port: 8080
+healthcheck:
+  liveness:
+    path: /isAlive
+    initialDelay: 60
+  readiness:
+    path: /isReady
+    initialDelay: 60
+prometheus:
+  enabled: true
+  path: /metrics
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi
