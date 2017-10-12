@@ -6,9 +6,9 @@ before_script:
   - curl -sL https://github.com/nais/naisd/releases/download/127.0.0/nais-127.0.0-linux-amd64.xz | xz -d > nais && chmod +x nais
 script:
   - cd hiv && docker build .
-  - nais validate
+  - ../nais validate
   - cd ../hoi && docker build .
-  - nais validate
+  - ../nais validate
 branches:
   only:
     - master
