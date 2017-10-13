@@ -1,5 +1,5 @@
-name: hoi
-image: navikt/hoi
+name: tortuga-hoi
+image: navikt/tortuga-hoi
 replicas:
   min: 1
   max: 1

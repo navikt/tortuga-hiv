@@ -1,4 +1,4 @@
-Prosjekt Tortuga
+Prosjekt Tortuga [![Build Status](https://travis-ci.org/navikt/tortuga.svg?branch=master)](https://travis-ci.org/navikt/tortuga)
 ================
 
 Tortuga er NAV sitt nye system for å hente informasjon om pensjonsgivende inntekt
@@ -8,8 +8,8 @@ Prosjektet består foreløpig av to separate applikasjoner, Hiv og Hoi.
 
 ## Hiv
 
-Hiv skal **h**ente **i**nn **v**arslinger om pensjonsgivende inntekt fra Skatteetaten.
+Hiv skal **H**ente **I**nn **V**arslinger om pensjonsgivende inntekt fra Skatteetaten.
 
 ## Hoi
 
-Hoi skal **h**ente **o**pplysninger om **i**nntekt til personer og muliggjøre persistering av informasjonen.
+Hoi skal **H**ente **O**pplysninger om **I**nntekt til personer og muliggjøre persistering av informasjonen.

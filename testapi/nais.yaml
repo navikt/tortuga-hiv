@@ -1,5 +1,5 @@
-name: tortuga-hiv
-image: navikt/tortuga-hiv
+name: tortuga-testapi
+image: navikt/tortuga-testapi
 replicas:
   min: 1
   max: 1
