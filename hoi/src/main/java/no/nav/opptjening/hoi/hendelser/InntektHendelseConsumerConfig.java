@@ -17,28 +17,17 @@ import java.util.Map;
 @EnableKafka
 public class InntektHendelseConsumerConfig {
 
-    private KafkaProperties kafkaProperties;
-
-    public InntektHendelseConsumerConfig(KafkaProperties properties) {
-        this.kafkaProperties = properties;
-    }
-
     @Bean
-    public Map<String, Object> consumerConfigs() {
-        return kafkaProperties.buildConsumerProperties();
-    }
-
-    @Bean
-    public ConsumerFactory<String, InntektKafkaHendelseDto> consumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
+    public ConsumerFactory<String, InntektKafkaHendelseDto> consumerFactory(KafkaProperties properties) {
+        return new DefaultKafkaConsumerFactory<>(properties.buildConsumerProperties(), new StringDeserializer(),
                 new JsonDeserializer<>(InntektKafkaHendelseDto.class));
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, InntektKafkaHendelseDto> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, InntektKafkaHendelseDto> kafkaListenerContainerFactory(KafkaProperties properties) {
         ConcurrentKafkaListenerContainerFactory<String, InntektKafkaHendelseDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(consumerFactory(properties));
 
         return factory;
     }
