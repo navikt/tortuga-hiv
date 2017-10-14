@@ -1,6 +1,6 @@
 package no.nav.opptjening.api.hendelser;
 
-import no.nav.opptjening.dto.InntektDto;
+import no.nav.opptjening.api.hendelser.repository.InntektsfeedRepository;
 import no.nav.opptjening.dto.InntektHendelseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package no.nav.opptjening.api.hendelser;
+package no.nav.opptjening.api.hendelser.domain;
 
 import javax.persistence.*;
 
