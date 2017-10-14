@@ -1,0 +1,25 @@
+version: "3"
+services:
+  hiv:
+    image: navikt/tortuga-hiv
+    links:
+      - testapi
+      - kafka
+    ports:
+      - "8080:8080"
+  hoi:
+    image: navikt/tortuga-hoi
+    links:
+      - testapi
+      - kafka
+    ports:
+      - "8081:8080"
+  testapi:
+    image: navikt/tortuga-testapi
+    ports:
+      - "8082:8080"
+  kafka:
+    image: spotify/kafka
+    ports:
+      - "2181:2181"
+      - "9092:9092"

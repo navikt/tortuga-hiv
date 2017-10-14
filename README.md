@@ -13,3 +13,39 @@ Hiv skal **H**ente **I**nn **V**arslinger om pensjonsgivende inntekt fra Skattee
 ## Hoi
 
 Hoi skal **H**ente **O**pplysninger om **I**nntekt til personer og muliggjøre persistering av informasjonen.
+
+## Installasjon og kjøring
+
+Vi bruker [spotify/dockerfile-maven](https://github.com/spotify/dockerfile-maven) for å bygge Docker images i lag med Maven-bygget.
+
+### Bygging
+
+For å bygge JAR og tilhørende Docker images:
+
+```
+./mvnw clean verify
+```
+
+Se de øvrige modulene for utfyllende informasjon om deres bygg- og kjøretidsmiljø.
+
+### Deploy
+
+Deploy Docker images til DockerHub (JAR blir ikke deployet):
+
+```
+./mvnw deploy
+```
+
+Dette vil riktignok kjøre et fullt bygg og viss en bare vil pushe Docker images, kan dette gjøres slik:
+
+```
+./mvnw com.spotify:dockerfile-maven-plugin:push -pl '!dto'
+```
+
+## Testing
+
+For å sette opp et testmiljø holder det å kjøre Docker Compose: 
+
+```
+docker-compose up
+```

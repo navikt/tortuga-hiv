@@ -26,7 +26,7 @@ public class InntektHendelseProducer {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    public InntektHendelseProducer(KafkaTemplate<String, InntektKafkaHendelseDto> kafkaTemplate, @Value("skatt.hendelser.endepunkt") String hendelseEndepunkt) {
+    public InntektHendelseProducer(KafkaTemplate<String, InntektKafkaHendelseDto> kafkaTemplate, @Value("${skatt.hendelser.endpoint}") String hendelseEndepunkt) {
         this.kafkaTemplate = kafkaTemplate;
         this.hendelseEndepunkt = hendelseEndepunkt;
     }
@@ -38,7 +38,7 @@ public class InntektHendelseProducer {
 
     @Scheduled(initialDelay=5000, fixedRate = 20000)
     public void seEtterHendelser() {
-        LOG.info("Ser etter nye hendelser");
+        LOG.info("Ser etter nye hendelser {}", hendelseEndepunkt);
 
         ResponseEntity<List<InntektHendelseDto>> response = restTemplate.exchange(hendelseEndepunkt,
                 HttpMethod.GET, null, new ParameterizedTypeReference<List<InntektHendelseDto>>() {});

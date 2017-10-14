@@ -31,7 +31,7 @@ Svarer med en tilfeldig liste over inntekter med endringer.
 
 Endepunkt: `/pensjonsgivendeinntekt`
 
-Svarer med en tilfeldig inntektDto:
+Svarer med en tilfeldig inntekt:
 
 ```json
 {
@@ -40,3 +40,7 @@ Svarer med en tilfeldig inntektDto:
 	"pensjonsgivendeInntekt":623900.908082498
 }
 ```
+
+## Testdata
+
+Ved oppstart vil Hibernate automatisk opprette en database basert på klasser annotert med `@Entity` og utføre SQL-ene definert i `src/main/resources/import.sql`.

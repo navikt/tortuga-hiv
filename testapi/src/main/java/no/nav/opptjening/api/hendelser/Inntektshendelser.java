@@ -17,13 +17,22 @@ public class Inntektshendelser {
 
     private final CounterBuffers counterBuffers;
 
-    public Inntektshendelser(CounterBuffers counterBuffers) {
+    private HendelseService service;
+
+    public Inntektshendelser(HendelseService service, CounterBuffers counterBuffers) {
+        this.service = service;
         this.counterBuffers = counterBuffers;
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public List<InntektHendelseDto> lagListeMedVarslinger(@RequestParam(value = "siden", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date dato) {
-        List<InntektHendelseDto> varsel = InntektHendelseFactory.createList(dato);
+    public List<InntektHendelseDto> hentVarsel(@RequestParam(value = "siden", required = false) @DateTimeFormat(pattern="yyyy-MM") Date dato) {
+        List<InntektHendelseDto> varsel;
+
+        if (dato == null) {
+            varsel = service.hentHendelser();
+        } else {
+            varsel = service.hentHendelserEtter(dato);
+        }
 
         counterBuffers.increment("counter.inntektvarsel", (long)varsel.size());
 

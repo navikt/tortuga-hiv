@@ -1,0 +1,1 @@
+FROM navikt/java:8

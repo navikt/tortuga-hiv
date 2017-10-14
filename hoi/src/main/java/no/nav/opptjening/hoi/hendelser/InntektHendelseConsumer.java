@@ -18,13 +18,13 @@ public class InntektHendelseConsumer {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    public InntektHendelseConsumer(@Value("skatt.pgi.endepunkt") String pgiEndepunkt) {
+    public InntektHendelseConsumer(@Value("${skatt.pgi.endpoint}") String pgiEndepunkt) {
         this.pgiEndepunkt = pgiEndepunkt;
     }
 
     @KafkaListener(topics = "tortuga.inntektshendelser")
     public void mottaHendelse(InntektKafkaHendelseDto hendelse) {
-        LOG.info("HOI haandterer hendelse='{}'", hendelse);
+        LOG.info("HOI haandterer hendelse='{}', api='{}'", hendelse, pgiEndepunkt);
 
         InntektDto inntekt = restTemplate.getForObject(pgiEndepunkt + "/" + hendelse.inntektsaar + "/" + hendelse.personindentfikator, InntektDto.class);
 
