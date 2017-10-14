@@ -39,7 +39,7 @@ Deploy Docker images til DockerHub (JAR blir ikke deployet):
 Dette vil riktignok kjøre et fullt bygg og viss en bare vil pushe Docker images, kan dette gjøres slik:
 
 ```
-./mvnw com.spotify:dockerfile-maven-plugin:push -pl '!dto'
+./mvnw com.spotify:dockerfile-maven-plugin:push -pl 'hiv,hoi,testapi'
 ```
 
 ## Testing

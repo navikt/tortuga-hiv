@@ -16,7 +16,7 @@ script:
 - ./nais validate -f hoi/nais.yaml
 - ./nais validate -f testapi/nais.yaml
 after_success:
-- "./mvnw com.spotify:dockerfile-maven-plugin:push -pl '!dto'"
+- "./mvnw com.spotify:dockerfile-maven-plugin:push -pl 'hiv,hoi,testapi'"
 branches:
   only:
   - master
