@@ -12,9 +12,9 @@ before_script:
 - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 script:
 - "./mvnw test -B"
-- nais validate -f hiv/nais.yaml
-- nais validate -f hoi/nais.yaml
-- nais validate -f testapi/nais.yaml
+- ./nais validate -f hiv/nais.yaml
+- ./nais validate -f hoi/nais.yaml
+- ./nais validate -f testapi/nais.yaml
 after_success:
 - "./mvnw com.spotify:dockerfile-maven-plugin:push -pl '!dto'"
 branches:
