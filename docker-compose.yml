@@ -5,6 +5,8 @@ services:
     links:
       - testapi
       - kafka
+    environment:
+      - "LOGGING_CONFIG=classpath:logback-docker.xml"
     ports:
       - "8080:8080"
   hoi:
@@ -12,10 +14,14 @@ services:
     links:
       - testapi
       - kafka
+    environment:
+      - "LOGGING_CONFIG=classpath:logback-docker.xml"
     ports:
       - "8081:8080"
   testapi:
     image: navikt/tortuga-testapi
+    environment:
+      - "LOGGING_CONFIG=classpath:logback-docker.xml"
     ports:
       - "8082:8080"
   kafka:
