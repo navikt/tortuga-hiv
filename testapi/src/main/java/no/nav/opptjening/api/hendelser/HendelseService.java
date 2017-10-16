@@ -1,14 +1,14 @@
 package no.nav.opptjening.api.hendelser;
 
-import no.nav.opptjening.api.hendelser.repository.InntektsfeedRepository;
-import no.nav.opptjening.skatt.dto.InntektHendelseDto;
+import no.nav.opptjening.api.hendelser.domain.Hendelse;
+import no.nav.opptjening.api.hendelser.repository.HendelseRepository;
+import no.nav.opptjening.skatt.dto.HendelseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,40 +17,34 @@ public class HendelseService {
 
     private static final Logger LOG = LoggerFactory.getLogger(HendelseService.class);
 
-    private InntektsfeedRepository repository;
+    private HendelseRepository repository;
 
-    public HendelseService(InntektsfeedRepository repository) {
+    public HendelseService(HendelseRepository repository) {
         this.repository = repository;
     }
 
-    public List<InntektHendelseDto> hentHendelser() {
+    List<HendelseDto> hentHendelser() {
         LOG.info("Henter alle hendelser");
-
-        return repository.findAll().stream()
-                .map(inntektHendelse -> {
-                    InntektHendelseDto hendelseDto = new InntektHendelseDto();
-                    hendelseDto.personindentfikator = inntektHendelse.fnr;
-                    hendelseDto.inntektsaar = inntektHendelse.gjelderPeriode;
-                    hendelseDto.endret = inntektHendelse.dokumenttilstand;
-                    return hendelseDto;
-                })
-                .collect(Collectors.toList());
+        List<HendelseDto> hendelser = new ArrayList<>();
+        for (Hendelse hendelse : repository.findAll()) {
+            hendelser.add(new HendelseDto(
+                    hendelse.getSekvensnummer(),
+                    hendelse.getIdentifikator(),
+                    hendelse.getGjelderPeriode()
+            ));
+        }
+        return hendelser;
     }
 
-    public List<InntektHendelseDto> hentHendelserEtter(Date etterDato) {
-        Format formatter = new SimpleDateFormat("yyyy-MM");
-        String dato = formatter.format(etterDato);
+    List<HendelseDto> hentHendelser(int sekvesnummer, int antall) {
+        LOG.info("Henter hendelser etter {}", sekvesnummer);
 
-        LOG.info("Henter hendelser etter {}", dato);
-
-        return repository.findByGjelderPeriodeAfter(dato).stream()
-                .map(inntektHendelse -> {
-                    InntektHendelseDto hendelseDto = new InntektHendelseDto();
-                    hendelseDto.personindentfikator = inntektHendelse.fnr;
-                    hendelseDto.inntektsaar = inntektHendelse.gjelderPeriode;
-                    hendelseDto.endret = inntektHendelse.dokumenttilstand;
-                    return hendelseDto;
-                })
+        return repository.findBySekvensnummerAfter(sekvesnummer, new PageRequest(0, antall)).getContent().stream()
+                .map(hendelse -> new HendelseDto(
+                        hendelse.getSekvensnummer(),
+                        hendelse.getIdentifikator(),
+                        hendelse.getGjelderPeriode()
+                ))
                 .collect(Collectors.toList());
     }
 }

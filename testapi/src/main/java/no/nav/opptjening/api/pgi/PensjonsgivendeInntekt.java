@@ -7,11 +7,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/pensjonsgivendeinntekt")
+@RequestMapping("/api/formueinntekt/pensjonsgivendeinntekt/{inntektsaar}/{personidentifikator}")
 public class PensjonsgivendeInntekt {
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{inntektsAar}/{personidentifikator}")
-    public InntektDto lagTilfeldigInntekt(@PathVariable String inntektsAar, @PathVariable String personidentifikator) {
-        return InntektFactory.create(personidentifikator, inntektsAar);
+    private InntektService service;
+
+    public PensjonsgivendeInntekt(InntektService service) {
+        this.service = service;
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public InntektDto hentInntekt(@PathVariable String inntektsaar, @PathVariable String personidentifikator) {
+        return service.hentInntekt(personidentifikator, inntektsaar);
     }
 }

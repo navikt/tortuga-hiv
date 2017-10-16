@@ -1,6 +1,5 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.skatt.dto.InntektKafkaHendelseDto;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
