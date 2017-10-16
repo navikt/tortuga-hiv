@@ -1,7 +1,7 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.dto.InntektDto;
-import no.nav.opptjening.dto.InntektKafkaHendelseDto;
+import no.nav.opptjening.skatt.dto.InntektDto;
+import no.nav.opptjening.skatt.dto.InntektKafkaHendelseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -95,7 +95,7 @@
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
-            <artifactId>dto</artifactId>
+            <artifactId>skatt-consumer</artifactId>
             <version>1-SNAPSHOT</version>
         </dependency>
 

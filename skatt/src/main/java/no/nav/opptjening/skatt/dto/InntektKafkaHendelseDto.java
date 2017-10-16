@@ -1,6 +1,6 @@
-package no.nav.opptjening.dto;
+package no.nav.opptjening.skatt.dto;
 
-public class InntektHendelseDto {
+public class InntektKafkaHendelseDto {
 
     public String endret;
 

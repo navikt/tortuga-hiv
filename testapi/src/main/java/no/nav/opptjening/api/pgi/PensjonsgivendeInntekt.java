@@ -1,6 +1,6 @@
 package no.nav.opptjening.api.pgi;
 
-import no.nav.opptjening.dto.InntektDto;
+import no.nav.opptjening.skatt.dto.InntektDto;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;

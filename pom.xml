@@ -15,7 +15,7 @@
         <module>config</module>
         <module>hiv</module>
         <module>hoi</module>
-        <module>dto</module>
+        <module>skatt</module>
         <module>testapi</module>
     </modules>
 </project>

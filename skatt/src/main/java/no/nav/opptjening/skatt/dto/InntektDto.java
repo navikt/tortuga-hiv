@@ -1,12 +1,12 @@
-package no.nav.opptjening.dto;
+package no.nav.opptjening.skatt.dto;
 
-public class InntektKafkaHendelseDto {
-
-    public String endret;
+public class InntektDto {
 
     public String personindentfikator;
 
     public String inntektsaar;
+
+    public double pensjonsgivendeInntekt;
 
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
@@ -14,8 +14,8 @@ public class InntektKafkaHendelseDto {
                 .append(personindentfikator)
                 .append(", inntektsAar: ")
                 .append(inntektsaar)
-                .append(", endret: ")
-                .append(endret)
+                .append(", pgi: ")
+                .append(pensjonsgivendeInntekt)
                 .append("]")
                 .toString();
     }

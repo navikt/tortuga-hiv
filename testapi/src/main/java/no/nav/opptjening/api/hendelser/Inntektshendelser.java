@@ -1,6 +1,6 @@
 package no.nav.opptjening.api.hendelser;
 
-import no.nav.opptjening.dto.InntektHendelseDto;
+import no.nav.opptjening.skatt.dto.InntektHendelseDto;
 import org.springframework.boot.actuate.metrics.buffer.CounterBuffers;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;

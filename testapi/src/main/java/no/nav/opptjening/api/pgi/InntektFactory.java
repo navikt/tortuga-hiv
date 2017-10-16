@@ -1,6 +1,6 @@
 package no.nav.opptjening.api.pgi;
 
-import no.nav.opptjening.dto.InntektDto;
+import no.nav.opptjening.skatt.dto.InntektDto;
 
 import java.time.Year;
 import java.util.Random;

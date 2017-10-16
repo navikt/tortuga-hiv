@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.nav.opptjening</groupId>
-    <artifactId>dto</artifactId>
+    <artifactId>skatt-consumer</artifactId>
     <version>1-SNAPSHOT</version>
 
-    <name>dto</name>
+    <name>skatt</name>
 
     <build>
         <plugins>
