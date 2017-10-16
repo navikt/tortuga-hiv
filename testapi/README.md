@@ -8,28 +8,30 @@ APIet vil svare med tilfeldige data, og vil også **feile tilfeldig**.
 
 ### VarslingsAPI
 
-Endepunkt: `/varsel`
+Endepunkt: `/api/formueinntekt/beregnetskatt/hendelser`
 
 Svarer med en tilfeldig liste over inntekter med endringer.
 
 ```json
-[
-	{
-		"endret":"2016-01-01 00:00:00",
-		"personindentfikator":"07095912345",
-		"inntektsaar":"2017"
-	},
-	{
-		"endret":"2016-01-01 00:00:00",
-		"personindentfikator":"26127812345",
-		"inntektsaar":"2017"
-	}
-]
+{
+  "hendelser": [
+    {
+      "sekvensnummer": 1,
+      "identifikator": "09048000875",
+      "gjelderPeriode": "2015"
+    },
+    {
+      "sekvensnummer": 2,
+      "identifikator": "20125001158",
+      "gjelderPeriode": "2015"
+    }
+  ]
+}
 ```
 
 ### PGI-API
 
-Endepunkt: `/pensjonsgivendeinntekt`
+Endepunkt: `/api/formueinntekt/pensjonsgivendeinntekt/{inntektsaar}/{personidentifikator}`
 
 Svarer med en tilfeldig inntekt:
 
