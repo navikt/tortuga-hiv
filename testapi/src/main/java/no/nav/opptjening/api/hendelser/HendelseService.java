@@ -39,7 +39,7 @@ public class HendelseService {
     List<HendelseDto> hentHendelser(int sekvesnummer, int antall) {
         LOG.info("Henter hendelser etter {}", sekvesnummer);
 
-        return repository.findBySekvensnummerAfter(sekvesnummer, new PageRequest(0, antall)).getContent().stream()
+        return repository.findBySekvensnummerGreaterThanEqual(sekvesnummer, new PageRequest(0, antall)).getContent().stream()
                 .map(hendelse -> new HendelseDto(
                         hendelse.getSekvensnummer(),
                         hendelse.getIdentifikator(),

@@ -5,12 +5,13 @@ import org.springframework.web.client.RestTemplate;
 
 public class Inntekter {
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
 
     private String endepunkt;
 
-    public Inntekter(String endepunkt) {
+    public Inntekter(String endepunkt, RestTemplate restTemplate) {
         this.endepunkt = endepunkt;
+        this.restTemplate = restTemplate;
     }
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {

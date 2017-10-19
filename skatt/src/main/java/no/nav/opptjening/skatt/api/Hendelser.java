@@ -1,7 +1,10 @@
 package no.nav.opptjening.skatt.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.dto.SekvensDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +30,17 @@ import java.util.List;
  */
 public class Hendelser {
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private static final Logger LOG = LoggerFactory.getLogger(Hendelser.class);
+
+    private RestTemplate restTemplate;
 
     private String endepunkt;
 
-    public Hendelser(String endepunkt) {
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    public Hendelser(String endepunkt, RestTemplate restTemplate) {
         this.endepunkt = endepunkt;
+        this.restTemplate = restTemplate;
     }
 
     public SekvensDto forsteSekvensEtter(LocalDate dato) {
@@ -40,15 +48,16 @@ public class Hendelser {
     }
 
     public List<HendelseDto> getHendelser(int fraSekvens, int antall) {
-        ResponseEntity<List<HendelseDto>> response = restTemplate.exchange(
+        ResponseEntity<HendelseRespons> response = restTemplate.exchange(
                 endepunkt + "?fraSekvensnummer={sekvens}&antall={antall}",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<HendelseDto>>() {},
+                new ParameterizedTypeReference<HendelseRespons>() {
+                },
                 fraSekvens,
                 antall
         );
-        return response.getBody();
+        return response.getBody().getHendelser();
     }
 
     public List<HendelseDto> getHendelser(LocalDate dato) {

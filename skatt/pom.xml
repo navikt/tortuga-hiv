@@ -6,8 +6,19 @@
     <groupId>no.nav.opptjening</groupId>
     <artifactId>skatt-consumer</artifactId>
     <version>1-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
     <name>skatt</name>
+    <description>Konsumentkode for Skatteetaten sine API-er</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -30,6 +41,16 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <version>1.5.2.RELEASE</version>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.8.7</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.11</version>
         </dependency>
     </dependencies>
 

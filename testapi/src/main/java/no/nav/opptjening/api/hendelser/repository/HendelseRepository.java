@@ -13,5 +13,5 @@ public interface HendelseRepository extends Repository<Hendelse, Integer> {
 
     Iterable<Hendelse> findByIdentifikator(String fnr);
 
-    Page<Hendelse> findBySekvensnummerAfter(int sekvensnummer, Pageable pageable);
+    Page<Hendelse> findBySekvensnummerGreaterThanEqual(int sekvensnummer, Pageable pageable);
 }
