@@ -9,6 +9,7 @@ import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,7 +24,8 @@ import java.util.List;
 public class HendelseItemReader implements ItemStreamReader<HendelseDto> {
     private static final Logger LOG = LoggerFactory.getLogger(HendelseItemReader.class);
 
-    private static final int MAX_HENDELSER_PER_REQUEST = 1000;
+    @Value("${hiv.hendelser-per-request:1000}")
+    private int maxHendelserPerRequest;
 
     private final InntektHendelser inntektHendelser;
 
@@ -44,7 +46,7 @@ public class HendelseItemReader implements ItemStreamReader<HendelseDto> {
         LOG.info("Ser etter nye hendelser");
 
         try {
-            List<HendelseDto> hendelser = inntektHendelser.getHendelser(nextSekvensnummer, MAX_HENDELSER_PER_REQUEST);
+            List<HendelseDto> hendelser = inntektHendelser.getHendelser(nextSekvensnummer, maxHendelserPerRequest);
             hendelseIterator = hendelser.iterator();
             LOG.info("Fant {} hendelser", hendelser.size());
         } catch (EmptyResultException e) {
