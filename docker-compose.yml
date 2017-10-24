@@ -1,14 +1,5 @@
 version: "3"
 services:
-  hiv:
-    image: navikt/tortuga-hiv
-    links:
-      - testapi
-      - kafka
-    environment:
-      - "LOGGING_CONFIG=classpath:logback-docker.xml"
-    ports:
-      - "8080:8080"
   hoi:
     image: navikt/tortuga-hoi
     links:

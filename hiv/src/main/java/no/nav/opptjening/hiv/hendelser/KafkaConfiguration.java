@@ -8,7 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
-public class InntektHendelseProducerConfig {
+public class KafkaConfiguration {
 
     @Bean
     public ProducerFactory<String, InntektKafkaHendelseDto> producerFactory(KafkaProperties properties) {

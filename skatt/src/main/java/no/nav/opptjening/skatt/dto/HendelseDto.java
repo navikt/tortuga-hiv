@@ -2,7 +2,7 @@ package no.nav.opptjening.skatt.dto;
 
 public class HendelseDto {
 
-    private int sekvensnummer;
+    private long sekvensnummer;
 
     private String identifikator;
 
@@ -11,13 +11,13 @@ public class HendelseDto {
     public HendelseDto() {
     }
 
-    public HendelseDto(int sekvensnummer, String identifikator, String gjelderPeriode) {
+    public HendelseDto(long sekvensnummer, String identifikator, String gjelderPeriode) {
         this.sekvensnummer = sekvensnummer;
         this.identifikator = identifikator;
         this.gjelderPeriode = gjelderPeriode;
     }
 
-    public int getSekvensnummer() {
+    public long getSekvensnummer() {
         return sekvensnummer;
     }
 
@@ -29,7 +29,7 @@ public class HendelseDto {
         return gjelderPeriode;
     }
 
-    public void setSekvensnummer(int sekvensnummer) {
+    public void setSekvensnummer(long sekvensnummer) {
         this.sekvensnummer = sekvensnummer;
     }
 

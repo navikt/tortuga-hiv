@@ -47,7 +47,7 @@ public class Hendelser {
         return restTemplate.getForObject(endepunkt + "/start?dato={dato}", SekvensDto.class, dato.toString());
     }
 
-    public List<HendelseDto> getHendelser(int fraSekvens, int antall) {
+    public List<HendelseDto> getHendelser(long fraSekvens, int antall) {
         ResponseEntity<HendelseRespons> response = restTemplate.exchange(
                 endepunkt + "?fraSekvensnummer={sekvens}&antall={antall}",
                 HttpMethod.GET,

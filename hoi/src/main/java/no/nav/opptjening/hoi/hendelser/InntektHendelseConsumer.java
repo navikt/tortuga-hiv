@@ -25,8 +25,11 @@ public class InntektHendelseConsumer {
     public void mottaHendelse(InntektKafkaHendelseDto hendelse) {
         LOG.info("HOI haandterer hendelse={}", hendelse);
 
-        InntektDto inntekt = inntekter.hentInntekt(hendelse.getGjelderPeriode(), hendelse.getIdentifikator());
-
-        LOG.info("HOI sender inntekt='{}'", inntekt);
+        try {
+            InntektDto inntekt = inntekter.hentInntekt(hendelse.getGjelderPeriode(), hendelse.getIdentifikator());
+            LOG.info("HOI sender inntekt='{}'", inntekt);
+        } catch (Exception e) {
+            LOG.error("Her skjedde det noe galt ja", e);
+        }
     }
 }

@@ -2,20 +2,20 @@ package no.nav.opptjening.skatt.dto;
 
 public class SekvensDto {
 
-    private int sekvensnummer;
+    private long sekvensnummer;
 
     public SekvensDto() {
     }
 
-    public SekvensDto(int sekvensnummer) {
+    public SekvensDto(long sekvensnummer) {
         this.sekvensnummer = sekvensnummer;
     }
 
-    public int getSekvensnummer() {
+    public long getSekvensnummer() {
         return sekvensnummer;
     }
 
-    public void setSekvensnummer(int sekvensnummer) {
+    public void setSekvensnummer(long sekvensnummer) {
         this.sekvensnummer = sekvensnummer;
     }
 
