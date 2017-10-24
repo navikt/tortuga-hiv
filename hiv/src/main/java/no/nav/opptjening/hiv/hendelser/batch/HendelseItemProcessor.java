@@ -7,8 +7,6 @@ import org.springframework.batch.item.ItemProcessor;
 public class HendelseItemProcessor implements ItemProcessor<HendelseDto, InntektKafkaHendelseDto> {
     @Override
     public InntektKafkaHendelseDto process(HendelseDto hendelseDto) throws Exception {
-        Thread.sleep(500);
-
         InntektKafkaHendelseDto hendelseKafkaDto = new InntektKafkaHendelseDto();
 
         hendelseKafkaDto.setIdentifikator(hendelseDto.getIdentifikator());

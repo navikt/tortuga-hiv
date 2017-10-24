@@ -2,19 +2,9 @@ package no.nav.opptjening.hoi.hendelser;
 
 public class InntektKafkaHendelseDto {
 
-    private int sekvensnummer;
-
     private String identifikator;
 
     private String gjelderPeriode;
-
-    public int getSekvensnummer() {
-        return sekvensnummer;
-    }
-
-    public void setSekvensnummer(int sekvensnummer) {
-        this.sekvensnummer = sekvensnummer;
-    }
 
     public String getIdentifikator() {
         return identifikator;
@@ -34,9 +24,7 @@ public class InntektKafkaHendelseDto {
 
     public String toString() {
         StringBuilder sb = new StringBuilder("[");
-        return sb.append("sekvensnummer: ")
-                .append(sekvensnummer)
-                .append(", pid: ")
+        return sb.append("pid: ")
                 .append(identifikator)
                 .append(", gjelderPeriode: ")
                 .append(gjelderPeriode)

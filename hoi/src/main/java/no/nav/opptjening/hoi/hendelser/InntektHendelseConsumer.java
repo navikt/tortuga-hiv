@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 public class InntektHendelseConsumer {
@@ -14,8 +13,6 @@ public class InntektHendelseConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(InntektHendelseConsumer.class);
 
     private Inntekter inntekter;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     public InntektHendelseConsumer(Inntekter inntekter) {
         this.inntekter = inntekter;
