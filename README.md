@@ -8,7 +8,7 @@ Prosjektet består foreløpig av to separate applikasjoner, Hiv og Hoi.
 
 ## Hiv
 
-Hiv skal **H**ente **I**nn **V**arslinger om pensjonsgivende inntekt fra Skatteetaten.
+Hiv skal **H**åndtere **I**nntekts**v**arslinger om pensjonsgivende inntekt fra Skatteetaten.
 
 ## Hoi
 
@@ -49,3 +49,5 @@ For å sette opp et testmiljø holder det å kjøre Docker Compose:
 ```
 docker-compose up
 ```
+
+Hiv kan da kjøres med `./run-hiv.sh` så mange ganger som ønskelig. Den vil persistere en H2-database under `./hiv/hivdb` hvor blant annet sekvensnummeret lagres.
