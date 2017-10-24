@@ -20,17 +20,17 @@ public class BatchLoggEntry {
 
     protected BatchLoggEntry() {}
 
-    public BatchLoggEntry(long jobId, long fraSekvensnummer, long tilSekvensnummer) {
+    BatchLoggEntry(long jobId, long fraSekvensnummer, long tilSekvensnummer) {
         this.jobId = jobId;
         this.fraSekvensnummer = fraSekvensnummer;
         this.tilSekvensnummer = tilSekvensnummer;
     }
 
-    public long getJobId() {
+    long getJobId() {
         return jobId;
     }
 
-    public long getFraSekvensnummer() {
+    long getFraSekvensnummer() {
         return fraSekvensnummer;
     }
 
@@ -38,7 +38,7 @@ public class BatchLoggEntry {
         return tilSekvensnummer;
     }
 
-    public void setTilSekvensnummer(long tilSekvensnummer) {
+    void setTilSekvensnummer(long tilSekvensnummer) {
         this.tilSekvensnummer = tilSekvensnummer;
     }
 

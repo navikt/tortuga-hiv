@@ -4,7 +4,6 @@ import no.nav.opptjening.hiv.hendelser.batch.HendelseItemProcessor;
 import no.nav.opptjening.hiv.hendelser.batch.HendelseItemReader;
 import no.nav.opptjening.hiv.hendelser.batch.HendelseItemWriter;
 import no.nav.opptjening.hiv.hendelser.batch.ItemChunkListener;
-import no.nav.opptjening.hiv.hendelser.support.BatchLoggRepository;
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggService;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import org.springframework.batch.core.ChunkListener;
@@ -34,11 +33,6 @@ public class BatchConfiguration {
     public BatchConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
-    }
-
-    @Bean
-    BatchLoggService batchLoggService(BatchLoggRepository repository) {
-        return new BatchLoggService(repository);
     }
 
     @Bean
