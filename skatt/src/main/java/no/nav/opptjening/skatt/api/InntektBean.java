@@ -1,6 +1,9 @@
-package no.nav.opptjening.skatt.dto;
+package no.nav.opptjening.skatt.api;
 
-public class InntektDto {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+class InntektBean {
 
     private String personindentfikator;
 
@@ -8,21 +11,24 @@ public class InntektDto {
 
     private double pensjonsgivendeInntekt;
 
-    public InntektDto(String personindentfikator, String inntektsaar, double pensjonsgivendeInntekt) {
+    @JsonCreator
+    InntektBean(@JsonProperty(value = "personindentfikator", required = true) String personindentfikator,
+                      @JsonProperty(value = "inntektsaar", required = true) String inntektsaar,
+                      @JsonProperty(value = "pensjonsgivendeInntekt", required =  true) double pensjonsgivendeInntekt) {
         this.personindentfikator = personindentfikator;
         this.inntektsaar = inntektsaar;
         this.pensjonsgivendeInntekt = pensjonsgivendeInntekt;
     }
 
-    public String getPersonindentfikator() {
+    String getPersonindentfikator() {
         return personindentfikator;
     }
 
-    public String getInntektsaar() {
+    String getInntektsaar() {
         return inntektsaar;
     }
 
-    public double getPensjonsgivendeInntekt() {
+    double getPensjonsgivendeInntekt() {
         return pensjonsgivendeInntekt;
     }
 
@@ -39,3 +45,4 @@ public class InntektDto {
                 .toString();
     }
 }
+

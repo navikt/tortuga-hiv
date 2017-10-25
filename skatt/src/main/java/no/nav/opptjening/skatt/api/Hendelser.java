@@ -1,6 +1,5 @@
 package no.nav.opptjening.skatt.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.dto.SekvensDto;
 import org.slf4j.Logger;
@@ -36,61 +35,26 @@ public class Hendelser {
 
     private String endepunkt;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
     public Hendelser(String endepunkt, RestTemplate restTemplate) {
         this.endepunkt = endepunkt;
         this.restTemplate = restTemplate;
     }
 
     public SekvensDto forsteSekvensEtter(LocalDate dato) {
-        return restTemplate.getForObject(endepunkt + "/start?dato={dato}", SekvensDto.class, dato.toString());
+        SekvensBean sekvensBean = restTemplate.getForObject(endepunkt + "/start?dato={dato}", SekvensBean.class, dato.toString());
+        return new SekvensDto(sekvensBean.getSekvensnummer());
     }
 
     public List<HendelseDto> getHendelser(long fraSekvens, int antall) {
-        ResponseEntity<HendelseRespons> response = restTemplate.exchange(
+        ResponseEntity<HendelseResponsBean> response = restTemplate.exchange(
                 endepunkt + "?fraSekvensnummer={sekvens}&antall={antall}",
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<HendelseRespons>() {
+                new ParameterizedTypeReference<HendelseResponsBean>() {
                 },
                 fraSekvens,
                 antall
         );
         return response.getBody().getHendelser();
-    }
-
-    public List<HendelseDto> getHendelser(LocalDate dato) {
-        ResponseEntity<HendelseRespons> response = restTemplate.exchange(
-                endepunkt + "/start?dato={dato}",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<HendelseRespons>() {},
-                dato.toString()
-        );
-        return response.getBody().getHendelser();
-    }
-
-    public List<HendelseDto> getHendelser() {
-        ResponseEntity<HendelseRespons> response = restTemplate.exchange(
-                endepunkt,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<HendelseRespons>() {}
-        );
-        return response.getBody().getHendelser();
-    }
-
-    private static class HendelseRespons {
-
-        private List<HendelseDto> hendelser;
-
-        public void setHendelser(List<HendelseDto> hendelser) {
-            this.hendelser = hendelser;
-        }
-
-        public List<HendelseDto> getHendelser() {
-            return hendelser;
-        }
     }
 }

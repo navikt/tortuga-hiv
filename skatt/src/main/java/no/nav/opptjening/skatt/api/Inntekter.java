@@ -15,6 +15,7 @@ public class Inntekter {
     }
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {
-        return restTemplate.getForObject(endepunkt + "/{inntektsaar}/{pid}", InntektDto.class, inntektsaar, personidentifikator);
+        InntektBean inntektBean = restTemplate.getForObject(endepunkt + "/{inntektsaar}/{pid}", InntektBean.class, inntektsaar, personidentifikator);
+        return new InntektDto(inntektBean.getPersonindentfikator(), inntektBean.getInntektsaar(), inntektBean.getPensjonsgivendeInntekt());
     }
 }
