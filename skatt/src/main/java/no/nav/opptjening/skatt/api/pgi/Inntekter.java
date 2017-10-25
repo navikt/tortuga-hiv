@@ -1,4 +1,4 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.skatt.api.pgi;
 
 import no.nav.opptjening.skatt.dto.InntektDto;
 import org.springframework.web.client.RestTemplate;
@@ -16,6 +16,6 @@ public class Inntekter {
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {
         InntektBean inntektBean = restTemplate.getForObject(endepunkt + "/{inntektsaar}/{pid}", InntektBean.class, inntektsaar, personidentifikator);
-        return new InntektDto(inntektBean.getPersonindentfikator(), inntektBean.getInntektsaar(), inntektBean.getPensjonsgivendeInntekt());
+        return new InntektDto(inntektBean.getPersonindentifikator(), inntektBean.getInntektsaar(), inntektBean.getPensjonsgivendeInntekt());
     }
 }

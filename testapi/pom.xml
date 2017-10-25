@@ -87,12 +87,6 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.opptjening</groupId>
-            <artifactId>skatt-consumer</artifactId>
-            <version>1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>

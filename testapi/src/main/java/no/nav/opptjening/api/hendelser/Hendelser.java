@@ -1,8 +1,6 @@
 package no.nav.opptjening.api.hendelser;
 
 import no.nav.opptjening.api.ApiException;
-import no.nav.opptjening.skatt.dto.HendelseDto;
-import no.nav.opptjening.skatt.dto.SekvensDto;
 import org.springframework.boot.actuate.metrics.buffer.CounterBuffers;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -35,7 +33,7 @@ public class Hendelser {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public HendelseRespons hentHendelser(
+    public HendelseResponsDto hentHendelser(
             @RequestParam(value = "fraSekvensnummer") Optional<Integer> sekvens,
             @RequestParam(value = "antall") Optional<Integer> antall) {
         int seq = sekvens.orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "FA-001", "fraSekvensnummer må være satt"));
@@ -76,7 +74,7 @@ public class Hendelser {
 
         counterBuffers.increment("counter.hendelser", (long)hendelser.size());
 
-        return new HendelseRespons(hendelser);
+        return new HendelseResponsDto(hendelser);
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.GET)
@@ -88,18 +86,5 @@ public class Hendelser {
         }
 
         return sekvensDto;
-    }
-
-    private static class HendelseRespons {
-
-        private List<HendelseDto> hendelser;
-
-        public HendelseRespons(List<HendelseDto> hendelser) {
-            this.hendelser = hendelser;
-        }
-
-        public List<HendelseDto> getHendelser() {
-            return hendelser;
-        }
     }
 }

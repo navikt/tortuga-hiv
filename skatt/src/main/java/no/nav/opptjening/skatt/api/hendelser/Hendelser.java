@@ -1,4 +1,4 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.skatt.api.hendelser;
 
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.dto.SekvensDto;

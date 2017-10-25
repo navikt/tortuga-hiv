@@ -1,4 +1,4 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.skatt.api.hendelser;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

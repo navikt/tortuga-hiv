@@ -1,6 +1,6 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.skatt.api.Inntekter;
+import no.nav.opptjening.skatt.api.pgi.Inntekter;
 import no.nav.opptjening.skatt.dto.InntektDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

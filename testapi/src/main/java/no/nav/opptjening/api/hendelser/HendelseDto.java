@@ -1,9 +1,6 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.api.hendelser;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-class HendelseBean {
+class HendelseDto {
 
     private long sekvensnummer;
 
@@ -11,24 +8,21 @@ class HendelseBean {
 
     private String gjelderPeriode;
 
-    @JsonCreator
-    HendelseBean(@JsonProperty(value = "sekvensnummer", required = true) long sekvensnummer,
-                       @JsonProperty(value = "identifikator", required = true) String identifikator,
-                       @JsonProperty(value = "gjelderPeriode", required = true) String gjelderPeriode) {
+    HendelseDto(long sekvensnummer, String identifikator, String gjelderPeriode) {
         this.sekvensnummer = sekvensnummer;
         this.identifikator = identifikator;
         this.gjelderPeriode = gjelderPeriode;
     }
 
-    long getSekvensnummer() {
+    public long getSekvensnummer() {
         return sekvensnummer;
     }
 
-    String getIdentifikator() {
+    public String getIdentifikator() {
         return identifikator;
     }
 
-    String getGjelderPeriode() {
+    public String getGjelderPeriode() {
         return gjelderPeriode;
     }
 

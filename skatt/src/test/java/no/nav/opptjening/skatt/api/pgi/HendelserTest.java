@@ -1,6 +1,7 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.skatt.api.pgi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.opptjening.skatt.api.SkattErrorHandler;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.dto.SekvensDto;
 import no.nav.opptjening.skatt.exceptions.MissingSekvensnummerException;

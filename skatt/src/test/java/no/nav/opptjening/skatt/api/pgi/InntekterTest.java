@@ -1,5 +1,6 @@
-package no.nav.opptjening.skatt.api;
+package no.nav.opptjening.skatt.api.pgi;
 
+import no.nav.opptjening.skatt.api.SkattErrorHandler;
 import no.nav.opptjening.skatt.dto.InntektDto;
 import no.nav.opptjening.skatt.exceptions.MissingInntektException;
 import no.nav.opptjening.skatt.exceptions.UnmappedException;
@@ -40,7 +41,7 @@ public class InntekterTest {
     public void hentInntekt() throws Exception {
         mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{\"personindentfikator\": \"12345\", \"inntektsaar\": \"2016\", \"pensjonsgivendeInntekt\": 150000}", MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess("{\"personindentifikator\": \"12345\", \"inntektsaar\": \"2016\", \"pensjonsgivendeInntekt\": 150000}", MediaType.APPLICATION_JSON));
 
         InntektDto result = inntekter.hentInntekt("2016", "12345");
 

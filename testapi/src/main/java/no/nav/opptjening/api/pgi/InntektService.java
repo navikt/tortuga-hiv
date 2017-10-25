@@ -4,7 +4,6 @@ import no.nav.opptjening.api.ApiException;
 import no.nav.opptjening.api.hendelser.HendelseService;
 import no.nav.opptjening.api.pgi.domain.Inntekt;
 import no.nav.opptjening.api.pgi.repository.InntektRepository;
-import no.nav.opptjening.skatt.dto.InntektDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

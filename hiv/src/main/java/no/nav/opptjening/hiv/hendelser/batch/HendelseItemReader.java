@@ -2,7 +2,7 @@ package no.nav.opptjening.hiv.hendelser.batch;
 
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggEntry;
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggService;
-import no.nav.opptjening.skatt.api.InntektHendelser;
+import no.nav.opptjening.skatt.api.pgi.InntektHendelser;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.exceptions.ApiException;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;

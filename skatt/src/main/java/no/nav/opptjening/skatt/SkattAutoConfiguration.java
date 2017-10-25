@@ -1,8 +1,8 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.skatt.api.InntektHendelser;
-import no.nav.opptjening.skatt.api.Inntekter;
 import no.nav.opptjening.skatt.api.SkattErrorHandler;
+import no.nav.opptjening.skatt.api.pgi.InntektHendelser;
+import no.nav.opptjening.skatt.api.pgi.Inntekter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
