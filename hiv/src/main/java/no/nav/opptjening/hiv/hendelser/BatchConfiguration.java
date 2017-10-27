@@ -5,6 +5,7 @@ import no.nav.opptjening.hiv.hendelser.batch.HendelseItemReader;
 import no.nav.opptjening.hiv.hendelser.batch.HendelseItemWriter;
 import no.nav.opptjening.hiv.hendelser.batch.ItemChunkListener;
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggService;
+import no.nav.opptjening.schema.InntektHendelse;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.Job;
@@ -42,7 +43,7 @@ public class BatchConfiguration {
 
     @Bean
     public Step step1(HendelseItemReader itemReader, HendelseItemWriter itemWriter, ChunkListener chunkListener) {
-        SimpleStepBuilder<HendelseDto, InntektKafkaHendelseDto> step = stepBuilderFactory.get("step1")
+        SimpleStepBuilder<HendelseDto, InntektHendelse> step = stepBuilderFactory.get("step1")
                 .chunk(chunkSize);
 
         step.reader(itemReader);

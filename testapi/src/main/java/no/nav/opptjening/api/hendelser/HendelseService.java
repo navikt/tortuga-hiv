@@ -21,7 +21,7 @@ public class HendelseService {
     }
 
     List<HendelseDto> hentHendelser(int sekvesnummer, int antall) {
-        LOG.info("Henter hendelser etter {}", sekvesnummer);
+        LOG.info("Henter {} hendelser fom. sekvensnummer {}", antall, sekvesnummer);
 
         return repository.findBySekvensnummerGreaterThanEqual(sekvesnummer, new PageRequest(0, antall)).getContent().stream()
                 .map(hendelse -> new HendelseDto(

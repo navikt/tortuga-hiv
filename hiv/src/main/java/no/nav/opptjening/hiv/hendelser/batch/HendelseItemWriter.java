@@ -1,6 +1,7 @@
 package no.nav.opptjening.hiv.hendelser.batch;
 
-import no.nav.opptjening.hiv.hendelser.InntektKafkaHendelseDto;
+import no.nav.opptjening.schema.InntektHendelse;
+import org.apache.avro.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -10,25 +11,36 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class HendelseItemWriter implements ItemWriter<InntektKafkaHendelseDto> {
+public class HendelseItemWriter implements ItemWriter<InntektHendelse> {
     private static final Logger LOG = LoggerFactory.getLogger(HendelseItemWriter.class);
 
-    private final KafkaTemplate<String, InntektKafkaHendelseDto> kafkaTemplate;
+    private final KafkaTemplate<String, InntektHendelse> kafkaTemplate;
 
-    public HendelseItemWriter(KafkaTemplate<String, InntektKafkaHendelseDto> kafkaTemplate) {
+    public HendelseItemWriter(KafkaTemplate<String, InntektHendelse> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
+
+        String userSchema = "{" +
+                "\"namespace\":\"no.nav.opptjening.hiv.kafka\", " +
+                "\"type\":\"record\"," +
+                "\"name\":\"InntektHendelse\"," +
+                "\"fields\":[" +
+                "{\"name\":\"identifikator\",\"type\":\"string\"}," +
+                "{\"name\":\"gjelderPeriode\",\"type\":\"string\"}" +
+                "]}";
+        Schema.Parser parser = new Schema.Parser();
+        parser.parse(userSchema);
     }
 
     @Override
-    public void write(List<? extends InntektKafkaHendelseDto> list) throws Exception {
+    public void write(List<? extends InntektHendelse> list) throws Exception {
         LOG.info("Skriver {} hendelser", list.size());
 
-        for (InntektKafkaHendelseDto hendelse : list) {
+        for (InntektHendelse hendelse : list) {
             sendHendelse(hendelse);
         }
     }
 
-    public void sendHendelse(InntektKafkaHendelseDto hendelse) {
+    public void sendHendelse(InntektHendelse hendelse) {
         LOG.info("varlser hendelse='{}'", hendelse);
         kafkaTemplate.send("tortuga.inntektshendelser", hendelse);
     }

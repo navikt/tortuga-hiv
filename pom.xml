@@ -19,6 +19,7 @@
 
     <modules>
         <module>config</module>
+        <module>avro-schemas</module>
         <module>hiv</module>
         <module>hoi</module>
         <module>skatt</module>

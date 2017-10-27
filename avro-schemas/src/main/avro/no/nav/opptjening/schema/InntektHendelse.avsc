@@ -1,0 +1,15 @@
+{
+  "namespace": "no.nav.opptjening.schema",
+  "type": "record",
+  "name": "InntektHendelse",
+  "fields": [
+    {
+      "name": "identifikator",
+      "type": "string"
+    },
+    {
+      "name": "gjelderPeriode",
+      "type": "string"
+    }
+  ]
+}
