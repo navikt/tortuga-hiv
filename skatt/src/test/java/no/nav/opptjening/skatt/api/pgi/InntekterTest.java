@@ -1,51 +1,42 @@
 package no.nav.opptjening.skatt.api.pgi;
 
-import no.nav.opptjening.skatt.api.SkattErrorHandler;
+import no.nav.opptjening.skatt.api.pgi.Inntekter;
 import no.nav.opptjening.skatt.dto.InntektDto;
-import no.nav.opptjening.skatt.exceptions.MissingInntektException;
-import no.nav.opptjening.skatt.exceptions.UnmappedException;
+import no.nav.opptjening.skatt.exceptions.*;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 
 import static org.junit.Assert.fail;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 public class InntekterTest {
-    private static final String TEST_API_URL = "http://testapi:8080/api/inntekter";
-
-    private MockRestServiceServer mockServer;
+    @Rule
+    public MockWebServer server = new MockWebServer();
 
     private Inntekter inntekter;
 
-
     @Before
     public void setUp() throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setErrorHandler(new SkattErrorHandler());
-
-        this.inntekter = new Inntekter(TEST_API_URL, restTemplate);
-        this.mockServer = MockRestServiceServer.createServer(restTemplate);
+        this.inntekter = new Inntekter(server.url("/").toString());
     }
 
     @Test
     public void hentInntekt() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{\"personindentifikator\": \"12345\", \"inntektsaar\": \"2016\", \"pensjonsgivendeInntekt\": 150000}", MediaType.APPLICATION_JSON));
+        server.enqueue(new MockResponse()
+                .setBody("{\"personindentifikator\": \"12345\", \"inntektsaar\": \"2016\", \"pensjonsgivendeInntekt\": 150000}")
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+        );
 
         InntektDto result = inntekter.hentInntekt("2016", "12345");
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
 
         Assert.assertEquals("12345", result.getPersonindentfikator());
         Assert.assertEquals("2016", result.getInntektsaar());
@@ -54,25 +45,31 @@ public class InntekterTest {
 
     @Test
     public void hentInntektUnexpectedFormat() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess("{\"pensjonsgivendeInntekt\": 150000}", MediaType.APPLICATION_JSON));
+        server.enqueue(new MockResponse()
+                .setBody("{\"pensjonsgivendeInntekt\": 150000}")
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+        );
 
         try {
             InntektDto result = inntekter.hentInntekt("2016", "12345");
-            fail("Expected an HttpMessageNotReadableException to be thrown");
-        } catch (HttpMessageNotReadableException e) {
+            fail("Expected an ResponseMappingException to be thrown");
+        } catch (ResponseMappingException e) {
             // ok
         }
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
     }
 
     @Test
     public void hentInntektThrowsApiException() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withBadRequest().body("{\"kode\": \"PIA-006\", \"melding\": \"Fant ikke PGI for gitt inntektsår og identifikator\"}").contentType(MediaType.APPLICATION_JSON));
+        server.enqueue(new MockResponse()
+                .setBody("{\"kode\": \"PIA-006\", \"melding\": \"Fant ikke PGI for gitt inntektsår og identifikator\"}")
+                .setResponseCode(400)
+                .addHeader("Content-Type", "application/json")
+        );
 
         try {
             InntektDto result = inntekter.hentInntekt("2016", "12345");
@@ -81,54 +78,68 @@ public class InntekterTest {
             // ok
         }
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
     }
 
     @Test
     public void hentInntektThrowsUnmappable() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withBadRequest().body("{\"kode\": \"ZZ-001\", \"melding\": \"Denne feilkoden er ikke implementert\"}").contentType(MediaType.APPLICATION_JSON));
+        server.enqueue(new MockResponse()
+                .setBody("{\"kode\": \"ZZ-001\", \"melding\": \"Denne feilkoden er ikke implementert\"}")
+                .setResponseCode(400)
+                .addHeader("Content-Type", "application/json")
+        );
 
         try {
             InntektDto result = inntekter.hentInntekt("2016", "12345");
-            fail("Expected an UnmappedException to be thrown");
-        } catch (UnmappedException e) {
+            fail("Expected an UnknownException to be thrown");
+        } catch (UnknownException e) {
             // ok
         }
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
     }
 
     @Test
     public void hentInntektThrowsClientException() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withBadRequest().body("bad request").contentType(MediaType.TEXT_PLAIN));
+        server.enqueue(new MockResponse()
+                .setBody("bad request")
+                .setResponseCode(400)
+                .addHeader("Content-Type", "text/plan")
+        );
 
         try {
             InntektDto result = inntekter.hentInntekt("2016", "12345");
-            fail("Expected an HttpClientErrorException to be thrown");
-        } catch (HttpClientErrorException e) {
+            fail("Expected an ClientException to be thrown");
+        } catch (ClientException e) {
             // ok
         }
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
     }
 
     @Test
     public void hentInntektThrowsServerException() throws Exception {
-        mockServer.expect(requestTo(TEST_API_URL + "/2016/12345"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withServerError().body("internal server error").contentType(MediaType.TEXT_PLAIN));
+        server.enqueue(new MockResponse()
+                .setBody("internal server error")
+                .setResponseCode(500)
+                .addHeader("Content-Type", "text/plan")
+        );
 
         try {
             InntektDto result = inntekter.hentInntekt("2016", "12345");
-            fail("Expected an HttpServerErrorException to be thrown");
-        } catch (HttpServerErrorException e) {
+            fail("Expected an ServerException to be thrown");
+        } catch (ServerException e) {
             // ok
         }
 
-        mockServer.verify();
+        RecordedRequest request = server.takeRequest();
+        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("GET", request.getMethod());
     }
 }

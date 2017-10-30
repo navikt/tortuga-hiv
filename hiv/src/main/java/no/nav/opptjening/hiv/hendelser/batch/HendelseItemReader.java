@@ -2,6 +2,7 @@ package no.nav.opptjening.hiv.hendelser.batch;
 
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggEntry;
 import no.nav.opptjening.hiv.hendelser.support.BatchLoggService;
+import no.nav.opptjening.skatt.api.hendelser.Hendelser;
 import no.nav.opptjening.skatt.api.pgi.InntektHendelser;
 import no.nav.opptjening.skatt.dto.HendelseDto;
 import no.nav.opptjening.skatt.exceptions.ApiException;
@@ -27,7 +28,7 @@ public class HendelseItemReader implements ItemStreamReader<HendelseDto> {
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
-    private final InntektHendelser inntektHendelser;
+    private final Hendelser inntektHendelser;
 
     private long nextSekvensnummer;
 
@@ -37,7 +38,7 @@ public class HendelseItemReader implements ItemStreamReader<HendelseDto> {
 
     private Iterator<HendelseDto> hendelseIterator;
 
-    public HendelseItemReader(BatchLoggService service, InntektHendelser inntektHendelser) {
+    public HendelseItemReader(BatchLoggService service, Hendelser inntektHendelser) {
         this.service = service;
         this.inntektHendelser = inntektHendelser;
     }

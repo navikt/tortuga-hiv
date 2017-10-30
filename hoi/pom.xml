@@ -109,8 +109,8 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.opptjening</groupId>
-            <artifactId>skatt-consumer</artifactId>
+            <groupId>no.nav.opptjening.skatt</groupId>
+            <artifactId>skatt-client</artifactId>
             <version>1-SNAPSHOT</version>
         </dependency>
 

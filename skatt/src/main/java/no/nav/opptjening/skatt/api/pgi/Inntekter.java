@@ -1,21 +1,24 @@
 package no.nav.opptjening.skatt.api.pgi;
 
+import no.nav.opptjening.skatt.api.SkatteetatenClient;
 import no.nav.opptjening.skatt.dto.InntektDto;
-import org.springframework.web.client.RestTemplate;
+import retrofit2.Call;
 
 public class Inntekter {
 
-    private RestTemplate restTemplate;
+    private SkatteetatenClient skatteetatenClient;
 
-    private String endepunkt;
+    private InntektApi inntektApi;
 
-    public Inntekter(String endepunkt, RestTemplate restTemplate) {
-        this.endepunkt = endepunkt;
-        this.restTemplate = restTemplate;
+    public Inntekter(String endepunkt){
+        skatteetatenClient = new SkatteetatenClient(endepunkt);
+        inntektApi = skatteetatenClient.getInntektApi();
     }
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {
-        InntektBean inntektBean = restTemplate.getForObject(endepunkt + "/{inntektsaar}/{pid}", InntektBean.class, inntektsaar, personidentifikator);
+        Call<InntektBean> request = inntektApi.getInntekt(inntektsaar, personidentifikator);
+
+        InntektBean inntektBean = skatteetatenClient.call(request);
         return new InntektDto(inntektBean.getPersonindentifikator(), inntektBean.getInntektsaar(), inntektBean.getPensjonsgivendeInntekt());
     }
 }

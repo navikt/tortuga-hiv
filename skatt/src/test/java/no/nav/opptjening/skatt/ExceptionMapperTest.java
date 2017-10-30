@@ -2,12 +2,14 @@ package no.nav.opptjening.skatt;
 
 import no.nav.opptjening.skatt.dto.FeilmeldingDto;
 import no.nav.opptjening.skatt.exceptions.*;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
 
 public class ExceptionMapperTest {
 
@@ -52,9 +54,9 @@ public class ExceptionMapperTest {
             ApiException result = exceptionMapper.mapException(feilmeldingDto, null);
 
             if (expected == null) {
-                Assert.isNull(result, "Expected " + feilmeldingDto.getKode() + " to be null");
+                Assert.assertNull("Expected " + feilmeldingDto.getKode() + " to be null", result);
             } else {
-                Assert.isInstanceOf(expected, result, "Expected " + feilmeldingDto.getKode() + " to be instance of " + expected.getSimpleName());
+                Assert.assertThat(result, instanceOf(expected));
             }
         }
     }
