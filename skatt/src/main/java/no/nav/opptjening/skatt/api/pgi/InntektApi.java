@@ -6,6 +6,6 @@ import retrofit2.http.Path;
 
 public interface InntektApi {
 
-    @GET("/{inntektsaar}/{pid}")
+    @GET("/api/formueinntekt/pensjonsgivendeinntekt/{inntektsaar}/{pid}")
     Call<InntektBean> getInntekt(@Path("inntektsaar") String inntektsaar, @Path("pid") String pid);
 }

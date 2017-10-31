@@ -1,9 +1,13 @@
 package no.nav.opptjening.skatt.api;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import no.nav.opptjening.skatt.ExceptionMapper;
+import no.nav.opptjening.skatt.api.hendelser.Hendelser;
 import no.nav.opptjening.skatt.api.hendelser.HendelserApi;
 import no.nav.opptjening.skatt.api.pgi.InntektApi;
+import no.nav.opptjening.skatt.api.pgi.InntektHendelser;
+import no.nav.opptjening.skatt.api.pgi.Inntekter;
 import no.nav.opptjening.skatt.dto.FeilmeldingDto;
 import no.nav.opptjening.skatt.exceptions.*;
 import okhttp3.OkHttpClient;
@@ -33,11 +37,19 @@ public class SkatteetatenClient {
         this.exceptionMapper = new ExceptionMapper();
     }
 
-    public HendelserApi getHendelseApi() {
+    public Hendelser getInntektHendelser() {
+        return new InntektHendelser(this, getHendelseApi());
+    }
+
+    private HendelserApi getHendelseApi() {
         return retrofit.create(HendelserApi.class);
     }
 
-    public InntektApi getInntektApi() {
+    public Inntekter getInntekter() {
+        return new Inntekter(this, getInntektApi());
+    }
+
+    private InntektApi getInntektApi() {
         return retrofit.create(InntektApi.class);
     }
 
@@ -57,36 +69,30 @@ public class SkatteetatenClient {
             return response.body();
         }
 
-        String contentType = response.headers().get("Content-Type");
-        if (contentType == null || !"application/json".equals(contentType.toLowerCase())) {
-            try {
-                if (response.code() < 500) {
-                    throw new ClientException(response.code(), "Ukjent feil fra Skatteetaten: " + response.errorBody().string(), null);
-                } else {
-                    throw new ServerException(response.code(), "Ukjent feil fra Skatteetaten: " + response.errorBody().string(), null);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("IO-feil ved lesing av body", e);
-            }
-        }
-
         Converter<ResponseBody, FeilmeldingDto> errorConverter = retrofit.responseBodyConverter(
                 FeilmeldingDto.class, new Annotation[0]);
 
-        FeilmeldingDto error = null;
         try {
-            error = errorConverter.convert(response.errorBody());
+            FeilmeldingDto error = errorConverter.convert(response.errorBody());
+
+            ApiException ex = exceptionMapper.mapException(error, null);
+
+            if (ex == null) {
+                throw new UnknownException(response.code(),
+                        "Kunne ikke mappe FeilmeldingDto=" + error.toString() + " til ApiException pga ukjent feilkode", null);
+            }
+
+            throw ex;
+        } catch (JsonParseException e) {
+            // not valid JSON, continue
         } catch (IOException e) {
             throw new UnmappableException(response.code(), "Kunne ikke mappe respons til FeilmeldingDto", e);
         }
 
-        ApiException ex = exceptionMapper.mapException(error, null);
-
-        if (ex == null) {
-            throw new UnknownException(response.code(),
-                    "Kunne ikke mappe FeilmeldingDto=" + error.toString() + " til ApiException pga ukjent feilkode", null);
+        if (response.code() < 500) {
+            throw new ClientException(response.code(), "Ukjent feil fra Skatteetaten", null);
+        } else {
+            throw new ServerException(response.code(), "Ukjent feil fra Skatteetaten", null);
         }
-
-        throw ex;
     }
 }

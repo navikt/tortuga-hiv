@@ -10,9 +10,9 @@ public class Inntekter {
 
     private InntektApi inntektApi;
 
-    public Inntekter(String endepunkt){
-        skatteetatenClient = new SkatteetatenClient(endepunkt);
-        inntektApi = skatteetatenClient.getInntektApi();
+    public Inntekter(SkatteetatenClient skatteetatenClient, InntektApi inntektApi) {
+        this.skatteetatenClient = skatteetatenClient;
+        this.inntektApi = inntektApi;
     }
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {

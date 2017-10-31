@@ -8,26 +8,29 @@ import retrofit2.Call;
 import java.time.LocalDate;
 import java.util.List;
 
-public class Hendelser {
+public abstract class Hendelser {
 
     private SkatteetatenClient skatteetatenClient;
 
     private HendelserApi hendelserApi;
 
-    public Hendelser(String endepunkt){
-        skatteetatenClient = new SkatteetatenClient(endepunkt);
-        hendelserApi = skatteetatenClient.getHendelseApi();
+    protected Hendelser(SkatteetatenClient client, HendelserApi hendelserApi) {
+        this.skatteetatenClient = client;
+        this.hendelserApi = hendelserApi;
     }
 
+    protected abstract String getDomene();
+    protected abstract String getRessurs();
+
     public SekvensDto forsteSekvensEtter(LocalDate dato) {
-        Call<SekvensBean> request = hendelserApi.sekvensnummerEtter(dato);
+        Call<SekvensBean> request = hendelserApi.sekvensnummerEtter(getDomene(), getRessurs(), dato);
 
         SekvensBean sekvens = skatteetatenClient.call(request);
         return new SekvensDto(sekvens.getSekvensnummer());
     }
 
     public List<HendelseDto> getHendelser(long fraSekvens, int antall) {
-        Call<HendelseResponsBean> request = hendelserApi.getHendelser(fraSekvens, antall);
+        Call<HendelseResponsBean> request = hendelserApi.getHendelser(getDomene(), getRessurs(), fraSekvens, antall);
 
         HendelseResponsBean hendelseRespons = skatteetatenClient.call(request);
         return hendelseRespons.getHendelser();

@@ -1,6 +1,6 @@
 package no.nav.opptjening.skatt.api.pgi;
 
-import no.nav.opptjening.skatt.api.pgi.Inntekter;
+import no.nav.opptjening.skatt.api.SkatteetatenClient;
 import no.nav.opptjening.skatt.dto.InntektDto;
 import no.nav.opptjening.skatt.exceptions.*;
 import okhttp3.mockwebserver.MockResponse;
@@ -21,7 +21,8 @@ public class InntekterTest {
 
     @Before
     public void setUp() throws Exception {
-        this.inntekter = new Inntekter(server.url("/").toString());
+        SkatteetatenClient skatteetatenClient = new SkatteetatenClient(server.url("/").toString());
+        this.inntekter = skatteetatenClient.getInntekter();
     }
 
     @Test
@@ -35,7 +36,7 @@ public class InntekterTest {
         InntektDto result = inntekter.hentInntekt("2016", "12345");
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
         Assert.assertEquals("12345", result.getPersonindentfikator());
@@ -59,7 +60,7 @@ public class InntekterTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -79,7 +80,7 @@ public class InntekterTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -99,7 +100,7 @@ public class InntekterTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -119,7 +120,7 @@ public class InntekterTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -139,7 +140,7 @@ public class InntekterTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/2016/12345", request.getPath());
+        Assert.assertEquals("/api/formueinntekt/pensjonsgivendeinntekt/2016/12345", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 }
