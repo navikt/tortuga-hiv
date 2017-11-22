@@ -1,24 +1,18 @@
 package no.nav.opptjening.skatt.api.pgi;
 
-import no.nav.opptjening.skatt.api.SkatteetatenClient;
-import no.nav.opptjening.skatt.dto.InntektDto;
+import no.nav.opptjening.skatt.api.AbstractClient;
 import retrofit2.Call;
 
-public class Inntekter {
+public class Inntekter extends AbstractClient<InntektApi> {
 
-    private SkatteetatenClient skatteetatenClient;
-
-    private InntektApi inntektApi;
-
-    public Inntekter(SkatteetatenClient skatteetatenClient, InntektApi inntektApi) {
-        this.skatteetatenClient = skatteetatenClient;
-        this.inntektApi = inntektApi;
+    public Inntekter(String endepunkt) {
+        super(endepunkt, InntektApi.class);
     }
 
     public InntektDto hentInntekt(String inntektsaar, String personidentifikator) {
-        Call<InntektBean> request = inntektApi.getInntekt(inntektsaar, personidentifikator);
+        Call<InntektBean> request = getApi().getInntekt(inntektsaar, personidentifikator);
 
-        InntektBean inntektBean = skatteetatenClient.call(request);
+        InntektBean inntektBean = call(request);
         return new InntektDto(inntektBean.getPersonindentifikator(), inntektBean.getInntektsaar(), inntektBean.getPensjonsgivendeInntekt());
     }
 }

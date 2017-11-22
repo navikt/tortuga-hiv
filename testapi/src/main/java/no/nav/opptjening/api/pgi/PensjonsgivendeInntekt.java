@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/formueinntekt/pensjonsgivendeinntekt/{inntektsaar}/{personidentifikator}")
+@RequestMapping("/ekstern/skatt/datasamarbeid/api/formueinntekt/pensjonsgivendeinntekt/{inntektsaar}/{personidentifikator}")
 public class PensjonsgivendeInntekt {
 
     private InntektService service;

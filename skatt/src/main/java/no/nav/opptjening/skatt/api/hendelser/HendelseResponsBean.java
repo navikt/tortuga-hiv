@@ -2,23 +2,23 @@ package no.nav.opptjening.skatt.api.hendelser;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import no.nav.opptjening.skatt.dto.HendelseDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 class HendelseResponsBean {
 
-    private List<HendelseBean> hendelser;
+    private List<HendelseDto> hendelser;
 
     @JsonCreator
     HendelseResponsBean(@JsonProperty(value = "hendelser", required = true) List<HendelseBean> hendelser) {
-        this.hendelser = hendelser;
+        this.hendelser = hendelser.stream()
+                .map(hendelseBean -> new HendelseDto(hendelseBean.getSekvensnummer(),
+                        hendelseBean.getIdentifikator(), hendelseBean.getGjelderPeriode()))
+                .collect(Collectors.toList());
     }
 
     List<HendelseDto> getHendelser() {
-        return hendelser.stream()
-                .map(h -> new HendelseDto(h.getSekvensnummer(), h.getIdentifikator(), h.getGjelderPeriode()))
-                .collect(Collectors.toList());
+        return hendelser;
     }
 }

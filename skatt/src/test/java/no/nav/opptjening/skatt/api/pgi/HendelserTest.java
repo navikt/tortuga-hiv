@@ -1,10 +1,9 @@
 package no.nav.opptjening.skatt.api.pgi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.opptjening.skatt.api.SkatteetatenClient;
 import no.nav.opptjening.skatt.api.hendelser.Hendelser;
-import no.nav.opptjening.skatt.dto.HendelseDto;
-import no.nav.opptjening.skatt.dto.SekvensDto;
+import no.nav.opptjening.skatt.api.hendelser.HendelseDto;
+import no.nav.opptjening.skatt.api.hendelser.SekvensDto;
 import no.nav.opptjening.skatt.exceptions.*;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -30,8 +29,7 @@ public class HendelserTest {
 
     @Before
     public void setUp() throws Exception {
-        SkatteetatenClient skatteetatenClient = new SkatteetatenClient(server.url("/").toString());
-        this.hendelser = skatteetatenClient.getInntektHendelser();
+        this.hendelser = new InntektHendelser(server.url("/").toString());
     }
 
     @Test
@@ -46,7 +44,7 @@ public class HendelserTest {
         SekvensDto result = hendelser.forsteSekvensEtter(date);
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
         Assert.assertEquals(10, result.getSekvensnummer());
@@ -69,7 +67,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -90,7 +88,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -113,7 +111,7 @@ public class HendelserTest {
         List<HendelseDto> result = hendelser.getHendelser(10, 1000);
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
         Assert.assertEquals(2, result.size());
@@ -143,7 +141,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -163,7 +161,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -183,7 +181,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -203,7 +201,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 
@@ -223,7 +221,7 @@ public class HendelserTest {
         }
 
         RecordedRequest request = server.takeRequest();
-        Assert.assertEquals("/api/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
+        Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
     }
 }

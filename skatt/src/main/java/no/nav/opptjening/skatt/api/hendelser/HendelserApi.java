@@ -9,11 +9,11 @@ import java.time.LocalDate;
 
 public interface HendelserApi {
 
-    @GET("/api/{domene}/{ressurs}/hendelser/start")
+    @GET("{domene}/{ressurs}/hendelser/start")
     Call<SekvensBean> sekvensnummerEtter(@Path("domene") String domene, @Path("ressurs") String ressurs,
                                          @Query("dato") LocalDate dato);
 
-    @GET("/api/{domene}/{ressurs}/hendelser")
+    @GET("{domene}/{ressurs}/hendelser")
     Call<HendelseResponsBean> getHendelser(@Path("domene") String domene, @Path("ressurs") String ressurs,
                                            @Query("fraSekvensnummer") long fraSekvens, @Query("antall") int antall);
 }

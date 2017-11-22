@@ -1,6 +1,6 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.skatt.dto.FeilmeldingDto;
+import no.nav.opptjening.skatt.api.FeilmeldingDto;
 import no.nav.opptjening.skatt.exceptions.*;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,8 +1,8 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.schema.InntektHendelse;
+import no.nav.opptjening.schema.Hendelse;
 import no.nav.opptjening.skatt.api.pgi.Inntekter;
-import no.nav.opptjening.skatt.dto.InntektDto;
+import no.nav.opptjening.skatt.api.pgi.InntektDto;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,8 @@ public class InntektHendelseConsumer {
     }
 
     @KafkaListener(topics = "tortuga.inntektshendelser")
-    public void mottaHendelse(ConsumerRecord<String, InntektHendelse> record) {
-        InntektHendelse hendelse = record.value();
+    public void mottaHendelse(ConsumerRecord<String, Hendelse> record) {
+        Hendelse hendelse = record.value();
         LOG.info("HOI haandterer hendelse={}", hendelse);
 
         try {

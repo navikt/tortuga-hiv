@@ -1,4 +1,4 @@
-package no.nav.opptjening.skatt.dto;
+package no.nav.opptjening.skatt.api.pgi;
 
 public class InntektDto {
 

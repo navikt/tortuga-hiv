@@ -1,13 +1,11 @@
 package no.nav.opptjening.skatt.api.pgi;
 
-import no.nav.opptjening.skatt.api.SkatteetatenClient;
 import no.nav.opptjening.skatt.api.hendelser.Hendelser;
-import no.nav.opptjening.skatt.api.hendelser.HendelserApi;
 
 public class InntektHendelser extends Hendelser {
 
-    public InntektHendelser(SkatteetatenClient client, HendelserApi hendelserApi) {
-        super(client, hendelserApi);
+    public InntektHendelser(String endepunkt) {
+        super(endepunkt);
     }
 
     @Override

@@ -1,7 +1,7 @@
 {
   "namespace": "no.nav.opptjening.schema",
   "type": "record",
-  "name": "InntektHendelse",
+  "name": "Hendelse",
   "fields": [
     {
       "name": "identifikator",
@@ -10,6 +10,10 @@
     {
       "name": "gjelderPeriode",
       "type": "string"
+    },
+    {
+      "name": "sekvensnummer",
+      "type": "long"
     }
   ]
 }
