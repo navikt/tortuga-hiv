@@ -1,7 +1,6 @@
 package no.nav.opptjening.hiv.hendelser;
 
 import no.nav.opptjening.schema.Hendelse;
-import no.nav.opptjening.schema.HendelseOffset;
 import no.nav.opptjening.skatt.api.hendelser.Hendelser;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -28,67 +27,54 @@ public class HendelsePoller {
 
     private final Hendelser inntektHendelser;
 
-    private final ConsumerFactory<String, HendelseOffset> consumerFactory;
+    private final ConsumerFactory<String, Long> consumerFactory;
     private final KafkaTemplate<String, Hendelse> kafkaTemplate;
-    private final KafkaTemplate<String, HendelseOffset> kafkaOffsetTemplate;
+    private final KafkaTemplate<String, Long> kafkaOffsetTemplate;
+
+    private Consumer<String, Long> consumer;
 
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
-    /* TODO: read and write this number on a Kafka queue to manage offsets */
-    private long nextSekvensnummer = 0;
-
-    public HendelsePoller(Hendelser inntektHendelser, ConsumerFactory<String, HendelseOffset> consumerFactory, KafkaTemplate<String, Hendelse> kafkaTemplate, KafkaTemplate<String, HendelseOffset> kafkaOffsetTemplate) {
+    public HendelsePoller(Hendelser inntektHendelser, ConsumerFactory<String, Long> consumerFactory, KafkaTemplate<String, Hendelse> kafkaTemplate, KafkaTemplate<String, Long> kafkaOffsetTemplate) {
         this.inntektHendelser = inntektHendelser;
         this.consumerFactory = consumerFactory;
         this.kafkaTemplate = kafkaTemplate;
         this.kafkaOffsetTemplate = kafkaOffsetTemplate;
     }
 
-    private long initializeSekvensnummer(String topic) {
-        Consumer<String, HendelseOffset> consumer = consumerFactory.createConsumer();
-
+    private long initializeSekvensnummer(Consumer<String, Long> consumer, String topic) {
         TopicPartition partition = new TopicPartition(topic, 0);
         consumer.assign(Collections.singletonList(partition));
-
-        consumer.seekToEnd(Collections.singletonList(partition));
 
         long offset = consumer.position(partition);
 
         LOG.info("Current offset is {}", offset);
 
-        if (offset == 0) {
-            return 1;
-        }
-
-        consumer.seek(partition, offset - 2);
-
-        offset = consumer.position(new TopicPartition(topic, 0));
-        LOG.info("Offset after seek is {}", offset);
-
-        ConsumerRecords<String, HendelseOffset> consumerRecords = consumer.poll(1000);
+        ConsumerRecords<String, Long> consumerRecords = consumer.poll(1000);
 
         offset = consumer.position(new TopicPartition(topic, 0));
         LOG.info("Offset after poll is {}", offset);
 
-        Iterable<ConsumerRecord<String, HendelseOffset>> records = consumerRecords.records(topic);
+        Iterable<ConsumerRecord<String, Long>> records = consumerRecords.records(topic);
 
-        long sekvensnummer = 0;
-        for (ConsumerRecord<String, HendelseOffset> rec : records) {
-            LOG.info("Record offset={} key={} value={}", rec.offset(), rec.key(), rec.value().getSekvensnummer());
+        long sekvensnummer = 1;
+        for (ConsumerRecord<String, Long> rec : records) {
+            LOG.info("Record offset={} key={} value={}", rec.offset(), rec.key(), rec.value());
 
-            sekvensnummer = rec.value().getSekvensnummer();
+            sekvensnummer = rec.value();
         }
-        consumer.close();
+
         return sekvensnummer;
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
     public void poll() {
-
-        if (nextSekvensnummer == 0) {
-            nextSekvensnummer = initializeSekvensnummer("tortuga.inntektshendelser.offsets");
+        if (consumer == null) {
+            consumer = consumerFactory.createConsumer();
         }
+
+        long nextSekvensnummer = initializeSekvensnummer(consumer,"tortuga.inntektshendelser.offsets");
 
         List<Hendelse> hendelser;
 
@@ -102,12 +88,12 @@ public class HendelsePoller {
                             .setGjelderPeriode(hendelseDto.getGjelderPeriode())
                             .build())
                     .collect(Collectors.toList());
-
-            sendHendelser(hendelser);
         } catch (EmptyResultException e) {
             /* do nothing */
+            return;
         } catch (Exception e) {
             LOG.error("Feil ved polling av hendelser", e);
+            return;
             /*
                 throws                          when
                 ResponseMappingException        Kan ikke mappe et OK JSON-resultat til HendelseDto
@@ -119,21 +105,25 @@ public class HendelsePoller {
                 subklasse av ApiException       vi har mappet en FeilmeldingDto til ApiException
              */
         }
+
+        try {
+            sendHendelser(hendelser);
+
+            nextSekvensnummer = hendelser.get(hendelser.size() - 1).getSekvensnummer() + 1;
+            kafkaOffsetTemplate.send("tortuga.inntektshendelser.offsets", "offset", nextSekvensnummer);
+
+            LOG.info("Committing consumer offset");
+            consumer.commitSync();
+        } catch (Exception e) {
+            LOG.error("Feil ved sending av melding", e);
+        }
     }
 
     @Transactional
     protected void sendHendelser(List<Hendelse> hendelser) {
-        try {
-            for (Hendelse hendelse : hendelser) {
-                LOG.info("varslet hendelse={}", hendelse);
-                kafkaTemplate.send("tortuga.inntektshendelser", 0, null, hendelse);
-            }
-
-            nextSekvensnummer = hendelser.get(hendelser.size() - 1).getSekvensnummer() + 1;
-            kafkaOffsetTemplate.send("tortuga.inntektshendelser.offsets", HendelseOffset.newBuilder()
-                    .setSekvensnummer(nextSekvensnummer).build());
-        } catch (Exception e) {
-            LOG.error("Feil ved sending av melding", e);
+        for (Hendelse hendelse : hendelser) {
+            LOG.info("varslet hendelse={}", hendelse);
+            kafkaTemplate.send("tortuga.inntektshendelser", 0, null, hendelse);
         }
     }
 }
