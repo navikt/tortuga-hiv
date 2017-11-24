@@ -1,0 +1,11 @@
+{
+  "namespace": "no.nav.opptjening.schema",
+  "type": "record",
+  "name": "HendelseOffset",
+  "fields": [
+    {
+      "name": "sekvensnummer",
+      "type": "long"
+    }
+  ]
+}
