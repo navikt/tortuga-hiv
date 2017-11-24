@@ -6,6 +6,7 @@ import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,13 +44,23 @@ public class HendelsePoller {
         this.kafkaOffsetTemplate = kafkaOffsetTemplate;
     }
 
-    private long initializeSekvensnummer(Consumer<String, Long> consumer, String topic) {
+    private long getNextSekvensnummer(Consumer<String, Long> consumer, String topic) {
         TopicPartition partition = new TopicPartition(topic, 0);
         consumer.assign(Collections.singletonList(partition));
 
         long offset = consumer.position(partition);
-
         LOG.info("Current offset is {}", offset);
+
+        // seek to last committed offset, because poll() will continue
+        // from the last polled offset (even though it's uncommitted)
+        OffsetAndMetadata committed = consumer.committed(partition);
+        if (committed == null) {
+            // first-run?
+            return 1;
+        }
+
+        consumer.seek(partition, committed.offset());
+        LOG.info("Offset after seekToEnd is {}", offset);
 
         ConsumerRecords<String, Long> consumerRecords = consumer.poll(1000);
 
@@ -65,6 +76,8 @@ public class HendelsePoller {
             sekvensnummer = rec.value();
         }
 
+        // TODO: assert that sekvensnummer != 1?
+
         return sekvensnummer;
     }
 
@@ -74,7 +87,7 @@ public class HendelsePoller {
             consumer = consumerFactory.createConsumer();
         }
 
-        long nextSekvensnummer = initializeSekvensnummer(consumer,"tortuga.inntektshendelser.offsets");
+        long nextSekvensnummer = getNextSekvensnummer(consumer,"tortuga.inntektshendelser.offsets");
 
         List<Hendelse> hendelser;
 
@@ -111,6 +124,8 @@ public class HendelsePoller {
 
             nextSekvensnummer = hendelser.get(hendelser.size() - 1).getSekvensnummer() + 1;
             kafkaOffsetTemplate.send("tortuga.inntektshendelser.offsets", "offset", nextSekvensnummer);
+
+            // TODO: what if kafkaOffsetTemplate hasn't completed sending?
 
             LOG.info("Committing consumer offset");
             consumer.commitSync();
