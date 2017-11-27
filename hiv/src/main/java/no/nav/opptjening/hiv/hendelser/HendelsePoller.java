@@ -1,25 +1,25 @@
 package no.nav.opptjening.hiv.hendelser;
 
 import no.nav.opptjening.schema.Hendelse;
+import no.nav.opptjening.skatt.api.hendelser.HendelseDto;
 import no.nav.opptjening.skatt.api.hendelser.Hendelser;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.ConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.concurrent.Future;
 
 @Component
 public class HendelsePoller {
@@ -28,117 +28,121 @@ public class HendelsePoller {
 
     private final Hendelser inntektHendelser;
 
-    private final ConsumerFactory<String, Long> consumerFactory;
-    private final KafkaTemplate<String, Hendelse> kafkaTemplate;
-    private final KafkaTemplate<String, Long> kafkaOffsetTemplate;
-
-    private Consumer<String, Long> consumer;
+    private final Producer<String, Long> offsetProducer;
+    private final Consumer<String, Long> offsetConsumer;
+    private final Producer<String, Hendelse> hendelseProducer;
+    private final TopicPartition offsetPartition;
 
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
-    public HendelsePoller(Hendelser inntektHendelser, ConsumerFactory<String, Long> consumerFactory, KafkaTemplate<String, Hendelse> kafkaTemplate, KafkaTemplate<String, Long> kafkaOffsetTemplate) {
+    private boolean initialized;
+
+    @Value("${hiv.initialize:false}")
+    private boolean shouldInitialize;
+
+    private ConsumerRecord<String, Long> currentSekvensnummerRecord = null;
+
+    public HendelsePoller(Hendelser inntektHendelser, Producer<String, Hendelse> hendelseProducer,
+                          Producer<String, Long> offsetProducer, Consumer<String, Long> offsetConsumer) {
         this.inntektHendelser = inntektHendelser;
-        this.consumerFactory = consumerFactory;
-        this.kafkaTemplate = kafkaTemplate;
-        this.kafkaOffsetTemplate = kafkaOffsetTemplate;
+
+        this.hendelseProducer = hendelseProducer;
+        this.offsetProducer = offsetProducer;
+        this.offsetConsumer = offsetConsumer;
+
+        offsetPartition = new TopicPartition("tortuga.inntektshendelser.offsets", 0);
+        offsetConsumer.assign(Collections.singletonList(offsetPartition));
     }
 
-    private long getNextSekvensnummer(Consumer<String, Long> consumer, String topic) {
-        TopicPartition partition = new TopicPartition(topic, 0);
-        consumer.assign(Collections.singletonList(partition));
+    private ConsumerRecord<String, Long> getNextSekvensnummer(Consumer<String, Long> consumer, TopicPartition partition) {
+        LOG.info("Polling for messages, position = {}", consumer.position(partition));
 
-        long offset = consumer.position(partition);
-        LOG.info("Current offset is {}", offset);
+        ConsumerRecords<String, Long> consumerRecords = consumer.poll(500);
 
-        // seek to last committed offset, because poll() will continue
-        // from the last polled offset (even though it's uncommitted)
-        OffsetAndMetadata committed = consumer.committed(partition);
-        if (committed == null) {
-            // first-run?
-            return 1;
+        if (consumerRecords.isEmpty()) {
+            throw new IllegalStateException("Poll returned zero elements");
         }
 
-        consumer.seek(partition, committed.offset());
-        LOG.info("Offset after seekToEnd is {}", offset);
+        LOG.info("Got {} messages", consumerRecords.count());
+        List<ConsumerRecord<String, Long>> records = consumerRecords.records(partition);
+        int count = records.size();
 
-        ConsumerRecords<String, Long> consumerRecords = consumer.poll(1000);
+        ConsumerRecord<String, Long> last = records.get(count - 1);
 
-        offset = consumer.position(new TopicPartition(topic, 0));
-        LOG.info("Offset after poll is {}", offset);
+        LOG.info("Poll returned: offset = {}, value = {}", last.offset(), last.value());
 
-        Iterable<ConsumerRecord<String, Long>> records = consumerRecords.records(topic);
-
-        long sekvensnummer = 1;
-        for (ConsumerRecord<String, Long> rec : records) {
-            LOG.info("Record offset={} key={} value={}", rec.offset(), rec.key(), rec.value());
-
-            sekvensnummer = rec.value();
-        }
-
-        // TODO: assert that sekvensnummer != 1?
-
-        return sekvensnummer;
+        return last;
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
-    public void poll() {
-        if (consumer == null) {
-            consumer = consumerFactory.createConsumer();
-        }
-
-        long nextSekvensnummer = getNextSekvensnummer(consumer,"tortuga.inntektshendelser.offsets");
-
-        List<Hendelse> hendelser;
-
+    private void poll() {
         try {
-            LOG.info("Ser etter nye hendelser fra sekvensnummer = {}", nextSekvensnummer);
+            // TODO: remove initialization
+            if (shouldInitialize && !initialized) {
+                LOG.info("Initializing with sekvensnummer=1");
 
-            hendelser = inntektHendelser.getHendelser(nextSekvensnummer, maxHendelserPerRequest).stream()
-                    .map(hendelseDto -> Hendelse.newBuilder()
-                            .setSekvensnummer(hendelseDto.getSekvensnummer())
-                            .setIdentifikator(hendelseDto.getIdentifikator())
-                            .setGjelderPeriode(hendelseDto.getGjelderPeriode())
-                            .build())
-                    .collect(Collectors.toList());
-        } catch (EmptyResultException e) {
-            /* do nothing */
-            return;
+                try {
+                    Future<RecordMetadata> meta = offsetProducer.send(new ProducerRecord<>(offsetPartition.topic(),
+                            offsetPartition.partition(), "offset", 1L));
+                    LOG.info("Flushing OffsetProducer");
+                    offsetProducer.flush();
+
+                    LOG.info("done: = {}, cancelled = {}, record = {}, offset = {}, value = {}", meta.isDone(), meta.isCancelled(), meta.get(), meta.get().offset());
+
+                    offsetConsumer.seekToBeginning(Collections.singletonList(offsetPartition));
+
+                    initialized = true;
+                } catch (Exception e) {
+                    LOG.error("Error while initializing topic", e);
+                }
+            }
+
+            try {
+                // poll only when we have committed something
+                if (currentSekvensnummerRecord == null) {
+                    LOG.info("Polling for new offset record");
+                    currentSekvensnummerRecord = getNextSekvensnummer(offsetConsumer, offsetPartition);
+                }
+            } catch (IllegalStateException e) {
+                LOG.error(e.getMessage());
+                return;
+            }
+
+            try {
+                long lastSentSekvensnummer = handleSekvensnummer(currentSekvensnummerRecord.value());
+
+                // we have now produced x messages from [nextSekvensnummer, nextSekvensnummer + x>
+                offsetProducer.send(new ProducerRecord<>(offsetPartition.topic(), offsetPartition.partition(),
+                        "offset", lastSentSekvensnummer + 1));
+                offsetConsumer.commitAsync();
+
+                currentSekvensnummerRecord = null;
+            } catch (EmptyResultException e) {
+                LOG.info("Empty result, waiting before trying again");
+            }
         } catch (Exception e) {
-            LOG.error("Feil ved polling av hendelser", e);
-            return;
-            /*
-                throws                          when
-                ResponseMappingException        Kan ikke mappe et OK JSON-resultat til HendelseDto
-                RuntimeException                IOException
-                UnmappableException             Kunne ikke mappe error-respons til FeilmeldingDto
-                UnknownException                Kunne ikke mappe FeilmeldingDto til ApiException pga ukjent feilkode
-                ClientException                 code = 4xx
-                ServerException                 code = 5xx
-                subklasse av ApiException       vi har mappet en FeilmeldingDto til ApiException
-             */
-        }
+            LOG.error("Uh oh", e);
 
-        try {
-            sendHendelser(hendelser);
-
-            nextSekvensnummer = hendelser.get(hendelser.size() - 1).getSekvensnummer() + 1;
-            kafkaOffsetTemplate.send("tortuga.inntektshendelser.offsets", "offset", nextSekvensnummer);
-
-            // TODO: what if kafkaOffsetTemplate hasn't completed sending?
-
-            LOG.info("Committing consumer offset");
-            consumer.commitSync();
-        } catch (Exception e) {
-            LOG.error("Feil ved sending av melding", e);
+            throw e;
         }
     }
 
-    @Transactional
-    protected void sendHendelser(List<Hendelse> hendelser) {
-        for (Hendelse hendelse : hendelser) {
-            LOG.info("varslet hendelse={}", hendelse);
-            kafkaTemplate.send("tortuga.inntektshendelser", 0, null, hendelse);
+    private long handleSekvensnummer(long sekvensnummer) {
+        List<HendelseDto> hendelser = inntektHendelser.getHendelser(sekvensnummer, maxHendelserPerRequest);
+
+        for (HendelseDto hendelse : hendelser) {
+            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", null, Hendelse.newBuilder()
+                    .setSekvensnummer(hendelse.getSekvensnummer())
+                    .setIdentifikator(hendelse.getIdentifikator())
+                    .setGjelderPeriode(hendelse.getGjelderPeriode())
+                    .build()));
         }
+
+        LOG.info("Flushing HendelseProducer");
+        hendelseProducer.flush();
+
+        // TODO: assume latest entry is largest sekvensnummer?
+        return hendelser.get(hendelser.size() - 1).getSekvensnummer();
     }
 }

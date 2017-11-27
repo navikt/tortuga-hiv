@@ -8,11 +8,10 @@ DIR_NAME=$(basename $SCRIPT_PATH)
 
 docker run \
     -e LOGGING_CONFIG=classpath:logback-docker.xml \
-    -e SPRING_DATASOURCE_URL=jdbc:h2:file:/hiv/hivdb \
-    -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
-    -e HIV_CHUNK_SIZE=1 \
-    -v ${SCRIPT_PATH}/hiv:/hiv \
-    --link ${DIR_NAME}_kafka_1:kafka \
-    --link ${DIR_NAME}_testapi_1:testapi \
+    -e HIV_HENDELSER_PER_REQUEST=10 \
+    -e HIV_INITIALIZE=false \
+    -e KAFKA_BOOTSTRAP_SERVERS=broker:9092 \
+    -e SCHEMA_REGISTRY_URL=http://schema_registry:8081 \
+    -e SKATT_API_URL=http://testapi:8080/ekstern/skatt/datasamarbeid/api/ \
     --network=${DIR_NAME}_default \
     navikt/tortuga-hiv
