@@ -49,7 +49,7 @@ public class InntektHendelseConsumer {
                         .setIdentifikator(inntekt.getPersonindentfikator())
                         .setPensjonsgivendeInntekt(inntekt.getPensjonsgivendeInntekt())
                         .build()));
-                }
+            }
 
             hendelseConsumer.commitAsync();
         } catch (Exception e) {
