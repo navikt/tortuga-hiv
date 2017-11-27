@@ -48,8 +48,7 @@ public class KafkaConfiguration {
         configs.put(ConsumerConfig.GROUP_ID_CONFIG, "hiv-consumer-group");
         //configs.put(ConsumerConfig.CLIENT_ID_CONFIG, "client-id2");
         configs.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        configs.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
+        configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new KafkaConsumer<>(configs);
     }

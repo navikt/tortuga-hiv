@@ -89,9 +89,6 @@ public class HendelsePoller {
                     offsetProducer.flush();
 
                     LOG.info("done: = {}, cancelled = {}, record = {}, offset = {}, value = {}", meta.isDone(), meta.isCancelled(), meta.get(), meta.get().offset());
-
-                    offsetConsumer.seekToBeginning(Collections.singletonList(offsetPartition));
-
                     initialized = true;
                 } catch (Exception e) {
                     LOG.error("Error while initializing topic", e);
