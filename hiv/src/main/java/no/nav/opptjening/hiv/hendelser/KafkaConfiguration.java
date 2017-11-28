@@ -104,6 +104,7 @@ public class KafkaConfiguration {
         configs.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaUrl);
 
         configs.put(ProducerConfig.ACKS_CONFIG, "all");
+        configs.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
         return new KafkaProducer<>(configs);
     }
