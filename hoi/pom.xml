@@ -109,7 +109,7 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.opptjening.skatt</groupId>
+            <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
             <version>1-SNAPSHOT</version>
         </dependency>
@@ -150,7 +150,7 @@
                 </executions>
                 <configuration>
                     <repository>navikt/tortuga-hoi</repository>
-                    <tag>latest</tag>
+                    <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>

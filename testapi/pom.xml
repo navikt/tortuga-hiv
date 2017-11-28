@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>no.nav.opptjening.api</groupId>
+    <groupId>no.nav.opptjening</groupId>
     <artifactId>testapi</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -126,7 +126,7 @@
                 </executions>
                 <configuration>
                     <repository>navikt/tortuga-testapi</repository>
-                    <tag>latest</tag>
+                    <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>
