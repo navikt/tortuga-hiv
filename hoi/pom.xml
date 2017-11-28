@@ -5,7 +5,7 @@
 
     <groupId>no.nav.opptjening</groupId>
     <artifactId>hoi</artifactId>
-    <version>4</version>
+    <version>5</version>
     <packaging>jar</packaging>
 
     <name>hoi</name>
@@ -105,19 +105,19 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>config</artifactId>
-            <version>4</version>
+            <version>5</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
-            <version>4</version>
+            <version>5</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>avro-schemas</artifactId>
-            <version>4</version>
+            <version>5</version>
         </dependency>
 
         <!-- test -->
