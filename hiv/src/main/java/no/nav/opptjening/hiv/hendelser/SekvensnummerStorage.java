@@ -1,9 +1,6 @@
 package no.nav.opptjening.hiv.hendelser;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -33,9 +30,14 @@ public class SekvensnummerStorage {
 
     public long getSekvensnummer() {
         if (currentSekvensnummerRecord == null) {
-            currentSekvensnummerRecord = getNextSekvensnummer();
-
-            LOG.info("Returning offset = {}, value = {}", currentSekvensnummerRecord.offset(), currentSekvensnummerRecord.value());
+            try {
+                currentSekvensnummerRecord = getNextSekvensnummer();
+                LOG.info("Returning offset = {}, value = {}", currentSekvensnummerRecord.offset(), currentSekvensnummerRecord.value());
+            } catch (NoOffsetForPartitionException e) {
+                // TODO: there must be a better way of doing this
+                consumer.seekToBeginning(Collections.singletonList(partition));
+                throw e;
+            }
         }
 
         return currentSekvensnummerRecord.value();
@@ -56,6 +58,7 @@ public class SekvensnummerStorage {
     }
 
     public void persistSekvensnummer(long sekvensnummer) {
+        LOG.info("Producing sekvensnummer record with value={}", sekvensnummer);
         producer.send(new ProducerRecord<>(partition.topic(), partition.partition(),
                 "offset", sekvensnummer + 1), (recordMetadata, e) -> {
             if (e != null) {
@@ -65,7 +68,7 @@ public class SekvensnummerStorage {
 
                 LOG.error("Error during sekvensnummer producing. Rolling back to offset {}", e, offset);
             } else {
-                // commit everyting up to the above message, so that it is the
+                // commit everything up to the above message, so that it is the
                 // next record to be returned by poll()
                 consumer.commitAsync(Collections.singletonMap(partition, new OffsetAndMetadata(recordMetadata.offset())), (offsets, exception) -> {
                     if (exception != null) {
@@ -73,6 +76,8 @@ public class SekvensnummerStorage {
                         // - the above produced record will still be returned by poll()
                         // - if the consumer dies, it will continue from the last committed offset and produce a (hopefully) small amount of duplicates
                         LOG.error("Error during syncing of offsets", exception);
+                    } else {
+                        LOG.info("Sekvensnummer offsets synced OK");
                     }
                 });
             }

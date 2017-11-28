@@ -9,7 +9,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,23 +50,7 @@ public class KafkaConfiguration {
 
     @Bean
     public SekvensnummerStorage sekvensnummerStorage(Producer<String, Long> producer, Consumer<String, Long> consumer) {
-        TopicPartition partition = new TopicPartition("tortuga.inntektshendelser.offsets", 0);
-        SekvensnummerStorage storage = new SekvensnummerStorage(producer, consumer, partition);
-
-        // TODO: remove initialization
-        if (shouldInitialize && !initialized) {
-            LOG.info("Initializing with sekvensnummer=1");
-
-            try {
-                producer.send(new ProducerRecord<>(partition.topic(), partition.partition(), "offset", 1L));
-                consumer.seekToBeginning(Collections.singletonList(partition));
-                initialized = true;
-            } catch (Exception e) {
-                LOG.error("Error while initializing topic", e);
-            }
-        }
-
-        return storage;
+        return new SekvensnummerStorage(producer, consumer, new TopicPartition("tortuga.inntektshendelser.offsets", 0));
     }
 
     @Bean
@@ -80,6 +62,7 @@ public class KafkaConfiguration {
         configs.put(ConsumerConfig.GROUP_ID_CONFIG, "hiv-consumer-group");
         //configs.put(ConsumerConfig.CLIENT_ID_CONFIG, "client-id2");
         configs.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none");
 
         return new KafkaConsumer<>(configs);
     }

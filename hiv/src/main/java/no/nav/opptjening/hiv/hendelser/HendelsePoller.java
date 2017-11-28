@@ -4,6 +4,7 @@ import no.nav.opptjening.schema.Hendelse;
 import no.nav.opptjening.skatt.api.hendelser.HendelseDto;
 import no.nav.opptjening.skatt.api.hendelser.Hendelser;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;
+import org.apache.kafka.clients.consumer.NoOffsetForPartitionException;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -37,11 +38,22 @@ public class HendelsePoller {
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
     private void poll() {
         try {
+            long nextSekvensnummer;
             try {
-                long lastSentSekvensnummer = handleSekvensnummer(sekvensnummerStorage.getSekvensnummer());
-                sekvensnummerStorage.persistSekvensnummer(lastSentSekvensnummer);
+                nextSekvensnummer = sekvensnummerStorage.getSekvensnummer();
+            } catch (NoOffsetForPartitionException e) {
+                LOG.error("First run for consumer, setting sekvensnummer to 1", e);
+
+                // TODO: there must be a better way of doing this
+                nextSekvensnummer = 1;
             } catch (IllegalStateException e) {
                 LOG.error(e.getMessage());
+                return;
+            }
+
+            try {
+                long lastSentSekvensnummer = handleSekvensnummer(nextSekvensnummer);
+                sekvensnummerStorage.persistSekvensnummer(lastSentSekvensnummer);
             } catch (EmptyResultException e) {
                 LOG.info("Empty result, waiting before trying again");
             }
