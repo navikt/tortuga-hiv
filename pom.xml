@@ -5,7 +5,7 @@
 
     <groupId>no.nav.opptjening</groupId>
     <artifactId>tortuga</artifactId>
-    <version>3</version>
+    <version>4</version>
     <packaging>pom</packaging>
 
     <name>tortuga</name>
