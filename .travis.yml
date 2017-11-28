@@ -13,6 +13,8 @@ addons:
       - docker-ce
 before_install:
 - curl -sL https://github.com/nais/naisd/releases/download/127.0.0/nais-127.0.0-linux-amd64.xz | xz -d > nais && chmod +x nais
+- git config user.name navikt-ci
+- git config user.email 32665735+navikt-ci@users.noreply.github.com
 before_script:
 - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 script:
@@ -23,8 +25,7 @@ script:
 - ./nais validate -f hoi/nais.yaml
 - ./nais validate -f testapi/nais.yaml
 after_success:
-- git add *pom.xml VERSION
-- NEW_VERSION=$(cat ./VERSION) && git commit -m "Bump version to $NEW_VERSION [skip ci]"
+- NEW_VERSION=$(cat ./VERSION) && git commit -am "Bump version to $NEW_VERSION [skip ci]"
 - git tag -a $(/bin/cat ./VERSION) -m "auto-tag from Travis CI [skip ci]" && git push --tags https://$GH_TOKEN@github.com/navikt/tortuga HEAD:master
 - "./mvnw com.spotify:dockerfile-maven-plugin:push -pl 'hiv,hoi,testapi'"
 branches:
