@@ -1,5 +1,5 @@
 sudo: required
-language: java
+language: generic
 services:
 - docker
 env:
@@ -11,23 +11,22 @@ addons:
   apt:
     packages:
       - docker-ce
-before_install:
-- curl -sL https://github.com/nais/naisd/releases/download/127.0.0/nais-127.0.0-linux-amd64.xz | xz -d > nais && chmod +x nais
-- git config user.name navikt-ci
-- git config user.email 32665735+navikt-ci@users.noreply.github.com
-- CURRENT_VERSION=$(cat VERSION) && echo $((CURRENT_VERSION+1)) > VERSION
-- NEW_VERSION=$(cat ./VERSION) && ./mvnw versions:set -DnewVersion=$NEW_VERSION -DartifactId='*' -DgenerateBackupPoms=false
-before_script:
-- docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 script:
-- "./mvnw test -B"
+- CURRENT_VERSION=$(cat VERSION) && echo $((CURRENT_VERSION+1)) > VERSION
+- export NEW_VERSION=$(cat ./VERSION)
+- docker run --rm -it -v $PWD:/usr/src -w /usr/src -v $HOME/.m2:/root/.m2 maven:3.5-jdk-8 mvn versions:set -DnewVersion=$NEW_VERSION -DartifactId='*' -DgenerateBackupPoms=false
+- make
+- curl -sL https://github.com/nais/naisd/releases/download/127.0.0/nais-127.0.0-linux-amd64.xz | xz -d > nais && chmod +x nais
 - ./nais validate -f hiv/nais.yaml
 - ./nais validate -f hoi/nais.yaml
 - ./nais validate -f testapi/nais.yaml
 after_success:
+- docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+- make push
+- git config user.name navikt-ci
+- git config user.email 32665735+navikt-ci@users.noreply.github.com
 - NEW_VERSION=$(cat ./VERSION) && git commit -am "Bump version to $NEW_VERSION [skip ci]"
 - git tag -a $(/bin/cat ./VERSION) -m "auto-tag from Travis CI [skip ci]" && git push --tags https://$GH_TOKEN@github.com/navikt/tortuga HEAD:master
-- "./mvnw com.spotify:dockerfile-maven-plugin:push -pl 'hiv,hoi,testapi'"
 branches:
   only:
   - master
