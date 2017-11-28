@@ -3,6 +3,7 @@ package no.nav.opptjening.hiv.hendelser;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -56,9 +57,26 @@ public class SekvensnummerStorage {
 
     public void persistSekvensnummer(long sekvensnummer) {
         producer.send(new ProducerRecord<>(partition.topic(), partition.partition(),
-                "offset", sekvensnummer + 1));
-        consumer.commitAsync();
+                "offset", sekvensnummer + 1), (recordMetadata, e) -> {
+            if (e != null) {
+                // seek to last committed position, effectively "rolling back"
+                long offset = consumer.committed(partition).offset() + 1;
+                consumer.seek(partition, offset);
 
+                LOG.error("Error during sekvensnummer producing. Rolling back to offset {}", e, offset);
+            } else {
+                // commit everyting up to the above message, so that it is the
+                // next record to be returned by poll()
+                consumer.commitAsync(Collections.singletonMap(partition, new OffsetAndMetadata(recordMetadata.offset())), (offsets, exception) -> {
+                    if (exception != null) {
+                        // it's ok if we fail to commit the offsets:
+                        // - the above produced record will still be returned by poll()
+                        // - if the consumer dies, it will continue from the last committed offset and produce a (hopefully) small amount of duplicates
+                        LOG.error("Error during syncing of offsets", exception);
+                    }
+                });
+            }
+        });
         currentSekvensnummerRecord = null;
     }
 }
