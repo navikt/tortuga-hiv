@@ -25,7 +25,7 @@ script:
 after_success:
 - git add *pom.xml VERSION
 - NEW_VERSION=$(cat ./VERSION) && git commit -m "Bump version to $NEW_VERSION [skip ci]"
-- git tag -a $(/bin/cat ./VERSION) -m "auto-tag from Travis CI [skip ci]" && git push --tags https://$GH_TOKEN@github.com/navikt/tortuga master
+- git tag -a $(/bin/cat ./VERSION) -m "auto-tag from Travis CI [skip ci]" && git push --tags https://$GH_TOKEN@github.com/navikt/tortuga HEAD:master
 - "./mvnw com.spotify:dockerfile-maven-plugin:push -pl 'hiv,hoi,testapi'"
 branches:
   only:
