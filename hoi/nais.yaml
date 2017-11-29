@@ -6,13 +6,13 @@ replicas:
   cpuThresholdPercentage: 50
 healthcheck:
   liveness:
-    initialDelay: 60
+    initialDelay: 90
     periodSeconds: 1
-    failureThreshold: 30
+    failureThreshold: 60
   readiness:
-    initialDelay: 60
+    initialDelay: 90
     periodSeconds: 1
-    failureThreshold: 30
+    failureThreshold: 60
 prometheus:
   enabled: true
 fasitResources:
