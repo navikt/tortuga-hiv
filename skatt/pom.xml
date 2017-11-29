@@ -5,7 +5,7 @@
 
     <groupId>no.nav.opptjening</groupId>
     <artifactId>skatt-client</artifactId>
-    <version>9</version>
+    <version>10</version>
     <packaging>jar</packaging>
 
     <name>skatt-client</name>
