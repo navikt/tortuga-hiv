@@ -3,11 +3,9 @@ package no.nav.opptjening.api.hendelser.repository;
 import no.nav.opptjening.api.hendelser.domain.Hendelse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface HendelseRepository extends Repository<Hendelse, Integer> {
-
-    Iterable<Hendelse> findAll();
+public interface HendelseRepository extends CrudRepository<Hendelse, Integer> {
 
     Page<Hendelse> findAll(Pageable pageable);
 

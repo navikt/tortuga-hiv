@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -22,13 +23,16 @@ public class InntektHendelseConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(InntektHendelseConsumer.class);
     private final Consumer<String, Hendelse> hendelseConsumer;
     private final Producer<String, Inntekt> inntektsProducer;
+    private final CounterService counterService;
 
     private Inntekter inntekter;
 
-    public InntektHendelseConsumer(Inntekter inntekter, Consumer<String, Hendelse> hendelseConsumer, Producer<String, Inntekt> inntektProducer) {
+    public InntektHendelseConsumer(Inntekter inntekter, Consumer<String, Hendelse> hendelseConsumer, Producer<String, Inntekt> inntektProducer,
+                                   CounterService counterService) {
         this.inntekter = inntekter;
         this.hendelseConsumer = hendelseConsumer;
         this.inntektsProducer = inntektProducer;
+        this.counterService = counterService;
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
@@ -49,6 +53,7 @@ public class InntektHendelseConsumer {
                         .setIdentifikator(inntekt.getPersonindentfikator())
                         .setPensjonsgivendeInntekt(inntekt.getPensjonsgivendeInntekt())
                         .build()));
+                counterService.increment("inntektshendelser.processed");
             }
 
             hendelseConsumer.commitAsync();

@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,16 +24,18 @@ public class HendelsePoller {
     private final Hendelser inntektHendelser;
     private final Producer<String, Hendelse> hendelseProducer;
     private final SekvensnummerStorage sekvensnummerStorage;
+    private final CounterService counterService;
 
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
     public HendelsePoller(Hendelser inntektHendelser, Producer<String, Hendelse> hendelseProducer,
-                          SekvensnummerStorage sekvensnummerStorage) {
+                          SekvensnummerStorage sekvensnummerStorage, CounterService counterService) {
         this.inntektHendelser = inntektHendelser;
 
         this.hendelseProducer = hendelseProducer;
         this.sekvensnummerStorage = sekvensnummerStorage;
+        this.counterService = counterService;
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
@@ -68,6 +71,7 @@ public class HendelsePoller {
         List<HendelseDto> hendelser = inntektHendelser.getHendelser(sekvensnummer, maxHendelserPerRequest);
 
         for (HendelseDto hendelse : hendelser) {
+            counterService.increment("hendelser.processed");
             hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", null, Hendelse.newBuilder()
                     .setSekvensnummer(hendelse.getSekvensnummer())
                     .setIdentifikator(hendelse.getIdentifikator())

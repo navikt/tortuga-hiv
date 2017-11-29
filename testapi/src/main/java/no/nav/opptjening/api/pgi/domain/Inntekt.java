@@ -47,6 +47,9 @@ public class Inntekt {
         @Column(nullable = false)
         private String inntektsaar;
 
+        public PersonInntekt() {
+        }
+
         public PersonInntekt(String identifikator, String inntektsaar) {
             this.identifikator = identifikator;
             this.inntektsaar = inntektsaar;

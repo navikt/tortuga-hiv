@@ -1,5 +1,6 @@
 package no.nav.opptjening.api.hendelser;
 
+import no.nav.opptjening.api.hendelser.domain.Hendelse;
 import no.nav.opptjening.api.hendelser.repository.HendelseRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,10 @@ public class HendelseService {
 
     public HendelseService(HendelseRepository repository) {
         this.repository = repository;
+    }
+
+    public void lagreHendelser(Iterable<Hendelse> hendelser) {
+        repository.save(hendelser);
     }
 
     List<HendelseDto> hentHendelser(int sekvesnummer, int antall) {

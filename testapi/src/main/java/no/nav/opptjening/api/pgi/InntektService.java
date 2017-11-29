@@ -22,6 +22,10 @@ public class InntektService {
         this.repository = repository;
     }
 
+    public void lagreInntekter(Iterable<Inntekt> inntekter) {
+        repository.save(inntekter);
+    }
+
     InntektDto hentInntekt(String fnr, String inntektsaar) {
         if (Integer.valueOf(inntektsaar) > Year.now().getValue()) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "PIA-005", "Det forespurte inntektsåret er ikke støttet");
