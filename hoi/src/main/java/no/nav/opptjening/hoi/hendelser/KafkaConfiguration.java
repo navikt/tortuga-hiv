@@ -6,18 +6,22 @@ import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import no.nav.opptjening.schema.Hendelse;
 import no.nav.opptjening.schema.Inntekt;
+import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,15 +31,53 @@ public class KafkaConfiguration {
     private final String bootstrapServers;
     private final String schemaUrl;
 
+    private String securityProtocol;
+    private Resource truststoreLocation;
+    private String truststorePassword;
+
     public KafkaConfiguration(@Value("${kafka.bootstrap-servers}") String bootstrapServers,
                               @Value("${schema.registry.url}") String schemaUrl) {
         this.bootstrapServers = bootstrapServers;
         this.schemaUrl = schemaUrl;
     }
 
+    @Value("${kafka.security.protocol:#{null}}")
+    public void setSecurityProtocol(String securityProtocol) {
+        this.securityProtocol = securityProtocol;
+    }
+
+    @Value("${kafka.ssl.truststore.location:#{null}}")
+    public void setTruststoreLocation(Resource truststoreLocation) {
+        this.truststoreLocation = truststoreLocation;
+    }
+
+    @Value("${kafka.ssl.truststore.password:#{null}}")
+    public void setTruststorePassword(String truststorePassword) {
+        this.truststorePassword = truststorePassword;
+    }
+
+    private static String resourceToPath(Resource resource) {
+        try {
+            return resource.getFile().getAbsolutePath();
+        } catch (IOException ex) {
+            throw new IllegalStateException("Resource '" + resource + "' must be on a file system", ex);
+        }
+    }
+
     private Map<String, Object> getCommonConfigs() {
         Map<String, Object> configs = new HashMap<>();
-        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configs.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+
+        if (securityProtocol != null) {
+            configs.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+        }
+
+        if (truststoreLocation != null) {
+            configs.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, resourceToPath(truststoreLocation));
+        }
+        if (truststorePassword != null) {
+            configs.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);
+        }
 
         return configs;
     }

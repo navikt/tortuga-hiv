@@ -11,3 +11,9 @@ healthcheck:
     initialDelay: 60
 prometheus:
   enabled: true
+fasitResources:
+  used:
+    - alias: kafka_truststore
+      resourceType: certificate
+    - alias: kafka_properties
+      resourceType: applicationproperties

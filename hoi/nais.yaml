@@ -19,3 +19,7 @@ fasitResources:
   used:
     - alias: eksternapp.skatt.datasamarbeid.api.pensjonsgivendeinntekt
       resourceType: restservice
+    - alias: kafka_truststore
+      resourceType: certificate
+    - alias: kafka_properties
+      resourceType: applicationproperties
