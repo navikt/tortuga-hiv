@@ -45,8 +45,8 @@ public class ScaffoldEndpoint {
             inntekter.add(inntekt);
         }
 
-        hendelseSerice.lagreHendelser(hendelser);
         inntektService.lagreInntekter(inntekter);
+        hendelseSerice.lagreHendelser(hendelser);
     }
 
     private int getRandomInt(int min, int max) {
