@@ -33,6 +33,9 @@ public class InntektHendelseConsumer {
         this.hendelseConsumer = hendelseConsumer;
         this.inntektsProducer = inntektProducer;
         this.counterService = counterService;
+
+        this.counterService.reset("inntektshendelser.received");
+        this.counterService.reset("inntektshendelser.processed");
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)

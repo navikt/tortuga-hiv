@@ -36,6 +36,9 @@ public class HendelsePoller {
         this.hendelseProducer = hendelseProducer;
         this.sekvensnummerStorage = sekvensnummerStorage;
         this.counterService = counterService;
+
+        this.counterService.reset("hendelser.received");
+        this.counterService.reset("hendelser.processed");
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
