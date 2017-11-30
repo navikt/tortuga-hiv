@@ -80,7 +80,7 @@ public class HendelsePoller {
 
         for (HendelseDto hendelse : hendelser) {
             counterService.increment("hendelser.processed");
-            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", null, Hendelse.newBuilder()
+            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), Hendelse.newBuilder()
                     .setSekvensnummer(hendelse.getSekvensnummer())
                     .setIdentifikator(hendelse.getIdentifikator())
                     .setGjelderPeriode(hendelse.getGjelderPeriode())
