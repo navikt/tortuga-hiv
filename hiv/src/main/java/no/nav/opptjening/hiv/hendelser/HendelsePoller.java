@@ -45,12 +45,13 @@ public class HendelsePoller {
             try {
                 nextSekvensnummer = sekvensnummerStorage.getSekvensnummer();
             } catch (NoOffsetForPartitionException e) {
-                LOG.error("First run for consumer, setting sekvensnummer to 1", e);
+                LOG.warn("First run for consumer, setting sekvensnummer to 1", e);
 
                 // TODO: there must be a better way of doing this
-                nextSekvensnummer = 1;
+                sekvensnummerStorage.persistSekvensnummer(0);
+                return;
             } catch (IllegalStateException e) {
-                LOG.error(e.getMessage());
+                LOG.info(e.getMessage(), e);
                 return;
             }
 
@@ -79,7 +80,7 @@ public class HendelsePoller {
                     .build()));
         }
 
-        LOG.info("Flushing HendelseProducer");
+        LOG.debug("Flushing HendelseProducer");
         hendelseProducer.flush();
 
         // TODO: assume latest entry is largest sekvensnummer?
