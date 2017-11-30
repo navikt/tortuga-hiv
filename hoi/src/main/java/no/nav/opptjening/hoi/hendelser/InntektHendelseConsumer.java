@@ -40,6 +40,10 @@ public class InntektHendelseConsumer {
         hendelseConsumer.subscribe(Collections.singletonList("tortuga.inntektshendelser"));
         ConsumerRecords<String, Hendelse> hendelser = hendelseConsumer.poll(500);
 
+        for (int i = 0; i < hendelser.count(); i++) {
+            counterService.increment("inntektshendelser.received");
+        }
+
         try {
             for (ConsumerRecord<String, Hendelse> record : hendelser) {
                 Hendelse hendelse = record.value();

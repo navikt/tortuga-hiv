@@ -71,6 +71,10 @@ public class HendelsePoller {
     private long handleSekvensnummer(long sekvensnummer) {
         List<HendelseDto> hendelser = inntektHendelser.getHendelser(sekvensnummer, maxHendelserPerRequest);
 
+        for (int i = 0; i < hendelser.size(); i++) {
+            counterService.increment("hendelser.received");
+        }
+
         for (HendelseDto hendelse : hendelser) {
             counterService.increment("hendelser.processed");
             hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", null, Hendelse.newBuilder()
