@@ -77,6 +77,7 @@ public class InntektHendelseConsumer {
                 counterService.increment("inntektshendelser.processed");
             }
 
+            inntektsProducer.flush();
             hendelseConsumer.commitAsync();
         } catch (Exception e) {
             // TODO: skal vi avbryte eller fortsette prosessering? Hva gjør vi evt. med de nåværende-uncommitted?
