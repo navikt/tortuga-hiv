@@ -42,6 +42,8 @@ public class HendelsePoller {
         this.counterService = counterService;
         this.counterService.reset("hendelser.received");
         this.counterService.reset("hendelser.processed");
+
+        sekvensnummerStorage.persistSekvensnummer(0);
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
