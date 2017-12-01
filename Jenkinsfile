@@ -17,4 +17,41 @@ node {
             sh "/usr/local/bin/nais upload --app tortuga-testapi -v ${version} -f testapi/nais.yaml"
         }
     }
+
+    stage("deploy") {
+        def commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+
+        build([
+            job: 'nais-deploy-pipeline',
+            propagate: false,
+            parameters: [
+                string(name: 'APP', value: "tortuga-hiv"),
+                string(name: 'VERSION', value: version),
+                string(name: 'COMMIT_HASH', value: commitHash),
+                string(name: 'DEPLOY_ENV', value: 'q0')
+            ]
+        ])
+
+        build([
+            job: 'nais-deploy-pipeline',
+            propagate: false,
+            parameters: [
+                string(name: 'APP', value: "tortuga-hoi"),
+                string(name: 'VERSION', value: version),
+                string(name: 'COMMIT_HASH', value: commitHash),
+                string(name: 'DEPLOY_ENV', value: 'q0')
+            ]
+        ])
+
+        build([
+            job: 'nais-deploy-pipeline',
+            propagate: false,
+            parameters: [
+                string(name: 'APP', value: "tortuga-testapi"),
+                string(name: 'VERSION', value: version),
+                string(name: 'COMMIT_HASH', value: commitHash),
+                string(name: 'DEPLOY_ENV', value: 'q0')
+            ]
+        ])
+    }
 }
