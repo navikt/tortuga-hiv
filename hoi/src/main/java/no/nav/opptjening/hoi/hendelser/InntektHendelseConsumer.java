@@ -14,6 +14,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,15 +28,17 @@ public class InntektHendelseConsumer {
     private final Consumer<String, Hendelse> hendelseConsumer;
     private final Producer<String, Inntekt> inntektsProducer;
     private final CounterService counterService;
+    private final GaugeService gaugeService;
 
     private Inntekter inntekter;
 
     public InntektHendelseConsumer(Inntekter inntekter, Consumer<String, Hendelse> hendelseConsumer, Producer<String, Inntekt> inntektProducer,
-                                   CounterService counterService) {
+                                   CounterService counterService, GaugeService gaugeService) {
         this.inntekter = inntekter;
         this.hendelseConsumer = hendelseConsumer;
         this.inntektsProducer = inntektProducer;
         this.counterService = counterService;
+        this.gaugeService = gaugeService;
 
         this.counterService.reset("inntektshendelser.received");
         this.counterService.reset("inntektshendelser.processed");
@@ -64,6 +67,8 @@ public class InntektHendelseConsumer {
         try {
             for (ConsumerRecord<String, Hendelse> record : hendelser) {
                 Hendelse hendelse = record.value();
+
+                gaugeService.submit("inntektshendelser.current_sekvensnummer", hendelse.getSekvensnummer());
 
                 LOG.info("HOI haandterer hendelse={}", hendelse);
 

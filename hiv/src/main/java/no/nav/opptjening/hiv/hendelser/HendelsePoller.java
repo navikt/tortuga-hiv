@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.metrics.CounterService;
+import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,18 +26,20 @@ public class HendelsePoller {
     private final Producer<String, Hendelse> hendelseProducer;
     private final SekvensnummerStorage sekvensnummerStorage;
     private final CounterService counterService;
+    private final GaugeService gaugeService;
 
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
     public HendelsePoller(Hendelser inntektHendelser, Producer<String, Hendelse> hendelseProducer,
-                          SekvensnummerStorage sekvensnummerStorage, CounterService counterService) {
+                          SekvensnummerStorage sekvensnummerStorage, CounterService counterService, GaugeService gaugeService) {
         this.inntektHendelser = inntektHendelser;
 
         this.hendelseProducer = hendelseProducer;
         this.sekvensnummerStorage = sekvensnummerStorage;
-        this.counterService = counterService;
+        this.gaugeService = gaugeService;
 
+        this.counterService = counterService;
         this.counterService.reset("hendelser.received");
         this.counterService.reset("hendelser.processed");
     }
@@ -47,6 +50,7 @@ public class HendelsePoller {
             long nextSekvensnummer;
             try {
                 nextSekvensnummer = sekvensnummerStorage.getSekvensnummer();
+                gaugeService.submit("hendelser.current_sekvensnummer", nextSekvensnummer);
             } catch (NoOffsetForPartitionException e) {
                 LOG.warn("First run for consumer, setting sekvensnummer to 1", e);
 
