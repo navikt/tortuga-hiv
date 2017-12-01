@@ -5,7 +5,7 @@
 
     <groupId>no.nav.opptjening</groupId>
     <artifactId>hoi</artifactId>
-    <version>21</version>
+    <version>1</version>
     <packaging>jar</packaging>
 
     <name>hoi</name>
@@ -104,19 +104,19 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>config</artifactId>
-            <version>21</version>
+            <version>1</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
-            <version>21</version>
+            <version>1</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>avro-schemas</artifactId>
-            <version>21</version>
+            <version>1</version>
         </dependency>
 
         <!-- test -->
@@ -128,6 +128,7 @@
     </dependencies>
 
     <build>
+        <finalName>app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
