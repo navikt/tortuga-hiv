@@ -12,7 +12,7 @@ node {
 
     stage("upload manifest") {
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
-            sh "make manifest"
+            sh "make manifest NAIS=/usr/local/bin/nais"
         }
     }
 
