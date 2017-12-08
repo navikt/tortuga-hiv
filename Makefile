@@ -25,15 +25,15 @@ docker: hiv hoi testapi
 
 hiv:
 	$(NAIS) validate -f hiv/nais.yaml
-	$(DOCKER) build -t navikt/tortuga-hiv -t navikt/tortuga-hiv:$(VERSION)  hiv
+	$(DOCKER) build --pull -t navikt/tortuga-hiv -t navikt/tortuga-hiv:$(VERSION)  hiv
 
 hoi:
 	$(NAIS) validate -f hoi/nais.yaml
-	$(DOCKER) build -t navikt/tortuga-hoi -t navikt/tortuga-hoi:$(VERSION) hoi
+	$(DOCKER) build --pull -t navikt/tortuga-hoi -t navikt/tortuga-hoi:$(VERSION) hoi
 
 testapi:
 	$(NAIS) validate -f testapi/nais.yaml
-	$(DOCKER) build -t navikt/tortuga-testapi -t navikt/tortuga-testapi:$(VERSION) testapi
+	$(DOCKER) build --pull -t navikt/tortuga-testapi -t navikt/tortuga-testapi:$(VERSION) testapi
 
 docker-push:
 	$(DOCKER) push navikt/tortuga-hiv:latest
