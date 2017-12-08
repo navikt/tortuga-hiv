@@ -12,9 +12,7 @@ node {
 
     stage("upload manifest") {
         withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
-            sh "/usr/local/bin/nais upload --app tortuga-hiv -v ${version} -f hiv/nais.yaml"
-            sh "/usr/local/bin/nais upload --app tortuga-hoi -v ${version} -f hoi/nais.yaml"
-            sh "/usr/local/bin/nais upload --app tortuga-testapi -v ${version} -f testapi/nais.yaml"
+            sh "make manifest"
         }
     }
 

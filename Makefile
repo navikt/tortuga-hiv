@@ -2,7 +2,7 @@ DOCKER  := docker
 NAIS    := nais
 VERSION := $(shell cat ./VERSION)
 
-.PHONY: all build test docker hiv hoi testapi docker-push bump-version release
+.PHONY: all build test docker hiv hoi testapi docker-push bump-version release manifest
 
 all: build test docker
 release: tag docker-push
@@ -49,4 +49,9 @@ bump-version:
 tag:
 	git add VERSION
 	git commit -m "Bump version to $(VERSION) [skip ci]"
-	git tag -a $(VERSION) -m "auto-tag from Travis CI [skip ci]"
+	git tag -a $(VERSION) -m "auto-tag from Makefile"
+
+manifest:
+	$(NAIS) upload --app tortuga-hiv -v $(VERSION) -f hiv/nais.yaml
+	$(NAIS) upload --app tortuga-hoi -v $(VERSION) -f hoi/nais.yaml
+	$(NAIS) upload --app tortuga-testapi -v $(VERSION) -f testapi/nais.yaml
