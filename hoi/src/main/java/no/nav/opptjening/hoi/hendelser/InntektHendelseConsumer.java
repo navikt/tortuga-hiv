@@ -40,6 +40,7 @@ public class InntektHendelseConsumer {
         this.counterService = counterService;
         this.gaugeService = gaugeService;
 
+        this.gaugeService.submit("inntektshendelser.current_sekvensnummer", 0);
         this.counterService.reset("inntektshendelser.received");
         this.counterService.reset("inntektshendelser.processed");
 
