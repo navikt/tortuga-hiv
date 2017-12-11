@@ -21,7 +21,19 @@ node {
 
         build([
             job: 'nais-deploy-pipeline',
-            propagate: false,
+            wait: false,
+            parameters: [
+                string(name: 'APP', value: "tortuga-testapi"),
+                string(name: 'REPO', value: "navikt/tortuga"),
+                string(name: 'VERSION', value: version),
+                string(name: 'COMMIT_HASH', value: commitHash),
+                string(name: 'DEPLOY_ENV', value: 'q0')
+            ]
+        ])
+
+        build([
+            job: 'nais-deploy-pipeline',
+            wait: false,
             parameters: [
                 string(name: 'APP', value: "tortuga-hiv"),
                 string(name: 'REPO', value: "navikt/tortuga"),
@@ -36,18 +48,6 @@ node {
             propagate: false,
             parameters: [
                 string(name: 'APP', value: "tortuga-hoi"),
-                string(name: 'REPO', value: "navikt/tortuga"),
-                string(name: 'VERSION', value: version),
-                string(name: 'COMMIT_HASH', value: commitHash),
-                string(name: 'DEPLOY_ENV', value: 'q0')
-            ]
-        ])
-
-        build([
-            job: 'nais-deploy-pipeline',
-            propagate: false,
-            parameters: [
-                string(name: 'APP', value: "tortuga-testapi"),
                 string(name: 'REPO', value: "navikt/tortuga"),
                 string(name: 'VERSION', value: version),
                 string(name: 'COMMIT_HASH', value: commitHash),
