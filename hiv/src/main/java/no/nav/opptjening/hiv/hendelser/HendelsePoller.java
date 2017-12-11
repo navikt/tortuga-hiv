@@ -31,6 +31,8 @@ public class HendelsePoller {
     @Value("${hiv.hendelser-per-request:1000}")
     private int maxHendelserPerRequest;
 
+    private boolean initialized;
+
     public HendelsePoller(Hendelser inntektHendelser, Producer<String, Hendelse> hendelseProducer,
                           SekvensnummerStorage sekvensnummerStorage, CounterService counterService, GaugeService gaugeService) {
         this.inntektHendelser = inntektHendelser;
@@ -38,8 +40,10 @@ public class HendelsePoller {
         this.hendelseProducer = hendelseProducer;
         this.sekvensnummerStorage = sekvensnummerStorage;
         this.gaugeService = gaugeService;
-
         this.counterService = counterService;
+    }
+
+    private void initialize() {
         this.counterService.reset("hendelser.received");
         this.counterService.reset("hendelser.processed");
 
@@ -48,6 +52,11 @@ public class HendelsePoller {
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
     private void poll() {
+        if (!initialized) {
+            initialize();
+            initialized = true;
+        }
+
         try {
             long nextSekvensnummer;
             try {
