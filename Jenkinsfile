@@ -24,6 +24,7 @@ node {
             propagate: false,
             parameters: [
                 string(name: 'APP', value: "tortuga-hiv"),
+                string(name: 'REPO', value: "navikt/tortuga"),
                 string(name: 'VERSION', value: version),
                 string(name: 'COMMIT_HASH', value: commitHash),
                 string(name: 'DEPLOY_ENV', value: 'q0')
@@ -35,6 +36,7 @@ node {
             propagate: false,
             parameters: [
                 string(name: 'APP', value: "tortuga-hoi"),
+                string(name: 'REPO', value: "navikt/tortuga"),
                 string(name: 'VERSION', value: version),
                 string(name: 'COMMIT_HASH', value: commitHash),
                 string(name: 'DEPLOY_ENV', value: 'q0')
@@ -46,6 +48,7 @@ node {
             propagate: false,
             parameters: [
                 string(name: 'APP', value: "tortuga-testapi"),
+                string(name: 'REPO', value: "navikt/tortuga"),
                 string(name: 'VERSION', value: version),
                 string(name: 'COMMIT_HASH', value: commitHash),
                 string(name: 'DEPLOY_ENV', value: 'q0')
