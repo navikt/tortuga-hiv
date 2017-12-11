@@ -7,12 +7,12 @@ replicas:
 healthcheck:
   liveness:
     initialDelay: 120
-    periodSeconds: 1
-    failureThreshold: 90
+    periodSeconds: 2
+    failureThreshold: 100
   readiness:
     initialDelay: 120
-    periodSeconds: 1
-    failureThreshold: 90
+    periodSeconds: 2
+    failureThreshold: 100
 resources:
   limits:
     cpu: 250m
