@@ -6,8 +6,19 @@ replicas:
   cpuThresholdPercentage: 50
 healthcheck:
   liveness:
-    initialDelay: 60
+    initialDelay: 90
+    periodSeconds: 1
+    failureThreshold: 90
   readiness:
-    initialDelay: 60
+    initialDelay: 90
+    periodSeconds: 1
+    failureThreshold: 90
+resources:
+  limits:
+    cpu: 250m
+    memory: 1024Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
 prometheus:
   enabled: true

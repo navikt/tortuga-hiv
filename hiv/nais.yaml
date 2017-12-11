@@ -8,11 +8,18 @@ healthcheck:
   liveness:
     initialDelay: 90
     periodSeconds: 1
-    failureThreshold: 60
+    failureThreshold: 90
   readiness:
     initialDelay: 90
     periodSeconds: 1
-    failureThreshold: 60
+    failureThreshold: 90
+resources:
+  limits:
+    cpu: 250m
+    memory: 384Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
 prometheus:
   enabled: true
 fasitResources:
