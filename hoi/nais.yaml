@@ -6,13 +6,13 @@ replicas:
   cpuThresholdPercentage: 50
 healthcheck:
   liveness:
-    initialDelay: 60
+    initialDelay: 20
     periodSeconds: 2
-    failureThreshold: 120
+    failureThreshold: 140
   readiness:
-    initialDelay: 60
+    initialDelay: 20
     periodSeconds: 2
-    failureThreshold: 120
+    failureThreshold: 140
 resources:
   limits:
     cpu: 1000m
