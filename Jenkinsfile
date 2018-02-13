@@ -3,16 +3,14 @@ node {
 
     def version
     stage("checkout") {
-        withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
-            sh(script: "git clone https://github.com/navikt/tortuga.git .")
-        }
+        sh "git clone https://github.com/navikt/tortuga.git ."
 
         version = sh(script: 'cat VERSION', returnStdout: true).trim()
     }
 
     stage("upload manifest") {
-        withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusUser', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
-            sh "make manifest NAIS=/usr/local/bin/nais"
+        withCredentials([usernamePassword(credentialsId: 'nexusUploader', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+            sh "make manifest"
         }
     }
 

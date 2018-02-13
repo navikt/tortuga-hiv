@@ -52,6 +52,6 @@ tag:
 	git tag -a $(VERSION) -m "auto-tag from Makefile"
 
 manifest:
-	$(NAIS) upload --app tortuga-hiv -v $(VERSION) -f hiv/nais.yaml
-	$(NAIS) upload --app tortuga-hoi -v $(VERSION) -f hoi/nais.yaml
-	$(NAIS) upload --app tortuga-testapi -v $(VERSION) -f testapi/nais.yaml
+	curl --fail -v -u $(NEXUS_USERNAME):$(NEXUS_PASSWORD) --upload-file hiv/nais.yaml https://repo.adeo.no/repository/raw/nais/tortuga-hiv/$(VERSION)/nais.yaml
+	curl --fail -v -u $(NEXUS_USERNAME):$(NEXUS_PASSWORD) --upload-file hoi/nais.yaml https://repo.adeo.no/repository/raw/nais/tortuga-hoi/$(VERSION)/nais.yaml
+	curl --fail -v -u $(NEXUS_USERNAME):$(NEXUS_PASSWORD) --upload-file testapi/nais.yaml https://repo.adeo.no/repository/raw/nais/tortuga-testapi/$(VERSION)/nais.yaml
