@@ -1,4 +1,6 @@
 #!/usr/bin/env groovy
+@Library('peon-pipeline') _
+
 node {
     def commitHash
     try {
@@ -13,7 +15,7 @@ node {
             version = sh(script: 'cat VERSION', returnStdout: true).trim()
 
             commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-            notifyGithub("navikt", "tortuga", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
+            commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
         }
 
         stage("build") {
@@ -76,32 +78,10 @@ node {
             ])
         }
 
-        notifyGithub("navikt", "tortuga", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
+        commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
     } catch (err) {
-        notifyGithub("navikt", "tortuga", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
+        commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
 
         throw err
-    }
-}
-
-def notifyGithub(owner, repo, context, sha, state, description) {
-    def postBody = [
-            state: "${state}",
-            context: "${context}",
-            description: "${description}",
-            target_url: "${env.BUILD_URL}"
-    ]
-    def postBodyString = groovy.json.JsonOutput.toJson(postBody)
-
-    withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
-        withCredentials([string(credentialsId: 'navikt-ci-oauthtoken', variable: 'GITHUB_OAUTH_TOKEN')]) {
-            sh """
-                curl -H 'Authorization: token ${GITHUB_OAUTH_TOKEN}' \
-                    -H 'Content-Type: application/json' \
-                    -X POST \
-                    -d '${postBodyString}' \
-                    'https://api.github.com/repos/${owner}/${repo}/statuses/${sha}'
-            """
-        }
     }
 }
