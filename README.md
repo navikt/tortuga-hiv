@@ -1,4 +1,4 @@
-Prosjekt Tortuga [![Build Status](https://travis-ci.org/navikt/tortuga.svg?branch=master)](https://travis-ci.org/navikt/tortuga)
+Prosjekt Tortuga
 ================
 
 Tortuga er NAV sitt nye system for å hente informasjon om pensjonsgivende inntekt

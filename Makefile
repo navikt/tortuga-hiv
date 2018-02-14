@@ -1,6 +1,7 @@
 DOCKER  := docker
 NAIS    := nais
 VERSION := $(shell cat ./VERSION)
+REGISTRY:= repo.adeo.no:5443
 
 .PHONY: all build test docker hiv hoi testapi docker-push bump-version release manifest
 
@@ -25,23 +26,20 @@ docker: hiv hoi testapi
 
 hiv:
 	$(NAIS) validate -f hiv/nais.yaml
-	$(DOCKER) build --pull -t navikt/tortuga-hiv -t navikt/tortuga-hiv:$(VERSION)  hiv
+	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-hiv -t $(REGISTRY)/tortuga-hiv:$(VERSION) hiv
 
 hoi:
 	$(NAIS) validate -f hoi/nais.yaml
-	$(DOCKER) build --pull -t navikt/tortuga-hoi -t navikt/tortuga-hoi:$(VERSION) hoi
+	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-hoi -t $(REGISTRY)/tortuga-hoi:$(VERSION) hoi
 
 testapi:
 	$(NAIS) validate -f testapi/nais.yaml
-	$(DOCKER) build --pull -t navikt/tortuga-testapi -t navikt/tortuga-testapi:$(VERSION) testapi
+	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-testapi -t $(REGISTRY)/tortuga-testapi:$(VERSION) testapi
 
 docker-push:
-	$(DOCKER) push navikt/tortuga-hiv:latest
-	$(DOCKER) push navikt/tortuga-hiv:$(VERSION)
-	$(DOCKER) push navikt/tortuga-hoi:latest
-	$(DOCKER) push navikt/tortuga-hoi:$(VERSION)
-	$(DOCKER) push navikt/tortuga-testapi:latest
-	$(DOCKER) push navikt/tortuga-testapi:$(VERSION)
+	$(DOCKER) push $(REGISTRY)/tortuga-hiv:$(VERSION)
+	$(DOCKER) push $(REGISTRY)/tortuga-hoi:$(VERSION)
+	$(DOCKER) push $(REGISTRY)/tortuga-testapi:$(VERSION)
 
 bump-version:
 	@echo $$(($$(cat ./VERSION) + 1)) > ./VERSION

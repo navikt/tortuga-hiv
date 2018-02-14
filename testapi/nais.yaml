@@ -1,5 +1,5 @@
 name: tortuga-testapi
-image: navikt/tortuga-testapi
+image: repo.adeo.no:5443/tortuga-testapi
 replicas:
   min: 1
   max: 1

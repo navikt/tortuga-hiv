@@ -1,5 +1,5 @@
 name: tortuga-hoi
-image: navikt/tortuga-hoi
+image: repo.adeo.no:5443/tortuga-hoi
 replicas:
   min: 1
   max: 1
