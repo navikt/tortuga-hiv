@@ -9,14 +9,14 @@ all: build test docker
 release: tag docker-push
 
 build:
-	$(DOCKER) run --rm -it \
+	$(DOCKER) run --rm -t \
 		-v ${PWD}:/usr/src \
 		-w /usr/src \
 		-v ${HOME}/.m2:/root/.m2 \
 		maven:3.5-jdk-8 mvn clean package -DskipTests=true -B -V
 
 test:
-	$(DOCKER) run --rm -it \
+	$(DOCKER) run --rm -t \
 		-v ${PWD}:/usr/src \
 		-w /usr/src \
 		-v ${HOME}/.m2:/root/.m2 \

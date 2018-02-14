@@ -1,9 +1,10 @@
 #!/usr/bin/env groovy
 node {
+    def commitHash
     try {
         cleanWs()
 
-        def version, commitHash
+        def version
         stage("checkout") {
             sh "git clone https://github.com/navikt/tortuga.git ."
 
