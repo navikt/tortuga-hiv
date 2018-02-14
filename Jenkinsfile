@@ -15,7 +15,7 @@ node {
             version = sh(script: 'cat VERSION', returnStdout: true).trim()
 
             commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-            commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
+            github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
         }
 
         stage("build") {
@@ -78,9 +78,9 @@ node {
             ])
         }
 
-        commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
+        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
     } catch (err) {
-        commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
+        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
 
         throw err
     }
