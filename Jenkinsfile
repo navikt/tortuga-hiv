@@ -8,7 +8,10 @@ node {
 
         def version
         stage("checkout") {
-            sh "git clone https://github.com/navikt/tortuga.git ."
+            withCredentials([string(credentialsId: 'navikt-ci-oauthtoken', variable: 'GITHUB_OAUTH_TOKEN')]) {
+                sh "git init"
+                sh "git pull https://${GITHUB_OAUTH_TOKEN}:x-oauth-basic@github.com/navikt/tortuga.git"
+            }
 
             sh "make bump-version"
 
