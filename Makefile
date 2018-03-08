@@ -54,6 +54,6 @@ tag:
 	git tag -a $(VERSION) -m "auto-tag from Makefile"
 
 manifest:
-	nais upload --app tortuga-hiv -v $(VERSION) -f ./tortuga-hiv/nais.yaml
-	nais upload --app tortuga-hoi -v $(VERSION) -f ./tortuga-hoi/nais.yaml
-	nais upload --app tortuga-testapi -v $(VERSION) -f ./tortuga-testapi/nais.yaml
+	nais upload --app tortuga-hiv -v $(VERSION) -f ./hiv/nais.yaml
+	nais upload --app tortuga-hoi -v $(VERSION) -f ./hoi/nais.yaml
+	nais upload --app tortuga-testapi -v $(VERSION) -f ./testapi/nais.yaml
