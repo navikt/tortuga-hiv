@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -35,10 +36,31 @@ public class KafkaConfiguration {
     private Resource truststoreLocation;
     private String truststorePassword;
 
+    private String saslMechanism;
+
+    private String username;
+
+    private String password;
+
     public KafkaConfiguration(@Value("${kafka.bootstrap-servers}") String bootstrapServers,
                               @Value("${schema.registry.url}") String schemaUrl) {
         this.bootstrapServers = bootstrapServers;
         this.schemaUrl = schemaUrl;
+    }
+
+    @Value("${kafka.username:#{null}}")
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Value("${kafka.password:#{null}}")
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Value("${kafka.sasl.mechanism:#{null}}")
+    public void setSaslMechanism(String saslMechanism) {
+        this.saslMechanism = saslMechanism;
     }
 
     @Value("${kafka.security.protocol:#{null}}")
@@ -70,6 +92,14 @@ public class KafkaConfiguration {
 
         if (securityProtocol != null) {
             configs.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol);
+        }
+
+        if (saslMechanism != null) {
+            configs.put(SaslConfigs.SASL_MECHANISM, saslMechanism);
+        }
+
+        if (username != null && password != null) {
+            configs.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";", username, password));
         }
 
         if (truststoreLocation != null) {

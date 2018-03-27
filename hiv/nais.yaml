@@ -24,7 +24,8 @@ prometheus:
   enabled: true
 fasitResources:
   used:
-    - alias: kafka_truststore
-      resourceType: certificate
-    - alias: kafka_properties
-      resourceType: applicationproperties
+    - alias: srvtortuga-hiv
+      resourceType: credential
+      propertyMap:
+        username: KAFKA_USERNAME
+        password: KAFKA_PASSWORD
