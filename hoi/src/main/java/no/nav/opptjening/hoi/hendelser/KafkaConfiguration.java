@@ -38,9 +38,7 @@ public class KafkaConfiguration {
 
     private String saslMechanism;
 
-    private String username;
-
-    private String password;
+    private String saslJaasConfig;
 
     public KafkaConfiguration(@Value("${kafka.bootstrap-servers}") String bootstrapServers,
                               @Value("${schema.registry.url}") String schemaUrl) {
@@ -48,14 +46,9 @@ public class KafkaConfiguration {
         this.schemaUrl = schemaUrl;
     }
 
-    @Value("${kafka.username:#{null}}")
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    @Value("${kafka.password:#{null}}")
-    public void setPassword(String password) {
-        this.password = password;
+    @Value("${kafka.sasl.jaas.config:#{null}}")
+    public void setSaslJaasConfig(String saslJaasConfig) {
+        this.saslJaasConfig = saslJaasConfig;
     }
 
     @Value("${kafka.sasl.mechanism:#{null}}")
@@ -98,8 +91,8 @@ public class KafkaConfiguration {
             configs.put(SaslConfigs.SASL_MECHANISM, saslMechanism);
         }
 
-        if (username != null && password != null) {
-            configs.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";", username, password));
+        if (saslJaasConfig != null) {
+            configs.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
         }
 
         if (truststoreLocation != null) {
