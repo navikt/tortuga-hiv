@@ -1,6 +1,6 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.skatt.api.FeilmeldingDto;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.exceptions.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,14 +47,16 @@ public class ExceptionMapperTest {
         ExceptionMapper exceptionMapper = new ExceptionMapper();
 
         for (Map.Entry<String, Class<? extends ApiException>> entry : testCases.entrySet()) {
-            FeilmeldingDto feilmeldingDto = new FeilmeldingDto();
-            feilmeldingDto.setKode(entry.getKey());
+            Feilmelding feilmelding = Feilmelding.newBuilder()
+                    .setKode(entry.getKey())
+                    .setMelding("")
+                    .build();
 
             Class<? extends ApiException> expected = entry.getValue();
-            ApiException result = exceptionMapper.mapException(feilmeldingDto, null);
+            ApiException result = exceptionMapper.mapException(feilmelding, null);
 
             if (expected == null) {
-                Assert.assertNull("Expected " + feilmeldingDto.getKode() + " to be null", result);
+                Assert.assertNull("Expected " + feilmelding.getKode() + " to be null", result);
             } else {
                 Assert.assertThat(result, instanceOf(expected));
             }

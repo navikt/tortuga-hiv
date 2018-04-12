@@ -1,6 +1,6 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.skatt.api.pgi.Inntekter;
+import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetskattClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +13,8 @@ public class SkattConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(SkattConfiguration.class);
 
     @Bean
-    public Inntekter hendelser(@Value("${skatt.api.url}") String baseurl) {
+    public BeregnetskattClient hendelser(@Value("${skatt.api.url}") String baseurl) {
         LOG.info("Creating Inntekter bean with baseurl={}", baseurl);
-        return new Inntekter(baseurl);
+        return new BeregnetskattClient(baseurl);
     }
 }

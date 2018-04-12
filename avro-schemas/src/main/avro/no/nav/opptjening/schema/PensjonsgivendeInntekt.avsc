@@ -1,0 +1,39 @@
+{
+  "namespace": "no.nav.opptjening.schema",
+  "type": "record",
+  "name": "PensjonsgivendeInntekt",
+  "fields": [
+    {
+      "name": "personidentifikator",
+      "type": "string"
+    },
+    {
+      "name": "inntektsaar",
+      "type": "string"
+    },
+    {
+      "name": "personinntektLoenn",
+      "type": "long"
+    },
+    {
+      "name": "personinntektFiskeFangstFamiliebarnehage",
+      "type": "long"
+    },
+    {
+      "name": "personinntektNaering",
+      "type": "long"
+    },
+    {
+      "name": "personinntektBarePensjonsdel",
+      "type": "long"
+    },
+    {
+      "name": "svalbardLoennLoennstrekkordningen",
+      "type": "long"
+    },
+    {
+      "name": "svalbardPersoninntektNaering",
+      "type": "long"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 package no.nav.opptjening.hiv.hendelser;
 
-import no.nav.opptjening.schema.Hendelse;
-import no.nav.opptjening.skatt.api.hendelser.HendelseDto;
-import no.nav.opptjening.skatt.api.hendelser.Hendelser;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelse;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import org.apache.kafka.clients.consumer.NoOffsetForPartitionException;
 import org.apache.kafka.clients.producer.Producer;
@@ -15,14 +15,12 @@ import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class HendelsePoller {
 
     private static final Logger LOG = LoggerFactory.getLogger(HendelsePoller.class);
 
-    private final Hendelser inntektHendelser;
+    private final HendelserClient beregnetskattHendelserClient;
     private final Producer<String, Hendelse> hendelseProducer;
     private final SekvensnummerStorage sekvensnummerStorage;
     private final CounterService counterService;
@@ -33,9 +31,9 @@ public class HendelsePoller {
 
     private boolean initialized;
 
-    public HendelsePoller(Hendelser inntektHendelser, Producer<String, Hendelse> hendelseProducer,
+    public HendelsePoller(HendelserClient beregnetskattHendelserClient, Producer<String, Hendelse> hendelseProducer,
                           SekvensnummerStorage sekvensnummerStorage, CounterService counterService, GaugeService gaugeService) {
-        this.inntektHendelser = inntektHendelser;
+        this.beregnetskattHendelserClient = beregnetskattHendelserClient;
 
         this.hendelseProducer = hendelseProducer;
         this.sekvensnummerStorage = sekvensnummerStorage;
@@ -87,18 +85,14 @@ public class HendelsePoller {
     }
 
     private long handleSekvensnummer(long sekvensnummer) {
-        List<HendelseDto> hendelser = inntektHendelser.getHendelser(sekvensnummer, maxHendelserPerRequest);
+        Hendelsesliste hendelsesliste = beregnetskattHendelserClient.getHendelser(sekvensnummer, maxHendelserPerRequest);
 
-        for (int i = 0; i < hendelser.size(); i++) {
+        for (int i = 0; i < hendelsesliste.getHendelser().size(); i++) {
             counterService.increment("hendelser.received");
         }
 
-        for (HendelseDto hendelse : hendelser) {
-            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), Hendelse.newBuilder()
-                    .setSekvensnummer(hendelse.getSekvensnummer())
-                    .setIdentifikator(hendelse.getIdentifikator())
-                    .setGjelderPeriode(hendelse.getGjelderPeriode())
-                    .build()));
+        for (Hendelse hendelse : hendelsesliste.getHendelser()) {
+            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse));
             counterService.increment("hendelser.processed");
         }
 
@@ -106,6 +100,6 @@ public class HendelsePoller {
         hendelseProducer.flush();
 
         // TODO: assume latest entry is largest sekvensnummer?
-        return hendelser.get(hendelser.size() - 1).getSekvensnummer();
+        return hendelsesliste.getHendelser().get(hendelsesliste.getHendelser().size() - 1).getSekvensnummer();
     }
 }

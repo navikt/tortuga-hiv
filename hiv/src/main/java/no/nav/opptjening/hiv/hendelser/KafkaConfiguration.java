@@ -2,7 +2,7 @@ package no.nav.opptjening.hiv.hendelser;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
-import no.nav.opptjening.schema.Hendelse;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

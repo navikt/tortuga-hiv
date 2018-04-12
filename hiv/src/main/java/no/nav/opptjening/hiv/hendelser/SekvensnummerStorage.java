@@ -58,11 +58,12 @@ public class SekvensnummerStorage {
 
     public void persistSekvensnummer(long sekvensnummer) {
         LOG.info("Producing sekvensnummer record with value={}", sekvensnummer + 1);
+
         producer.send(new ProducerRecord<>(partition.topic(), partition.partition(),
                 "offset", sekvensnummer + 1), (recordMetadata, e) -> {
             if (e != null) {
                 // seek to last committed position, effectively "rolling back"
-                long offset = consumer.committed(partition).offset() + 1;
+                long offset = consumer.committed(partition).offset();
                 consumer.seek(partition, offset);
 
                 LOG.error("Error during sekvensnummer producing. Rolling back to offset {}", e, offset);

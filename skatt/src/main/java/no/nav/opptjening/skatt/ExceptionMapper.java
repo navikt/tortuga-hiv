@@ -1,11 +1,11 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.skatt.api.FeilmeldingDto;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.exceptions.*;
 
 public class ExceptionMapper {
-    private ApiException mapFeilmeldingDtoToException(FeilmeldingDto feilmeldingDto, Throwable cause) {
-        switch (feilmeldingDto.getKode()) {
+    private ApiException mapFeilmeldingToException(Feilmelding feilmelding, Throwable cause) {
+        switch (feilmelding.getKode().toString()) {
             case "FA-001":
                 return new MissingSekvensnummerException("fraSekvensnummer må være satt", cause);
             case "FA-002":
@@ -57,8 +57,8 @@ public class ExceptionMapper {
         return null;
     }
 
-    public ApiException mapException(FeilmeldingDto feilmeldingDto, Throwable cause) {
-        ApiException ex = mapFeilmeldingDtoToException(feilmeldingDto, cause);
+    public ApiException mapException(Feilmelding feilmelding, Throwable cause) {
+        ApiException ex = mapFeilmeldingToException(feilmelding, cause);
 
         if (ex == null) {
             /*NoSuchElementException e = new NoSuchElementException("Kan ikke mappe " + feilmeldingDto.toString() + " til exception");

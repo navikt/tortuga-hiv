@@ -1,9 +1,9 @@
 package no.nav.opptjening.hoi.hendelser;
 
-import no.nav.opptjening.schema.Hendelse;
-import no.nav.opptjening.schema.Inntekt;
-import no.nav.opptjening.skatt.api.pgi.InntektDto;
-import no.nav.opptjening.skatt.api.pgi.Inntekter;
+import no.nav.opptjening.schema.PensjonsgivendeInntekt;
+import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelse;
+import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetskattClient;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -26,15 +26,17 @@ public class InntektHendelseConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(InntektHendelseConsumer.class);
     private final Consumer<String, Hendelse> hendelseConsumer;
-    private final Producer<String, Inntekt> inntektsProducer;
+    private final Producer<String, PensjonsgivendeInntekt> inntektsProducer;
     private final CounterService counterService;
     private final GaugeService gaugeService;
 
-    private Inntekter inntekter;
+    private BeregnetskattClient beregnetskattClient;
 
-    public InntektHendelseConsumer(Inntekter inntekter, Consumer<String, Hendelse> hendelseConsumer, Producer<String, Inntekt> inntektProducer,
+    private PensjonsgivendeInntektMapper pensjonsgivendeInntektMapper = new PensjonsgivendeInntektMapper();
+
+    public InntektHendelseConsumer(BeregnetskattClient beregnetskattClient, Consumer<String, Hendelse> hendelseConsumer, Producer<String, PensjonsgivendeInntekt> inntektProducer,
                                    CounterService counterService, GaugeService gaugeService) {
-        this.inntekter = inntekter;
+        this.beregnetskattClient = beregnetskattClient;
         this.hendelseConsumer = hendelseConsumer;
         this.inntektsProducer = inntektProducer;
         this.counterService = counterService;
@@ -73,13 +75,9 @@ public class InntektHendelseConsumer {
 
                 LOG.info("HOI haandterer hendelse={}", hendelse);
 
-                InntektDto inntekt = inntekter.hentInntekt(hendelse.getGjelderPeriode().toString(), hendelse.getIdentifikator().toString());
-                LOG.info("HOI sender inntekt='{}'", inntekt);
-                inntektsProducer.send(new ProducerRecord<>("tortuga.inntekter", Inntekt.newBuilder()
-                        .setInntektsaar(inntekt.getInntektsaar())
-                        .setIdentifikator(inntekt.getPersonindentfikator())
-                        .setPensjonsgivendeInntekt(inntekt.getPensjonsgivendeInntekt())
-                        .build()));
+                BeregnetSkatt beregnetSkatt = beregnetskattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode().toString(), hendelse.getIdentifikator().toString());
+                LOG.info("HOI sender inntekt='{}'", beregnetSkatt);
+                inntektsProducer.send(new ProducerRecord<>("tortuga.inntekter", pensjonsgivendeInntektMapper.toPensjonsgivendeInntekt(beregnetSkatt)));
                 counterService.increment("inntektshendelser.processed");
             }
 

@@ -1,9 +1,9 @@
-package no.nav.opptjening.skatt.api.pgi;
+package no.nav.opptjening.skatt.api.beregnetskatt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.opptjening.skatt.api.hendelser.Hendelser;
-import no.nav.opptjening.skatt.api.hendelser.HendelseDto;
-import no.nav.opptjening.skatt.api.hendelser.SekvensDto;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Sekvensnummer;
+import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
 import no.nav.opptjening.skatt.exceptions.*;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -21,15 +21,15 @@ import java.util.Map;
 
 import static org.junit.Assert.fail;
 
-public class HendelserTest {
+public class HendelserClientTest {
     @Rule
     public MockWebServer server = new MockWebServer();
 
-    private Hendelser hendelser;
+    private HendelserClient hendelserClient;
 
     @Before
     public void setUp() throws Exception {
-        this.hendelser = new InntektHendelser(server.url("/").toString());
+        this.hendelserClient = new BeregnetSkattHendelserClient(server.url("/").toString());
     }
 
     @Test
@@ -41,13 +41,13 @@ public class HendelserTest {
         );
 
         LocalDate date = LocalDate.of(2017, 1, 1);
-        SekvensDto result = hendelser.forsteSekvensEtter(date);
+        Sekvensnummer result = hendelserClient.forsteSekvensEtter(date);
 
         RecordedRequest request = server.takeRequest();
         Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser/start?dato=2017-01-01", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
-        Assert.assertEquals(10, result.getSekvensnummer());
+        Assert.assertEquals(10, (long)result.getSekvensnummer());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class HendelserTest {
 
         try {
             LocalDate date = LocalDate.of(2017, 1, 1);
-            SekvensDto result = hendelser.forsteSekvensEtter(date);
+            Sekvensnummer result = hendelserClient.forsteSekvensEtter(date);
             fail("Expected an ResponseMappingException to be thrown");
         } catch (ResponseMappingException e) {
             // ok
@@ -81,7 +81,7 @@ public class HendelserTest {
 
         try {
             LocalDate date = LocalDate.of(2017, 1, 1);
-            SekvensDto result = hendelser.forsteSekvensEtter(date);
+            Sekvensnummer result = hendelserClient.forsteSekvensEtter(date);
             fail("Expected an ClientException to be thrown");
         } catch (ClientException e) {
             // ok
@@ -108,21 +108,21 @@ public class HendelserTest {
                 .addHeader("Content-Type", "application/json")
         );
 
-        List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+        Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
 
         RecordedRequest request = server.takeRequest();
         Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
-        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(2, result.getHendelser().size());
 
-        Assert.assertEquals(10, result.get(0).getSekvensnummer());
-        Assert.assertEquals("12345", result.get(0).getIdentifikator());
-        Assert.assertEquals("2016", result.get(0).getGjelderPeriode());
+        Assert.assertEquals(10, (long)result.getHendelser().get(0).getSekvensnummer());
+        Assert.assertEquals("12345", result.getHendelser().get(0).getIdentifikator().toString());
+        Assert.assertEquals("2016", result.getHendelser().get(0).getGjelderPeriode().toString());
 
-        Assert.assertEquals(11, result.get(1).getSekvensnummer());
-        Assert.assertEquals("67891", result.get(1).getIdentifikator());
-        Assert.assertEquals("2017", result.get(1).getGjelderPeriode());
+        Assert.assertEquals(11, (long)result.getHendelser().get(1).getSekvensnummer());
+        Assert.assertEquals("67891", result.getHendelser().get(1).getIdentifikator().toString());
+        Assert.assertEquals("2017", result.getHendelser().get(1).getGjelderPeriode().toString());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class HendelserTest {
         );
 
         try {
-            List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
             fail("Expected an ResponseMappingException to be thrown");
         } catch (ResponseMappingException e) {
             // ok
@@ -154,7 +154,7 @@ public class HendelserTest {
         );
 
         try {
-            List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
             fail("Expected an MissingSekvensnummerException to be thrown");
         } catch (MissingSekvensnummerException e) {
             // ok
@@ -174,7 +174,7 @@ public class HendelserTest {
         );
 
         try {
-            List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
             fail("Expected an UnknownException to be thrown");
         } catch (UnknownException e) {
             // ok
@@ -194,7 +194,7 @@ public class HendelserTest {
         );
 
         try {
-            List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
             fail("Expected an ClientException to be thrown");
         } catch (ClientException e) {
             // ok
@@ -214,7 +214,7 @@ public class HendelserTest {
         );
 
         try {
-            List<HendelseDto> result = hendelser.getHendelser(10, 1000);
+            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
             fail("Expected an ServerException to be thrown");
         } catch (ServerException e) {
             // ok
@@ -223,5 +223,17 @@ public class HendelserTest {
         RecordedRequest request = server.takeRequest();
         Assert.assertEquals("/formueinntekt/beregnetskatt/hendelser?fraSekvensnummer=10&antall=1000", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
+    }
+
+    private class HendelseDto {
+        public final long sekvensnummer;
+        public final String identifikator;
+        public final String gjelderPeriode;
+
+        public HendelseDto(long sekvensnummer, String identifikator, String gjelderPeriode) {
+            this.sekvensnummer = sekvensnummer;
+            this.identifikator = identifikator;
+            this.gjelderPeriode = gjelderPeriode;
+        }
     }
 }

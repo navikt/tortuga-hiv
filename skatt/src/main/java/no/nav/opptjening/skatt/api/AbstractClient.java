@@ -1,19 +1,19 @@
 package no.nav.opptjening.skatt.api;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import org.codehaus.jackson.JsonParseException;
+import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.ExceptionMapper;
 import no.nav.opptjening.skatt.exceptions.*;
 import okhttp3.*;
 import okio.Buffer;
 import okio.BufferedSource;
+import org.apache.avro.AvroTypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Call;
 import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -35,7 +35,7 @@ public abstract class AbstractClient<T> {
         this.retrofit = new Retrofit.Builder()
                 .client(new OkHttpClient.Builder().addInterceptor(interceptor).build())
                 .baseUrl(endepunkt)
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(AvroConverterFactory.create())
                 .build();
         this.api = retrofit.create(api);
 
@@ -52,7 +52,7 @@ public abstract class AbstractClient<T> {
         Response<T> response = null;
         try {
             response = request.execute();
-        } catch (JsonMappingException e) {
+        } catch (AvroTypeException e) {
             throw new ResponseMappingException(0, "Kan ikke mappe JSON-respons til den angitte klassen", e);
         } catch (IOException e) {
             // network error?
@@ -83,9 +83,25 @@ public abstract class AbstractClient<T> {
     }
 
     private <T> ApiException mapToApiException(Response<T> response) throws IOException {
-        Converter<ResponseBody, FeilmeldingDto> errorConverter = retrofit.responseBodyConverter(
-                FeilmeldingDto.class, new Annotation[0]);
-        FeilmeldingDto error = errorConverter.convert(response.errorBody());
+        System.err.println("Mapping to exception because response is not successful");
+
+        // does not work
+        /*try {
+            System.err.println("body().string(): " + response.raw().body().string());
+        } catch (Exception e) {
+            System.err.println("Exception1: " + e.getMessage());
+        }*/
+
+        // works
+        /*try {
+            System.err.println("errorBody().string(): " + response.errorBody().string());
+        } catch (Exception e) {
+            System.err.println("Exception2: " + e.getMessage());
+        }*/
+
+        Converter<ResponseBody, Feilmelding> errorConverter = retrofit.responseBodyConverter(
+                Feilmelding.class, new Annotation[0]);
+        Feilmelding error = errorConverter.convert(response.errorBody());
 
         ApiException ex = exceptionMapper.mapException(error, null);
 
@@ -94,7 +110,7 @@ public abstract class AbstractClient<T> {
         }
 
         return new UnknownException(response.code(),
-                "Kunne ikke mappe FeilmeldingDto=" + error.toString() + " til ApiException pga ukjent feilkode", null);
+                "Kunne ikke mappe Feilmelding=" + error.toString() + " til ApiException pga ukjent feilkode", null);
     }
 
     private static class HttpLogger implements HttpLoggingInterceptor.Logger {

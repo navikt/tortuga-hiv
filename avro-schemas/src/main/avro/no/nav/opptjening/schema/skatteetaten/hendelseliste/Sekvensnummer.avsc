@@ -1,0 +1,11 @@
+{
+  "namespace": "no.nav.opptjening.schema.skatteetaten.hendelsesliste",
+  "type": "record",
+  "name": "Sekvensnummer",
+  "fields": [
+    {
+      "name": "sekvensnummer",
+      "type": "long"
+    }
+  ]
+}

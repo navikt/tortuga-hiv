@@ -1,0 +1,139 @@
+{
+  "namespace": "no.nav.opptjening.schema.skatteetaten",
+  "type": "record",
+  "name": "BeregnetSkatt",
+  "fields": [
+    {
+      "name": "personidentifikator",
+      "type": "string"
+    },
+    {
+      "name": "inntektsaar",
+      "type": "string"
+    },
+    {
+      "name": "sumSaerfradrag",
+      "type": "long"
+    },
+    {
+      "name": "skjermingsfradrag",
+      "type": "long"
+    },
+    {
+      "name": "formuePrimaerbolig",
+      "type": "long"
+    },
+    {
+      "name": "samletGjeld",
+      "type": "long"
+    },
+    {
+      "name": "personinntektLoenn",
+      "type": "long"
+    },
+    {
+      "name": "personinntektPensjon",
+      "type": "long"
+    },
+    {
+      "name": "personinntektFiskeFangstFamiliebarnehage",
+      "type": "long"
+    },
+    {
+      "name": "personinntektNaering",
+      "type": "long"
+    },
+    {
+      "name": "personinntektBarePensjonsdel",
+      "type": "long"
+    },
+    {
+      "name": "personinntektBareSykedel",
+      "type": "long"
+    },
+    {
+      "name": "samletPensjon",
+      "type": "long"
+    },
+    {
+      "name": "pensjonsgrad",
+      "type": "float"
+    },
+    {
+      "name": "antallMaanederPensjon",
+      "type": "int"
+    },
+    {
+      "name": "tolvdeler",
+      "type": "int"
+    },
+    {
+      "name": "skatteklasse",
+      "type": "string"
+    },
+    {
+      "name": "nettoformue",
+      "type": "long"
+    },
+    {
+      "name": "nettoinntekt",
+      "type": "long"
+    },
+    {
+      "name": "utlignetSkatt",
+      "type": "long"
+    },
+    {
+      "name": "grunnlagTrinnskatt",
+      "type": "long"
+    },
+    {
+      "name": "svalbardGjeld",
+      "type": "long"
+    },
+    {
+      "name": "svalbardLoennLoennstrekkordningen",
+      "type": "long"
+    },
+    {
+      "name": "svalbardPensjonLoennstrekkordningen",
+      "type": "long"
+    },
+    {
+      "name": "svalbardPersoninntektNaering",
+      "type": "long"
+    },
+    {
+      "name": "svalbardLoennUtenTrygdeavgiftLoennstrekkordningen",
+      "type": "long"
+    },
+    {
+      "name": "svalbardSumAllePersoninntekter",
+      "type": "long"
+    },
+    {
+      "name": "svalbardNettoformue",
+      "type": "long"
+    },
+    {
+      "name": "svalbardNettoinntekt",
+      "type": "long"
+    },
+    {
+      "name": "svalbardUtlignetSkatt",
+      "type": "long"
+    },
+    {
+      "name": "svalbardUfoeretrygdLoennstrekkordningen",
+      "type": "long"
+    },
+    {
+      "name": "grunnlagTrinnskattUtenomPersoninntekt",
+      "type": "long"
+    },
+    {
+      "name": "personinntektUfoeretrygd",
+      "type": "long"
+    }
+  ]
+}
