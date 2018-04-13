@@ -31,6 +31,9 @@ import java.util.Map;
 @Configuration
 public class KafkaConfiguration {
 
+    public static final String SEKVENSNUMMER_TOPIC = "privat-tortuga-sekvensnummerTilstand";
+    public static final String BEREGNET_SKATT_HENDELSE_TOPIC = "privat-tortuga-beregnetSkattHendelseHentet";
+
     private static final Logger LOG = LoggerFactory.getLogger(KafkaConfiguration.class);
 
     private final String bootstrapServers;
@@ -111,7 +114,7 @@ public class KafkaConfiguration {
 
     @Bean
     public SekvensnummerStorage sekvensnummerStorage(Producer<String, Long> producer, Consumer<String, Long> consumer) {
-        return new SekvensnummerStorage(producer, consumer, new TopicPartition("tortuga.inntektshendelser.offsets", 0));
+        return new SekvensnummerStorage(producer, consumer, new TopicPartition(SEKVENSNUMMER_TOPIC, 0));
     }
 
     @Bean

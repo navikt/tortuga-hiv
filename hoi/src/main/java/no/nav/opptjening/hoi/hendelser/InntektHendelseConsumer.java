@@ -46,7 +46,7 @@ public class InntektHendelseConsumer {
         this.counterService.reset("inntektshendelser.received");
         this.counterService.reset("inntektshendelser.processed");
 
-        hendelseConsumer.subscribe(Collections.singletonList("tortuga.inntektshendelser"), new ConsumerRebalanceListener() {
+        hendelseConsumer.subscribe(Collections.singletonList(KafkaConfiguration.BEREGNET_SKATT_HENDELSE_TOPIC), new ConsumerRebalanceListener() {
             @Override
             public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
                 LOG.info("Partition revoked: {}", partitions);
@@ -77,7 +77,7 @@ public class InntektHendelseConsumer {
 
                 BeregnetSkatt beregnetSkatt = beregnetskattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode().toString(), hendelse.getIdentifikator().toString());
                 LOG.info("HOI sender inntekt='{}'", beregnetSkatt);
-                inntektsProducer.send(new ProducerRecord<>("tortuga.inntekter", pensjonsgivendeInntektMapper.toPensjonsgivendeInntekt(beregnetSkatt)));
+                inntektsProducer.send(new ProducerRecord<>(KafkaConfiguration.PENSJONSGIVENDE_INNTEKT_TOPIC, pensjonsgivendeInntektMapper.toPensjonsgivendeInntekt(beregnetSkatt)));
                 counterService.increment("inntektshendelser.processed");
             }
 

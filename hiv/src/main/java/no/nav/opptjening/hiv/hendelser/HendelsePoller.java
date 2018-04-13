@@ -92,7 +92,7 @@ public class HendelsePoller {
         }
 
         for (Hendelse hendelse : hendelsesliste.getHendelser()) {
-            hendelseProducer.send(new ProducerRecord<>("tortuga.inntektshendelser", hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse));
+            hendelseProducer.send(new ProducerRecord<>(KafkaConfiguration.BEREGNET_SKATT_HENDELSE_TOPIC, hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse));
             counterService.increment("hendelser.processed");
         }
 
