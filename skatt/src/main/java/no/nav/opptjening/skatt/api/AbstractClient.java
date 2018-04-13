@@ -83,22 +83,6 @@ public abstract class AbstractClient<T> {
     }
 
     private <T> ApiException mapToApiException(Response<T> response) throws IOException {
-        System.err.println("Mapping to exception because response is not successful");
-
-        // does not work
-        /*try {
-            System.err.println("body().string(): " + response.raw().body().string());
-        } catch (Exception e) {
-            System.err.println("Exception1: " + e.getMessage());
-        }*/
-
-        // works
-        /*try {
-            System.err.println("errorBody().string(): " + response.errorBody().string());
-        } catch (Exception e) {
-            System.err.println("Exception2: " + e.getMessage());
-        }*/
-
         Converter<ResponseBody, Feilmelding> errorConverter = retrofit.responseBodyConverter(
                 Feilmelding.class, new Annotation[0]);
         Feilmelding error = errorConverter.convert(response.errorBody());
