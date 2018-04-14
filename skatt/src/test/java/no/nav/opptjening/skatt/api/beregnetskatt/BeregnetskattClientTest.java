@@ -72,8 +72,8 @@ public class BeregnetskattClientTest {
         Assert.assertEquals("/nav/2016/12345678901", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
 
-        Assert.assertEquals("12345678901", result.getPersonidentifikator().toString());
-        Assert.assertEquals("2016", result.getInntektsaar().toString());
+        Assert.assertEquals("12345678901", result.getPersonidentifikator());
+        Assert.assertEquals("2016", result.getInntektsaar());
         Assert.assertEquals(80000, result.getSumSaerfradrag(), 0);
         Assert.assertEquals(1000, result.getSkjermingsfradrag(), 0);
         Assert.assertEquals(2000000, result.getFormuePrimaerbolig(), 0);
@@ -88,7 +88,7 @@ public class BeregnetskattClientTest {
         Assert.assertEquals("100.1", Float.toString(result.getPensjonsgrad()));
         Assert.assertEquals(12, result.getAntallMaanederPensjon(), 0);
         Assert.assertEquals(12, result.getTolvdeler(), 0);
-        Assert.assertEquals("1E", result.getSkatteklasse().toString());
+        Assert.assertEquals("1E", result.getSkatteklasse());
         Assert.assertEquals(300000, result.getNettoformue(), 0);
         Assert.assertEquals(400000, result.getNettoinntekt(), 0);
         Assert.assertEquals(100000, result.getUtlignetSkatt(), 0);

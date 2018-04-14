@@ -117,12 +117,12 @@ public class HendelserClientTest {
         Assert.assertEquals(2, result.getHendelser().size());
 
         Assert.assertEquals(10, (long)result.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("12345", result.getHendelser().get(0).getIdentifikator().toString());
-        Assert.assertEquals("2016", result.getHendelser().get(0).getGjelderPeriode().toString());
+        Assert.assertEquals("12345", result.getHendelser().get(0).getIdentifikator());
+        Assert.assertEquals("2016", result.getHendelser().get(0).getGjelderPeriode());
 
         Assert.assertEquals(11, (long)result.getHendelser().get(1).getSekvensnummer());
-        Assert.assertEquals("67891", result.getHendelser().get(1).getIdentifikator().toString());
-        Assert.assertEquals("2017", result.getHendelser().get(1).getGjelderPeriode().toString());
+        Assert.assertEquals("67891", result.getHendelser().get(1).getIdentifikator());
+        Assert.assertEquals("2017", result.getHendelser().get(1).getGjelderPeriode());
     }
 
     @Test

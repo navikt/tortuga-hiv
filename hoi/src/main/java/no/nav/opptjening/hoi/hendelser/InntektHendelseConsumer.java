@@ -75,7 +75,7 @@ public class InntektHendelseConsumer {
 
                 LOG.info("HOI haandterer hendelse={}", hendelse);
 
-                BeregnetSkatt beregnetSkatt = beregnetskattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode().toString(), hendelse.getIdentifikator().toString());
+                BeregnetSkatt beregnetSkatt = beregnetskattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode(), hendelse.getIdentifikator());
                 LOG.info("HOI sender inntekt='{}'", beregnetSkatt);
                 inntektsProducer.send(new ProducerRecord<>(KafkaConfiguration.PENSJONSGIVENDE_INNTEKT_TOPIC, pensjonsgivendeInntektMapper.toPensjonsgivendeInntekt(beregnetSkatt)));
                 counterService.increment("inntektshendelser.processed");
