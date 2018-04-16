@@ -22,7 +22,7 @@ public class HendelsePoller {
 
     private final HendelserClient beregnetskattHendelserClient;
     private final Producer<String, Hendelse> hendelseProducer;
-    private final SekvensnummerStorage sekvensnummerStorage;
+    private final SekvensnummerService sekvensnummerService;
     private final CounterService counterService;
     private final GaugeService gaugeService;
 
@@ -32,11 +32,11 @@ public class HendelsePoller {
     private boolean initialized;
 
     public HendelsePoller(HendelserClient beregnetskattHendelserClient, Producer<String, Hendelse> hendelseProducer,
-                          SekvensnummerStorage sekvensnummerStorage, CounterService counterService, GaugeService gaugeService) {
+                          SekvensnummerService sekvensnummerService, CounterService counterService, GaugeService gaugeService) {
         this.beregnetskattHendelserClient = beregnetskattHendelserClient;
 
         this.hendelseProducer = hendelseProducer;
-        this.sekvensnummerStorage = sekvensnummerStorage;
+        this.sekvensnummerService = sekvensnummerService;
         this.gaugeService = gaugeService;
         this.counterService = counterService;
     }
@@ -45,7 +45,7 @@ public class HendelsePoller {
         this.counterService.reset("hendelser.received");
         this.counterService.reset("hendelser.processed");
 
-        sekvensnummerStorage.persistSekvensnummer(0);
+        sekvensnummerService.persistSekvensnummer(0);
     }
 
     @Scheduled(fixedDelay = 5000, initialDelay = 5000)
@@ -58,13 +58,13 @@ public class HendelsePoller {
         try {
             long nextSekvensnummer;
             try {
-                nextSekvensnummer = sekvensnummerStorage.getSekvensnummer();
+                nextSekvensnummer = sekvensnummerService.getSekvensnummer();
                 gaugeService.submit("hendelser.current_sekvensnummer", nextSekvensnummer);
             } catch (NoOffsetForPartitionException e) {
                 LOG.warn("First run for consumer, setting sekvensnummer to 1", e);
 
                 // TODO: there must be a better way of doing this
-                sekvensnummerStorage.persistSekvensnummer(0);
+                sekvensnummerService.persistSekvensnummer(0);
                 return;
             } catch (IllegalStateException e) {
                 LOG.info(e.getMessage(), e);
@@ -73,7 +73,7 @@ public class HendelsePoller {
 
             try {
                 long lastSentSekvensnummer = handleSekvensnummer(nextSekvensnummer);
-                sekvensnummerStorage.persistSekvensnummer(lastSentSekvensnummer);
+                sekvensnummerService.persistSekvensnummer(lastSentSekvensnummer);
             } catch (EmptyResultException e) {
                 LOG.info("Empty result, waiting before trying again");
             }

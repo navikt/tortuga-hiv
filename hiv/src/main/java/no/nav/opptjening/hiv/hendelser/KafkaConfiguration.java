@@ -114,7 +114,12 @@ public class KafkaConfiguration {
 
     @Bean
     public SekvensnummerStorage sekvensnummerStorage(Producer<String, Long> producer, Consumer<String, Long> consumer) {
-        return new SekvensnummerStorage(producer, consumer, new TopicPartition(SEKVENSNUMMER_TOPIC, 0));
+        return new KafkaSekvensnummerStorage(producer, consumer, new TopicPartition(SEKVENSNUMMER_TOPIC, 0));
+    }
+
+    @Bean
+    public SekvensnummerService sekvensnummerService(SekvensnummerStorage storage) {
+        return new SekvensnummerService(storage);
     }
 
     @Bean
