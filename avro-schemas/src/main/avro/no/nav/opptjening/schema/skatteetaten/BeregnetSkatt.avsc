@@ -57,7 +57,7 @@
     },
     {
       "name": "pensjonsgrad",
-      "type": "float"
+      "type": "double"
     },
     {
       "name": "antallMaanederPensjon",

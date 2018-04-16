@@ -85,7 +85,7 @@ public class BeregnetskattClientTest {
         Assert.assertEquals(40000, result.getPersoninntektBarePensjonsdel(), 0);
         Assert.assertEquals(30000, result.getPersoninntektBareSykedel(), 0);
         Assert.assertEquals(10700, result.getSamletPensjon(), 0);
-        Assert.assertEquals("100.1", Float.toString(result.getPensjonsgrad()));
+        Assert.assertEquals("100.1", Double.toString(result.getPensjonsgrad()));
         Assert.assertEquals(12, result.getAntallMaanederPensjon(), 0);
         Assert.assertEquals(12, result.getTolvdeler(), 0);
         Assert.assertEquals("1E", result.getSkatteklasse());
