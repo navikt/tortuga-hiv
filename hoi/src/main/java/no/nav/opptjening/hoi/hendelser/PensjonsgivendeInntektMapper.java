@@ -1,6 +1,8 @@
 package no.nav.opptjening.hoi.hendelser;
 
+import no.nav.opptjening.schema.Fastlandsinntekt;
 import no.nav.opptjening.schema.PensjonsgivendeInntekt;
+import no.nav.opptjening.schema.Svalbardinntekt;
 import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
 
 public class PensjonsgivendeInntektMapper {
@@ -9,12 +11,16 @@ public class PensjonsgivendeInntektMapper {
         return PensjonsgivendeInntekt.newBuilder()
                 .setPersonidentifikator(beregnetSkatt.getPersonidentifikator())
                 .setInntektsaar(beregnetSkatt.getInntektsaar())
-                .setPersoninntektBarePensjonsdel(beregnetSkatt.getPersoninntektBarePensjonsdel())
-                .setPersoninntektLoenn(beregnetSkatt.getPersoninntektLoenn())
-                .setPersoninntektNaering(beregnetSkatt.getPersoninntektNaering())
-                .setPersoninntektFiskeFangstFamiliebarnehage(beregnetSkatt.getPersoninntektFiskeFangstFamiliebarnehage())
-                .setSvalbardLoennLoennstrekkordningen(beregnetSkatt.getSvalbardLoennLoennstrekkordningen())
-                .setSvalbardPersoninntektNaering(beregnetSkatt.getSvalbardPersoninntektNaering())
+                .setFastlandsinntekt(Fastlandsinntekt.newBuilder()
+                    .setPersoninntektBarePensjonsdel(beregnetSkatt.getPersoninntektBarePensjonsdel())
+                    .setPersoninntektLoenn(beregnetSkatt.getPersoninntektLoenn())
+                    .setPersoninntektNaering(beregnetSkatt.getPersoninntektNaering())
+                    .setPersoninntektFiskeFangstFamiliebarnehage(beregnetSkatt.getPersoninntektFiskeFangstFamiliebarnehage())
+                    .build())
+                .setSvalbardinntekt(Svalbardinntekt.newBuilder()
+                    .setSvalbardLoennLoennstrekkordningen(beregnetSkatt.getSvalbardLoennLoennstrekkordningen())
+                    .setSvalbardPersoninntektNaering(beregnetSkatt.getSvalbardPersoninntektNaering())
+                    .build())
                 .build();
     }
 }

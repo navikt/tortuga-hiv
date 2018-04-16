@@ -12,28 +12,46 @@
       "type": "string"
     },
     {
-      "name": "personinntektLoenn",
-      "type": "long"
+      "name": "fastlandsinntekt",
+      "type": {
+        "name": "Fastlandsinntekt",
+        "type": "record",
+        "fields": [
+          {
+            "name": "personinntektLoenn",
+            "type": "long"
+          },
+          {
+            "name": "personinntektFiskeFangstFamiliebarnehage",
+            "type": "long"
+          },
+          {
+            "name": "personinntektNaering",
+            "type": "long"
+          },
+          {
+            "name": "personinntektBarePensjonsdel",
+            "type": "long"
+          }
+        ]
+      }
     },
     {
-      "name": "personinntektFiskeFangstFamiliebarnehage",
-      "type": "long"
-    },
-    {
-      "name": "personinntektNaering",
-      "type": "long"
-    },
-    {
-      "name": "personinntektBarePensjonsdel",
-      "type": "long"
-    },
-    {
-      "name": "svalbardLoennLoennstrekkordningen",
-      "type": "long"
-    },
-    {
-      "name": "svalbardPersoninntektNaering",
-      "type": "long"
+      "name": "svalbardinntekt",
+      "type": {
+        "name": "Svalbardinntekt",
+        "type": "record",
+        "fields": [
+          {
+            "name": "svalbardLoennLoennstrekkordningen",
+            "type": "long"
+          },
+          {
+            "name": "svalbardPersoninntektNaering",
+            "type": "long"
+          }
+        ]
+      }
     }
   ]
 }
