@@ -1,66 +1,40 @@
 package no.nav.opptjening.hiv;
 
-import io.prometheus.client.Collector;
-import io.prometheus.client.GaugeMetricFamily;
-import io.prometheus.client.hotspot.DefaultExports;
-import io.prometheus.client.spring.boot.EnablePrometheusEndpoint;
-import io.prometheus.client.spring.boot.EnableSpringBootMetricsCollector;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.util.StopWatch;
+import no.nav.opptjening.hiv.hendelser.KafkaSekvensnummerReader;
+import no.nav.opptjening.hiv.hendelser.KafkaSekvensnummerWriter;
+import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetSkattHendelserClient;
+import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
-@SpringBootApplication
-@EnablePrometheusEndpoint
-@EnableSpringBootMetricsCollector
-@EnableScheduling
 public class Application {
-    private static final StopWatch startupStopWatch = new StopWatch();
 
-    public static void main(String [] args) {
-        startupStopWatch.start();
-        SpringApplication.run(Application.class, args);
-    }
+    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
-    @EventListener
-    public void registerJvmMetricsOnBoot(ApplicationReadyEvent event) {
-        DefaultExports.initialize();
-    }
+    public static void main(String[] args) {
+        Map<String, String> env = System.getenv();
 
-    @EventListener
-    public void onApplicationStartup(ApplicationReadyEvent event) {
-        startupStopWatch.stop();
+        ApplicationRunner appRunner;
+        try {
+            NaisHttpServer naisHttpServer = new NaisHttpServer();
 
-        new StartupInfoExports( ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0, startupStopWatch.getTotalTimeSeconds()).register();
-    }
+            KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
-    private static class StartupInfoExports extends Collector {
-        private final double jvmStartupTime;
-        private final double appStartupTime;
+            BeregnetSkattHendelserClient beregnetSkattHendelserClient = new BeregnetSkattHendelserClient(env.getOrDefault("SKATT_API_URL", "http://tortuga-testapi/ekstern/skatt/datasamarbeid/api/formueinntekt/beregnetskatt/"));
+            TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
+            KafkaSekvensnummerReader reader = new KafkaSekvensnummerReader(kafkaConfiguration.offsetConsumer(), partition);
+            KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(kafkaConfiguration.offsetProducer(), partition);
+            HendelseKafkaProducer hendelseProducer = new HendelseKafkaProducer(kafkaConfiguration.hendelseProducer(), writer);
+            BeregnetSkattHendelserConsumer consumer = new BeregnetSkattHendelserConsumer(beregnetSkattHendelserClient, hendelseProducer, reader);
 
-        private StartupInfoExports(double jvmStartupTime, double appStartupTime) {
-            this.jvmStartupTime = jvmStartupTime;
-            this.appStartupTime = appStartupTime;
+            appRunner = new ApplicationRunner(consumer, naisHttpServer);
+        } catch (Exception e) {
+            LOG.error("Application failed to start", e);
+            return;
         }
 
-        public List<MetricFamilySamples> collect() {
-            List<MetricFamilySamples> mfs = new ArrayList<>();
-
-            GaugeMetricFamily startupInfo = new GaugeMetricFamily("startup_time", "How long time startup took", Arrays.asList("type"));
-            startupInfo.addMetric(Arrays.asList("jvm"), jvmStartupTime);
-            startupInfo.addMetric(Arrays.asList("app"), appStartupTime);
-
-            mfs.add(startupInfo);
-
-            return mfs;
-        }
+        appRunner.run();
     }
-
 }

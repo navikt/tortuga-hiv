@@ -1,7 +1,7 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Feilmelding;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

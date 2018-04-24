@@ -1,13 +1,13 @@
 package no.nav.opptjening.skatt.api;
 
-import org.codehaus.jackson.JsonParseException;
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.ExceptionMapper;
 import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Feilmelding;
 import okhttp3.*;
 import okio.Buffer;
 import okio.BufferedSource;
 import org.apache.avro.AvroTypeException;
+import org.codehaus.jackson.JsonParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import retrofit2.Call;
@@ -46,7 +46,7 @@ public abstract class AbstractClient<T> {
         return api;
     }
 
-    protected <T> T call(Call<T> request) throws ApiException {
+    protected <T> T call(Call<T> request) throws ApiException, IOException {
 
         // throws IOException
         Response<T> response = null;
@@ -54,9 +54,6 @@ public abstract class AbstractClient<T> {
             response = request.execute();
         } catch (AvroTypeException e) {
             throw new ResponseMappingException(0, "Kan ikke mappe JSON-respons til den angitte klassen", e);
-        } catch (IOException e) {
-            // network error?
-            throw new RuntimeException(e);
         }
 
         if (response.isSuccessful()) {
@@ -71,8 +68,10 @@ public abstract class AbstractClient<T> {
             return mapToApiException(response);
         } catch (JsonParseException e) {
             // not valid JSON, continue
+        } catch (AvroTypeException e) {
+            return new UnmappableException(response.code(), "Kunne ikke mappe respons til Feilmelding", e);
         } catch (IOException e) {
-            return new UnmappableException(response.code(), "Kunne ikke mappe respons til FeilmeldingDto", e);
+            return new UnmappableException(response.code(), "Kunne ikke mappe respons til Feilmelding", e);
         }
 
         if (response.code() < 500) {

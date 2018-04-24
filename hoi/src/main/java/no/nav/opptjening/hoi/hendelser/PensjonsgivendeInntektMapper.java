@@ -3,7 +3,7 @@ package no.nav.opptjening.hoi.hendelser;
 import no.nav.opptjening.schema.Fastlandsinntekt;
 import no.nav.opptjening.schema.PensjonsgivendeInntekt;
 import no.nav.opptjening.schema.Svalbardinntekt;
-import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
+import no.nav.opptjening.skatt.schema.BeregnetSkatt;
 
 public class PensjonsgivendeInntektMapper {
 

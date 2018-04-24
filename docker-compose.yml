@@ -1,35 +1,28 @@
 version: "3"
 services:
-  hiv:
-    image: navikt/tortuga-hiv
-    links:
-      - testapi
-      - broker
-    environment:
-      - "LOGGING_CONFIG=classpath:logback-docker.xml"
-      - "KAFKA_BOOTSTRAP_SERVERS=broker:9092"
-      - "SCHEMA_REGISTRY_URL=http://schema_registry:8081"
-      - "SKATT_API_URL=http://testapi:8080/ekstern/skatt/datasamarbeid/api/"
-    ports:
-      - "8080:8080"
-  hoi:
-    image: navikt/tortuga-hoi
-    links:
-      - testapi
-      - broker
-    environment:
-      - "LOGGING_CONFIG=classpath:logback-docker.xml"
-      - "KAFKA_BOOTSTRAP_SERVERS=broker:9092"
-      - "SCHEMA_REGISTRY_URL=http://schema_registry:8081"
-      - "SKATT_API_URL=http://testapi:8080/ekstern/skatt/datasamarbeid/api/formueinntekt/pensjonsgivendeinntekt/"
-    ports:
-      - "8081:8080"
   testapi:
     image: navikt/tortuga-testapi
     environment:
       - "LOGGING_CONFIG=classpath:logback-docker.xml"
     ports:
       - "8082:8080"
+  kafka-topics-ui:
+    image: landoop/kafka-topics-ui
+    ports:
+      - "8000:8000"
+    environment:
+      KAFKA_REST_PROXY_URL: http://kafka-rest-proxy:8082
+      PROXY: "true"
+  kafka-rest-proxy:
+    image: confluentinc/cp-kafka-rest
+    hostname: kafka-rest-proxy
+    ports:
+      - "8084:8082"
+    environment:
+      KAFKA_REST_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_REST_HOST_NAME: kafka-rest-proxy
+      KAFKA_REST_SCHEMA_REGISTRY_URL: http://schema_registry:8081
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://broker:9092
   zookeeper:
     image: confluentinc/cp-zookeeper
     hostname: zookeeper
@@ -51,6 +44,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:9092'
       KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181

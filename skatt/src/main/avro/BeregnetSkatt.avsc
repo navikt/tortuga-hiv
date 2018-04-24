@@ -1,5 +1,5 @@
 {
-  "namespace": "no.nav.opptjening.schema.skatteetaten",
+  "namespace": "no.nav.opptjening.skatt.schema",
   "type": "record",
   "name": "BeregnetSkatt",
   "fields": [

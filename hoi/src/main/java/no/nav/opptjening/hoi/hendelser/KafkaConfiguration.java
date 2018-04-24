@@ -5,7 +5,7 @@ import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import no.nav.opptjening.schema.PensjonsgivendeInntekt;
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelse;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

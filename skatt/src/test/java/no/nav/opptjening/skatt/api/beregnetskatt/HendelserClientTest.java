@@ -1,10 +1,10 @@
 package no.nav.opptjening.skatt.api.beregnetskatt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelsesliste;
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Sekvensnummer;
 import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
 import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Sekvensnummer;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -29,7 +29,7 @@ public class HendelserClientTest {
 
     @Before
     public void setUp() throws Exception {
-        this.hendelserClient = new BeregnetSkattHendelserClient(server.url("/").toString());
+        this.hendelserClient = new BeregnetSkattHendelserClient(server.url("/formueinntekt/beregnetskatt/").toString());
     }
 
     @Test

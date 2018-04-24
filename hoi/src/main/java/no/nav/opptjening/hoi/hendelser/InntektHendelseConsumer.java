@@ -1,9 +1,9 @@
 package no.nav.opptjening.hoi.hendelser;
 
 import no.nav.opptjening.schema.PensjonsgivendeInntekt;
-import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Hendelse;
 import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetskattClient;
+import no.nav.opptjening.skatt.schema.BeregnetSkatt;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

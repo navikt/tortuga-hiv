@@ -1,6 +1,6 @@
 package no.nav.opptjening.skatt.api.beregnetskatt;
 
-import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
+import no.nav.opptjening.skatt.schema.BeregnetSkatt;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;

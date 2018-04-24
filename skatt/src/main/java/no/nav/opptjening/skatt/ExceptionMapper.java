@@ -1,7 +1,7 @@
 package no.nav.opptjening.skatt;
 
-import no.nav.opptjening.schema.skatteetaten.hendelsesliste.Feilmelding;
 import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Feilmelding;
 
 public class ExceptionMapper {
     private ApiException mapFeilmeldingToException(Feilmelding feilmelding, Throwable cause) {

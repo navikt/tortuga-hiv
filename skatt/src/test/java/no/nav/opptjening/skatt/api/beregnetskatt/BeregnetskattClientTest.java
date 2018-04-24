@@ -1,7 +1,7 @@
 package no.nav.opptjening.skatt.api.beregnetskatt;
 
-import no.nav.opptjening.schema.skatteetaten.BeregnetSkatt;
 import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.schema.BeregnetSkatt;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
