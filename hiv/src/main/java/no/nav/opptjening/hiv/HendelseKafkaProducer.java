@@ -83,10 +83,16 @@ public class HendelseKafkaProducer {
                 recordsSent++;
 
                 if (recordsSent == SEKVENSNUMMER_BUFFER) {
-                    LOG.info("Record sent ok, persisting sekvensnummer = {}", record.value().getSekvensnummer());
-                    sekvensnummerWriter.writeSekvensnummer(record.value().getSekvensnummer() + 1);
-
                     recordsSent = 0;
+
+                    LOG.info("Record sent ok, persisting sekvensnummer = {}", record.value().getSekvensnummer());
+                    try {
+                        sekvensnummerWriter.writeSekvensnummer(record.value().getSekvensnummer() + 1);
+                    } catch (Exception e) {
+                        LOG.error("Error while writing sekvensnummer, shutting down", e);
+                    } finally {
+                        shutdown();
+                    }
                 }
             }
         }
