@@ -1,5 +1,6 @@
 package no.nav.opptjening.hiv.hendelser;
 
+import io.prometheus.client.Gauge;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,6 +19,11 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
     private final Producer<String, Long> producer;
     private final TopicPartition topicPartition;
+
+    private static final Gauge nextSekvensnummerGauge = Gauge.build()
+            .name("next_sekvensnummer_written")
+            .labelNames("offset")
+            .help("Det siste 'neste sekvensnummer' vi forventer å få hendelser på, som er skrevet til Kafka").register();
 
     public KafkaSekvensnummerWriter(Producer<String, Long> producer, TopicPartition topicPartition) {
         this.producer = producer;
@@ -47,6 +53,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
                 producer.close(0, TimeUnit.MILLISECONDS);
             } else {
                 LOG.info("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
+                nextSekvensnummerGauge.labels(Long.toString(recordMetadata.offset())).set(record.value());
             }
         }
     }

@@ -1,5 +1,6 @@
 package no.nav.opptjening.hiv.hendelser;
 
+import io.prometheus.client.Gauge;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -25,6 +26,11 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
 
     private final Consumer<String, Long> consumer;
     private final TopicPartition topicPartition;
+
+    private static final Gauge nextSekvensnummerGauge = Gauge.build()
+            .name("next_sekvensnummer_persisted")
+            .labelNames("offset")
+            .help("Neste sekvensnummer vi forventer å få hendelser på, som er lagret på Kafka").register();
 
     public KafkaSekvensnummerReader(Consumer<String, Long> consumer, TopicPartition topicPartition) {
         this.consumer = consumer;
@@ -76,6 +82,8 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
             consumer.commitSync(Collections.singletonMap(topicPartition, offsetToCommit));
             LOG.info("Offset={} committed (committed offset = {})", offsetToCommit.offset(),
                     consumer.committed(topicPartition).offset());
+
+            nextSekvensnummerGauge.labels(Long.toString(nextSekvensnummer.offset())).set(nextSekvensnummer.value());
 
             return nextSekvensnummer.value();
         } catch (NoNextSekvensnummerRecordsToConsume e) {

@@ -1,6 +1,7 @@
 package no.nav.opptjening.hiv;
 
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import no.nav.opptjening.hiv.hendelser.CouldNotFindNextSekvensnummerRecord;
 import no.nav.opptjening.hiv.hendelser.SekvensnummerReader;
 import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
@@ -27,6 +28,14 @@ public class BeregnetSkattHendelserConsumer implements Runnable {
             .name("hendelser_received")
             .help("Antall hendelser hentet.").register();
 
+    private static final Gauge nextSekvensnummerGauge = Gauge.build()
+            .name("next_sekvensnummer")
+            .help("Neste sekvensnummer vi forventer å få hendelser på").register();
+
+    private static final Counter skatteetatenErrorCounter = Counter.build()
+            .name("skatteetaten_error_count")
+            .help("Antall feil vi har fått fra Skatteetaten sitt API").register();
+
     private final HendelserClient beregnetskattHendelserClient;
     private final HendelseKafkaProducer hendelseProducer;
     private final SekvensnummerReader sekvensnummerReader;
@@ -49,6 +58,8 @@ public class BeregnetSkattHendelserConsumer implements Runnable {
             }
 
             while (!Thread.currentThread().isInterrupted()) {
+                nextSekvensnummerGauge.set(nextSekvensnummer);
+
                 try {
                     Hendelsesliste hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
                     antallHendelserHentet.inc(hendelsesliste.getHendelser().size());
@@ -62,6 +73,7 @@ public class BeregnetSkattHendelserConsumer implements Runnable {
                     Thread.sleep(POLL_TIMEOUT_MS);
                 } catch (ApiException e) {
                     LOG.error("Error while contacting Skatteetaten", e);
+                    skatteetatenErrorCounter.inc();
                     Thread.sleep(POLL_TIMEOUT_MS);
                 }
             }

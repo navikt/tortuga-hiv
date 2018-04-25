@@ -22,6 +22,10 @@ public class HendelseKafkaProducer {
             .name("hendelser_processed")
             .help("Antall hendelser sendt.").register();
 
+    private static final Counter antallHendelserPersisted = Counter.build()
+            .name("hendelser_persisted")
+            .help("Antall hendelser bekreftet sendt.").register();
+
     private final Producer<String, Hendelse> producer;
     private final SekvensnummerWriter sekvensnummerWriter;
 
@@ -81,6 +85,7 @@ public class HendelseKafkaProducer {
                 shutdown();
             } else {
                 recordsSent++;
+                antallHendelserPersisted.inc();
 
                 if (recordsSent == SEKVENSNUMMER_BUFFER) {
                     recordsSent = 0;
