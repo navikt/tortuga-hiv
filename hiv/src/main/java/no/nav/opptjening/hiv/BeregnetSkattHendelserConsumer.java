@@ -7,6 +7,7 @@ import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
 import no.nav.opptjening.skatt.exceptions.ApiException;
 import no.nav.opptjening.skatt.exceptions.EmptyResultException;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import org.apache.kafka.common.KafkaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,8 @@ public class BeregnetSkattHendelserConsumer implements Runnable {
             LOG.warn("Thread got interrupted during sleep, exiting", e);
         } catch (CouldNotFindNextSekvensnummerRecord e) {
             LOG.error(e.getMessage(), e);
+        } catch (KafkaException e) {
+            LOG.error("Error while consuming or producing data on Kafka", e);
         } catch (Exception e) {
             LOG.error("Unknown error", e);
         } finally {
