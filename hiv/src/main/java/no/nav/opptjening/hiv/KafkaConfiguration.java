@@ -39,7 +39,7 @@ public class KafkaConfiguration {
 
     public KafkaConfiguration(Map<String, String> env) {
         this.bootstrapServers = env.getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443");
-        this.schemaUrl = env.getOrDefault("SCHEMA_REGISTRY_URL", "http://tpa-confluent-nais-confluent-schema-registry.tpa:8081");
+        this.schemaUrl = env.getOrDefault("SCHEMA_REGISTRY_URL", "http://kafka-schema-registry.tpa:8081");
 
         this.username = env.get("KAFKA_USERNAME");
         this.password = env.get("KAFKA_PASSWORD");
