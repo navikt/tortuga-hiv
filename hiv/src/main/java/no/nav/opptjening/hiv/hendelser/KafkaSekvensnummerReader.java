@@ -29,8 +29,10 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
 
     private static final Gauge nextSekvensnummerGauge = Gauge.build()
             .name("next_sekvensnummer_persisted")
-            .labelNames("offset")
             .help("Neste sekvensnummer vi forventer å få hendelser på, som er lagret på Kafka").register();
+    private static final Gauge nextSekvensnummerOffsetGauge = Gauge.build()
+            .name("next_sekvensnummer_persisted_offset")
+            .help("Offset til neste sekvensnummer vi forventer å få hendelser på, som er lagret på Kafka").register();
 
     public KafkaSekvensnummerReader(Consumer<String, Long> consumer, TopicPartition topicPartition) {
         this.consumer = consumer;
@@ -83,7 +85,8 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
             LOG.info("Offset={} committed (committed offset = {})", offsetToCommit.offset(),
                     consumer.committed(topicPartition).offset());
 
-            nextSekvensnummerGauge.labels(Long.toString(nextSekvensnummer.offset())).set(nextSekvensnummer.value());
+            nextSekvensnummerOffsetGauge.set(nextSekvensnummer.offset());
+            nextSekvensnummerGauge.set(nextSekvensnummer.value());
 
             return nextSekvensnummer.value();
         } catch (NoNextSekvensnummerRecordsToConsume e) {

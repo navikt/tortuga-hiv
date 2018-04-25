@@ -22,8 +22,10 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
     private static final Gauge nextSekvensnummerGauge = Gauge.build()
             .name("next_sekvensnummer_written")
-            .labelNames("offset")
             .help("Det siste 'neste sekvensnummer' vi forventer å få hendelser på, som er skrevet til Kafka").register();
+    private static final Gauge nextSekvensnummerOffsetGauge = Gauge.build()
+            .name("next_sekvensnummer_written_offset")
+            .help("Offset til det siste 'neste sekvensnummer' vi forventer å få hendelser på, som er skrevet til Kafka").register();
 
     public KafkaSekvensnummerWriter(Producer<String, Long> producer, TopicPartition topicPartition) {
         this.producer = producer;
@@ -53,7 +55,8 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
                 producer.close(0, TimeUnit.MILLISECONDS);
             } else {
                 LOG.info("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
-                nextSekvensnummerGauge.labels(Long.toString(recordMetadata.offset())).set(record.value());
+                nextSekvensnummerOffsetGauge.set(recordMetadata.offset());
+                nextSekvensnummerGauge.set(record.value());
             }
         }
     }
