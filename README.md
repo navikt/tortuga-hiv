@@ -34,4 +34,22 @@ For å sette opp et testmiljø holder det å kjøre Docker Compose:
 docker-compose up
 ```
 
-Hiv kan da kjøres med `./run-hiv.sh` så mange ganger som ønskelig. 
+Hiv kan da startes med `./run-hiv.sh`, og tilsvarende for Hoi med `./run-hoi.sh`.
+
+Testapiet er satt opp med lokal portmapping `8082`, og du kan opprette testhendelser slik:
+
+```
+curl -X POST http://localhost:8082/createHendelser/<antall hendelser>
+```
+
+---
+
+# Henvendelser
+
+Spørsmål knyttet til koden eller prosjektet kan rettes mot:
+
+* David Steinsland, david.steinsland@nav.no
+
+## For NAV-ansatte
+
+Interne henvendelser kan sendes via Slack i kanalen #peon.
