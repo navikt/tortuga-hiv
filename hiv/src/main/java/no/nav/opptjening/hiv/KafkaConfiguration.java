@@ -27,6 +27,18 @@ public class KafkaConfiguration {
 
     public static final String SEKVENSNUMMER_TOPIC = "privat-tortuga-sekvensnummerTilstand";
 
+    public static class Properties {
+        public static final String BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
+        public static final String SCHEMA_REGISTRY_URL = "SCHEMA_REGISTRY_URL";
+        public static final String USERNAME = "KAFKA_USERNAME";
+        public static final String PASSWORD = "KAFKA_PASSWORD";
+        public static final String SASL_JAAS_CONFIG = "KAFKA_SASL_JAAS_CONFIG";
+        public static final String SASL_MECHANISM = "KAFKA_SASL_MECHANISM";
+        public static final String SECURITY_PROTOCOL = "KAFKA_SECURITY_PROTOCOL";
+        public static final String TRUSTSTORE_LOCATION = "KAFKA_SSL_TRUSTSTORE_LOCATION";
+        public static final String TRUSTSTORE_PASSWORD = "KAFKA_SSL_TRUSTSTORE_PASSWORD";
+    }
+
     private final String bootstrapServers;
     private final String schemaUrl;
     private final String securityProtocol;
@@ -38,23 +50,28 @@ public class KafkaConfiguration {
     private final String password;
 
     public KafkaConfiguration(Map<String, String> env) {
-        this.bootstrapServers = env.getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443");
-        this.schemaUrl = env.getOrDefault("SCHEMA_REGISTRY_URL", "http://kafka-schema-registry.tpa:8081");
+        this.bootstrapServers = env.getOrDefault(Properties.BOOTSTRAP_SERVERS, "b27apvl00045.preprod.local:8443,b27apvl00046.preprod.local:8443,b27apvl00047.preprod.local:8443");
+        this.schemaUrl = env.getOrDefault(Properties.SCHEMA_REGISTRY_URL, "http://kafka-schema-registry.tpa:8081");
 
-        this.username = env.get("KAFKA_USERNAME");
-        this.password = env.get("KAFKA_PASSWORD");
+        this.username = nullIfEmpty(env.get(Properties.USERNAME));
+        this.password = nullIfEmpty(env.get(Properties.PASSWORD));
 
-        this.saslJaasConfig = nullIfEmpty(env.getOrDefault("KAFKA_SASL_JAAS_CONFIG", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + username + "\" password=\"" + password + "\";"));
-        this.saslMechanism = nullIfEmpty(env.getOrDefault("KAFKA_SASL_MECHANISM", "PLAIN"));
-        this.securityProtocol = nullIfEmpty(env.getOrDefault("KAFKA_SECURITY_PROTOCOL", "SASL_SSL"));
+        if (this.username != null && this.password != null) {
+            this.saslJaasConfig = nullIfEmpty(env.getOrDefault(Properties.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + username + "\" password=\"" + password + "\";"));
+        } else {
+            this.saslJaasConfig = null;
+        }
+
+        this.saslMechanism = nullIfEmpty(env.getOrDefault(Properties.SASL_MECHANISM, "PLAIN"));
+        this.securityProtocol = nullIfEmpty(env.getOrDefault(Properties.SECURITY_PROTOCOL, "SASL_SSL"));
 
         try {
-            this.truststoreLocation = resourceToFile(env.get("KAFKA_SSL_TRUSTSTORE_LOCATION"));
+            this.truststoreLocation = resourceToFile(env.get(Properties.TRUSTSTORE_LOCATION));
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Invalid truststore file", e);
         }
 
-        this.truststorePassword = nullIfEmpty(env.get("KAFKA_SSL_TRUSTSTORE_PASSWORD"));
+        this.truststorePassword = nullIfEmpty(env.get(Properties.TRUSTSTORE_PASSWORD));
     }
 
     private static String nullIfEmpty(String value) {

@@ -140,7 +140,7 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
         for (ConsumerRecords<String, Long> consumerRecords : recordsList) {
             for (ConsumerRecord<String, Long> record : consumerRecords.records(partition)) {
                 if (!key.equals(record.key())) {
-                    LOG.error("Log contains unexpected key {} at offset {} in {}-{}", record.key(),
+                    LOG.warn("Log contains unexpected key {} at offset {} in {}-{}", record.key(),
                             record.offset(), record.topic(), record.partition());
                     continue;
                 }

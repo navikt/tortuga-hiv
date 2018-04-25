@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class HendelseKafkaProducer {
     private static final Logger LOG = LoggerFactory.getLogger(HendelseKafkaProducer.class);
 
-    private static final String BEREGNET_SKATT_HENDELSE_TOPIC = "privat-tortuga-beregnetSkattHendelseHentet";
+    public static final String BEREGNET_SKATT_HENDELSE_TOPIC = "privat-tortuga-beregnetSkattHendelseHentet";
 
     private static final Counter antallHendelserSendt = Counter.build()
             .name("hendelser_processed")
