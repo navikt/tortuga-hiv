@@ -16,13 +16,11 @@ import static org.junit.Assert.assertEquals;
 public class HendelseKafkaProducerTest {
     private MockProducer<String, Hendelse> producer;
     private DummySekvensnummerWriter writer;
-    private HendelseKafkaProducer hendelseKafkaProducer;
 
     @Before
     public void setUp() {
         producer = new MockProducer<>();
         writer = new DummySekvensnummerWriter();
-        hendelseKafkaProducer = new HendelseKafkaProducer(producer, writer);
     }
 
     @Test
@@ -40,6 +38,7 @@ public class HendelseKafkaProducerTest {
                         .setGjelderPeriode("2018").build()
         );
 
+        HendelseKafkaProducer hendelseKafkaProducer = new HendelseKafkaProducer(producer, writer);
         Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), hendelseKafkaProducer.sendHendelser(hendelseList));
 
         producer.flush();
@@ -73,6 +72,7 @@ public class HendelseKafkaProducerTest {
                         .setGjelderPeriode("2018").build()
         );
 
+        HendelseKafkaProducer hendelseKafkaProducer = new HendelseKafkaProducer(producer, writer);
         Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), hendelseKafkaProducer.sendHendelser(hendelseList));
 
         producer.completeNext();
@@ -90,7 +90,7 @@ public class HendelseKafkaProducerTest {
 
         assertEquals(expected, history);
 
-        Assert.assertEquals(-1, writer.lastWrittenSekvensnummer);
+        Assert.assertEquals(2, writer.lastWrittenSekvensnummer);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class HendelseKafkaProducerTest {
 
         RuntimeException exception = new RuntimeException("Failed to write sekvensnummer");
         ExceptionThrowerSekvensnummerWriter evilWriter = new ExceptionThrowerSekvensnummerWriter(exception);
-        hendelseKafkaProducer = new HendelseKafkaProducer(producer, evilWriter);
+        HendelseKafkaProducer hendelseKafkaProducer = new HendelseKafkaProducer(producer, evilWriter);
 
         Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), hendelseKafkaProducer.sendHendelser(hendelseList));
 
@@ -134,6 +134,8 @@ public class HendelseKafkaProducerTest {
 
     @Test
     public void close() {
+        HendelseKafkaProducer hendelseKafkaProducer = new HendelseKafkaProducer(producer, writer);
+
         Assert.assertFalse(producer.closed());
         hendelseKafkaProducer.close();
         Assert.assertTrue(producer.closed());
