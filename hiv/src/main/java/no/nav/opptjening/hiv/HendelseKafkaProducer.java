@@ -95,7 +95,6 @@ public class HendelseKafkaProducer {
                         sekvensnummerWriter.writeSekvensnummer(record.value().getSekvensnummer() + 1);
                     } catch (Exception e) {
                         LOG.error("Error while writing sekvensnummer, shutting down", e);
-                    } finally {
                         shutdown();
                     }
                 }
@@ -103,6 +102,7 @@ public class HendelseKafkaProducer {
         }
 
         private void shutdown() {
+            LOG.info("Shutting down hendelse producer");
             shutdown = true;
             producer.close(0, TimeUnit.MILLISECONDS);
             callingThread.interrupt();
