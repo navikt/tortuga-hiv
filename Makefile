@@ -24,7 +24,7 @@ test:
 		-u $(shell id -u) \
 		-v ${HOME}/.m2:/var/maven/.m2 \
 		-e MAVEN_CONFIG=/var/maven/.m2 \
-		maven:3.5-jdk-8 mvn -Duser.home=/var/maven test -B
+		maven:3.5-jdk-8 mvn -Duser.home=/var/maven verify -B -e
 
 docker: hiv hoi testapi
 
