@@ -1,4 +1,4 @@
-package no.nav.opptjening.skatt.api.hendelser;
+package no.nav.opptjening.skatt.api.hendelseliste;
 
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Sekvensnummer;

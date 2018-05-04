@@ -1,4 +1,6 @@
-package no.nav.opptjening.skatt.exceptions;
+package no.nav.opptjening.skatt.api.hendelseliste.exceptions;
+
+import no.nav.opptjening.skatt.exceptions.BadRequestException;
 
 public class MissingSekvensnummerException extends BadRequestException {
 

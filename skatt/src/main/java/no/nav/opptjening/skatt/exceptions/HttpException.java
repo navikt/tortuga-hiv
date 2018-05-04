@@ -1,10 +1,10 @@
 package no.nav.opptjening.skatt.exceptions;
 
-public abstract class ApiException extends IllegalArgumentException {
+public abstract class HttpException extends IllegalArgumentException {
 
     private int httpStatus;
 
-    protected ApiException(int httpStatus, String message, Throwable cause) {
+    protected HttpException(int httpStatus, String message, Throwable cause) {
         super(message, cause);
         this.httpStatus = httpStatus;
     }

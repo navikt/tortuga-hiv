@@ -4,9 +4,9 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import no.nav.opptjening.hiv.hendelser.CouldNotFindNextSekvensnummerRecord;
 import no.nav.opptjening.hiv.hendelser.SekvensnummerReader;
-import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
-import no.nav.opptjening.skatt.exceptions.ApiException;
-import no.nav.opptjening.skatt.exceptions.EmptyResultException;
+import no.nav.opptjening.skatt.api.hendelseliste.HendelserClient;
+import no.nav.opptjening.skatt.exceptions.HttpException;
+import no.nav.opptjening.skatt.api.hendelseliste.exceptions.EmptyResultException;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
 import org.apache.kafka.common.KafkaException;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class BeregnetSkattHendelserConsumer implements Runnable {
                 } catch (EmptyResultException e) {
                     LOG.debug("Skatteetaten reported no new records, waiting a bit before trying again", e);
                     Thread.sleep(POLL_TIMEOUT_MS);
-                } catch (ApiException e) {
+                } catch (HttpException e) {
                     LOG.error("Error while contacting Skatteetaten", e);
                     skatteetatenErrorCounter.inc();
                     Thread.sleep(POLL_TIMEOUT_MS);

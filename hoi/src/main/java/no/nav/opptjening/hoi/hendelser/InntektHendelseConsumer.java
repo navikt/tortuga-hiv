@@ -1,7 +1,7 @@
 package no.nav.opptjening.hoi.hendelser;
 
 import no.nav.opptjening.schema.PensjonsgivendeInntekt;
-import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetskattClient;
+import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetSkattClient;
 import no.nav.opptjening.skatt.schema.BeregnetSkatt;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -30,13 +30,13 @@ public class InntektHendelseConsumer {
     private final CounterService counterService;
     private final GaugeService gaugeService;
 
-    private BeregnetskattClient beregnetskattClient;
+    private BeregnetSkattClient beregnetSkattClient;
 
     private PensjonsgivendeInntektMapper pensjonsgivendeInntektMapper = new PensjonsgivendeInntektMapper();
 
-    public InntektHendelseConsumer(BeregnetskattClient beregnetskattClient, Consumer<String, Hendelse> hendelseConsumer, Producer<String, PensjonsgivendeInntekt> inntektProducer,
+    public InntektHendelseConsumer(BeregnetSkattClient beregnetSkattClient, Consumer<String, Hendelse> hendelseConsumer, Producer<String, PensjonsgivendeInntekt> inntektProducer,
                                    CounterService counterService, GaugeService gaugeService) {
-        this.beregnetskattClient = beregnetskattClient;
+        this.beregnetSkattClient = beregnetSkattClient;
         this.hendelseConsumer = hendelseConsumer;
         this.inntektsProducer = inntektProducer;
         this.counterService = counterService;
@@ -75,7 +75,7 @@ public class InntektHendelseConsumer {
 
                 LOG.info("HOI haandterer hendelse={}", hendelse);
 
-                BeregnetSkatt beregnetSkatt = beregnetskattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode(), hendelse.getIdentifikator());
+                BeregnetSkatt beregnetSkatt = beregnetSkattClient.getBeregnetSkatt("nav", hendelse.getGjelderPeriode(), hendelse.getIdentifikator());
                 LOG.info("HOI sender inntekt='{}'", beregnetSkatt);
                 inntektsProducer.send(new ProducerRecord<>(KafkaConfiguration.PENSJONSGIVENDE_INNTEKT_TOPIC, pensjonsgivendeInntektMapper.toPensjonsgivendeInntekt(beregnetSkatt)));
                 counterService.increment("inntektshendelser.processed");

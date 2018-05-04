@@ -1,8 +1,12 @@
-package no.nav.opptjening.skatt.api.beregnetskatt;
+package no.nav.opptjening.skatt.api.hendelseliste;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.opptjening.skatt.api.hendelser.HendelserClient;
-import no.nav.opptjening.skatt.exceptions.*;
+import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetSkattHendelserClient;
+import no.nav.opptjening.skatt.api.exceptions.ResponseUnmappableException;
+import no.nav.opptjening.skatt.api.exceptions.UkjentFeilkodeException;
+import no.nav.opptjening.skatt.api.hendelseliste.exceptions.MissingSekvensnummerException;
+import no.nav.opptjening.skatt.exceptions.ClientException;
+import no.nav.opptjening.skatt.exceptions.ServerException;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Sekvensnummer;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,7 +37,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void forsteSekvensEtter() throws Exception {
+    public void when_NextSekvensnummerAfterDateResponseIsOk_Then_ValuesAreMappedCorrectly() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"sekvensnummer\": 10}")
                 .setResponseCode(200)
@@ -51,7 +55,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void forsteSekvensEtterUnexpectedFormat() throws Exception {
+    public void when_NextSekvensnummerAfterDateResponseIsUnexpectedFormat_Then_ThrowResponseUnmappableException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"sekvens\": 10}")
                 .setResponseCode(200)
@@ -60,9 +64,9 @@ public class HendelserClientTest {
 
         try {
             LocalDate date = LocalDate.of(2017, 1, 1);
-            Sekvensnummer result = hendelserClient.forsteSekvensEtter(date);
-            fail("Expected an ResponseMappingException to be thrown");
-        } catch (ResponseMappingException e) {
+            hendelserClient.forsteSekvensEtter(date);
+            fail("Expected an ResponseUnmappableException to be thrown");
+        } catch (ResponseUnmappableException e) {
             // ok
         }
 
@@ -72,7 +76,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void forsteSekvensEtterInvalidJson() throws Exception {
+    public void when_NextSekvensnummerAfterDateResponseIsGeneric4xxError_Then_ThrowClientException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("this is not valid json")
                 .setResponseCode(400)
@@ -81,7 +85,7 @@ public class HendelserClientTest {
 
         try {
             LocalDate date = LocalDate.of(2017, 1, 1);
-            Sekvensnummer result = hendelserClient.forsteSekvensEtter(date);
+            hendelserClient.forsteSekvensEtter(date);
             fail("Expected an ClientException to be thrown");
         } catch (ClientException e) {
             // ok
@@ -93,7 +97,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelser() throws Exception {
+    public void when_HendelserResponseIsOk_Then_ValuesAreMappedCorrectly() throws Exception {
         Map<String, List<HendelseDto>> response = new HashMap<>();
 
         List<HendelseDto> mockHendelser = new ArrayList<>();
@@ -126,7 +130,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelserUnexpectedFormat() throws Exception {
+    public void when_HendelserResponseIsUnexpectedFormat_Then_ThrowResponseUnmappableException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"foo\": \"bar\"}")
                 .setResponseCode(200)
@@ -134,9 +138,9 @@ public class HendelserClientTest {
         );
 
         try {
-            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
-            fail("Expected an ResponseMappingException to be thrown");
-        } catch (ResponseMappingException e) {
+            hendelserClient.getHendelser(10, 1000);
+            fail("Expected an ResponseUnmappableException to be thrown");
+        } catch (ResponseUnmappableException e) {
             // ok
         }
 
@@ -146,7 +150,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelserThrowsApiException() throws Exception {
+    public void when_fraSekvensnummerIsNotSet_Then_ThrowMissingSekvensnummerException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"kode\": \"FA-001\", \"melding\": \"fraSekvensnummer må være satt\"}")
                 .setResponseCode(400)
@@ -154,7 +158,7 @@ public class HendelserClientTest {
         );
 
         try {
-            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
+            hendelserClient.getHendelser(10, 1000);
             fail("Expected an MissingSekvensnummerException to be thrown");
         } catch (MissingSekvensnummerException e) {
             // ok
@@ -166,7 +170,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelserThrowsUnmappable() throws Exception {
+    public void when_feilkodeIsUnknown_Then_ThrowUkjentFeilkodeException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"kode\": \"ZZ-001\", \"melding\": \"Denne feilkoden er ikke implementert\"}")
                 .setResponseCode(400)
@@ -174,9 +178,9 @@ public class HendelserClientTest {
         );
 
         try {
-            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
-            fail("Expected an UnknownException to be thrown");
-        } catch (UnknownException e) {
+            hendelserClient.getHendelser(10, 1000);
+            fail("Expected an UkjentFeilkodeException to be thrown");
+        } catch (UkjentFeilkodeException e) {
             // ok
         }
 
@@ -186,7 +190,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelserThrowsClientException() throws Exception {
+    public void when_HendelserResponseIsGeneric4xxError_Then_ThrowClientException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("bad request")
                 .setResponseCode(400)
@@ -194,7 +198,7 @@ public class HendelserClientTest {
         );
 
         try {
-            Hendelsesliste result = hendelserClient.getHendelser(10, 1000);
+            hendelserClient.getHendelser(10, 1000);
             fail("Expected an ClientException to be thrown");
         } catch (ClientException e) {
             // ok
@@ -206,7 +210,7 @@ public class HendelserClientTest {
     }
 
     @Test
-    public void getHendelserThrowsServerException() throws Exception {
+    public void when_HendelserResponseIsGeneric5xxError_Then_ThrowServerException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("internal server error")
                 .setResponseCode(500)

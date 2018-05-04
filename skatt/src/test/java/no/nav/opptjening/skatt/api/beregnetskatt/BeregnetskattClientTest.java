@@ -1,5 +1,7 @@
 package no.nav.opptjening.skatt.api.beregnetskatt;
 
+import no.nav.opptjening.skatt.api.exceptions.ResponseUnmappableException;
+import no.nav.opptjening.skatt.api.exceptions.UkjentFeilkodeException;
 import no.nav.opptjening.skatt.exceptions.*;
 import no.nav.opptjening.skatt.schema.BeregnetSkatt;
 import okhttp3.mockwebserver.MockResponse;
@@ -12,19 +14,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
-public class BeregnetskattClientTest {
+public class BeregnetSkattClientTest {
     @Rule
     public MockWebServer server = new MockWebServer();
 
-    private BeregnetskattClient beregnetskattClient;
+    private BeregnetSkattClient beregnetSkattClient;
 
     @Before
     public void setUp() throws Exception {
-        this.beregnetskattClient = new BeregnetskattClient(server.url("/").toString());
+        this.beregnetSkattClient = new BeregnetSkattClient(server.url("/").toString());
     }
 
     @Test
-    public void hentInntekt() throws Exception {
+    public void when_ResponseIsOk_Then_CorrectValuesAreMappedOk() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\n" +
                         "    \"personidentifikator\": \"12345678901\",\n" +
@@ -66,7 +68,7 @@ public class BeregnetskattClientTest {
                 .addHeader("Content-Type", "application/json")
         );
 
-        BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345678901");
+        BeregnetSkatt result = beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345678901");
 
         RecordedRequest request = server.takeRequest();
         Assert.assertEquals("/nav/2016/12345678901", request.getPath());
@@ -108,7 +110,7 @@ public class BeregnetskattClientTest {
     }
 
     @Test
-    public void hentInntektUnexpectedFormat() throws Exception {
+    public void when_ResponseCannotBeMappedToAvroSchema_Then_Throw() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"pensjonsgivendeInntekt\": 150000}")
                 .setResponseCode(200)
@@ -116,9 +118,9 @@ public class BeregnetskattClientTest {
         );
 
         try {
-            BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345");
-            fail("Expected an ResponseMappingException to be thrown");
-        } catch (ResponseMappingException e) {
+            beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345");
+            fail("Expected an ResponseUnmappableException to be thrown");
+        } catch (ResponseUnmappableException e) {
             // ok
         }
 
@@ -128,17 +130,17 @@ public class BeregnetskattClientTest {
     }
 
     @Test
-    public void hentInntektThrowsApiException() throws Exception {
+    public void when_ResponseFailedWithFeilmelding_Then_ThrowMappedException() throws Exception {
         server.enqueue(new MockResponse()
-                .setBody("{\"kode\": \"PIA-006\", \"melding\": \"Fant ikke PGI for gitt inntektsår og identifikator\"}")
+                .setBody("{\"kode\": \"BSA-005\", \"melding\": \"Det forespurte inntektsåret er ikke støttet\"}")
                 .setResponseCode(400)
                 .addHeader("Content-Type", "application/json")
         );
 
         try {
-            BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345");
-            fail("Expected an MissingInntektException to be thrown");
-        } catch (MissingInntektException e) {
+            beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345");
+            fail("Expected an BadRequestException to be thrown");
+        } catch (BadRequestException e) {
             // ok
         }
 
@@ -148,7 +150,7 @@ public class BeregnetskattClientTest {
     }
 
     @Test
-    public void hentInntektThrowsUnmappable() throws Exception {
+    public void when_ReponseFailedWithUnknownFeilkode_Then_ThrowUkjentFeilkodeException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("{\"kode\": \"ZZ-001\", \"melding\": \"Denne feilkoden er ikke implementert\"}")
                 .setResponseCode(400)
@@ -156,9 +158,9 @@ public class BeregnetskattClientTest {
         );
 
         try {
-            BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345");
-            fail("Expected an UnknownException to be thrown");
-        } catch (UnknownException e) {
+            beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345");
+            fail("Expected an UkjentFeilkodeException to be thrown");
+        } catch (UkjentFeilkodeException e) {
             // ok
         }
 
@@ -168,7 +170,7 @@ public class BeregnetskattClientTest {
     }
 
     @Test
-    public void hentInntektThrowsClientException() throws Exception {
+    public void when_ResponseFailedWithGeneric4xxError_Then_ThrowClientException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("bad request")
                 .setResponseCode(400)
@@ -176,7 +178,7 @@ public class BeregnetskattClientTest {
         );
 
         try {
-            BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345");
+            beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345");
             fail("Expected an ClientException to be thrown");
         } catch (ClientException e) {
             // ok
@@ -188,7 +190,7 @@ public class BeregnetskattClientTest {
     }
 
     @Test
-    public void hentInntektThrowsServerException() throws Exception {
+    public void when_ResponseFailedWithGeneric5xxError_Then_ThrowServerException() throws Exception {
         server.enqueue(new MockResponse()
                 .setBody("internal server error")
                 .setResponseCode(500)
@@ -196,7 +198,7 @@ public class BeregnetskattClientTest {
         );
 
         try {
-            BeregnetSkatt result = beregnetskattClient.getBeregnetSkatt("nav","2016", "12345");
+            beregnetSkattClient.getBeregnetSkatt("nav","2016", "12345");
             fail("Expected an ServerException to be thrown");
         } catch (ServerException e) {
             // ok
