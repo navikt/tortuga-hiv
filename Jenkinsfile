@@ -10,7 +10,7 @@ node {
         stage("checkout") {
             withCredentials([string(credentialsId: 'navikt-ci-oauthtoken', variable: 'GITHUB_OAUTH_TOKEN')]) {
                 sh "git init"
-                sh "git pull https://${GITHUB_OAUTH_TOKEN}:x-oauth-basic@github.com/navikt/tortuga.git"
+                sh "git pull https://${GITHUB_OAUTH_TOKEN}:x-oauth-basic@github.com/navikt/tortuga-hiv.git"
             }
 
             sh "make bump-version"
@@ -18,7 +18,7 @@ node {
             version = sh(script: 'cat VERSION', returnStdout: true).trim()
 
             commitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-            github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
+            github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga-hiv", 'continuous-integration/jenkins', commitHash, 'pending', "Build #${env.BUILD_NUMBER} has started")
         }
 
         stage("build") {
@@ -33,7 +33,7 @@ node {
             sh "make release"
 
             withCredentials([string(credentialsId: 'navikt-ci-oauthtoken', variable: 'GITHUB_OAUTH_TOKEN')]) {
-                sh "git push --tags https://${GITHUB_OAUTH_TOKEN}@github.com/navikt/tortuga HEAD:master"
+                sh "git push --tags https://${GITHUB_OAUTH_TOKEN}@github.com/navikt/tortuga-hiv HEAD:master"
             }
         }
 
@@ -49,7 +49,7 @@ node {
                     wait      : false,
                     parameters: [
                             string(name: 'APP', value: "tortuga-hiv"),
-                            string(name: 'REPO', value: "navikt/tortuga"),
+                            string(name: 'REPO', value: "navikt/tortuga-hiv"),
                             string(name: 'VERSION', value: version),
                             string(name: 'COMMIT_HASH', value: commitHash),
                             string(name: 'DEPLOY_ENV', value: 'q0')
@@ -57,9 +57,9 @@ node {
             ])
         }
 
-        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
+        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga-hiv", 'continuous-integration/jenkins', commitHash, 'success', "Build #${env.BUILD_NUMBER} has finished")
     } catch (err) {
-        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
+        github.commitStatus("navikt-ci-oauthtoken", "navikt/tortuga-hiv", 'continuous-integration/jenkins', commitHash, 'failure', "Build #${env.BUILD_NUMBER} has failed")
 
         throw err
     }
