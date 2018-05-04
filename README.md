@@ -1,18 +1,7 @@
-Prosjekt Tortuga
-================
+Tortuga HIV
+===========
 
-Tortuga er NAV sitt nye system for å hente informasjon om pensjonsgivende inntekt
-fra [Skatteetaten sitt nye grensesnitt](https://skatteetaten.github.io/datasamarbeid-api-dokumentasjon/reference_pgi.html).
-
-Prosjektet består foreløpig av to separate applikasjoner, Hiv og Hoi.
-
-## Hiv
-
-Hiv skal **H**åndtere **I**nntekts**v**arslinger om pensjonsgivende inntekt fra Skatteetaten.
-
-## Hoi
-
-Hoi skal **H**ente **O**pplysninger om **I**nntekt til personer og muliggjøre persistering av informasjonen.
+HIV skal lytte på hendelser om beregnet skatt og tilby disse på en Kafka-topic.
 
 ## Installasjon og kjøring
 
@@ -24,17 +13,46 @@ For å bygge JAR og tilhørende Docker images:
 make
 ```
 
-Se de øvrige modulene for utfyllende informasjon om deres bygg- og kjøretidsmiljø.
+Man kan også bygge med maven:
+
+```
+mvn package
+```
 
 ## Testing
 
-For å sette opp et testmiljø holder det å kjøre Docker Compose: 
+For å sette opp et testmiljø (Kafka-kluster) holder det å kjøre Docker Compose: 
 
 ```
 docker-compose up
 ```
 
-Hiv kan da startes med `./run-hiv.sh`, og tilsvarende for Hoi med `./run-hoi.sh`.
+Man kan da kjøre både HIV og HOI mot testmiljøet.
+
+HIV kan startes med:
+
+```
+docker run \
+    -e KAFKA_BOOTSTRAP_SERVERS=broker:9092 \
+    -e SCHEMA_REGISTRY_URL=http://schema_registry:8081 \
+    -e KAFKA_SASL_JAAS_CONFIG= \
+    -e KAFKA_SASL_MECHANISM= \
+    -e KAFKA_SECURITY_PROTOCOL= \
+    -e SKATT_API_URL=http://testapi:8080/ekstern/skatt/datasamarbeid/api/formueinntekt/beregnetskatt/ \
+    --network=tortuga_default \
+    repo.adeo.no:5443/tortuga-hiv
+```
+
+HOI kan startes med:
+
+```
+docker run \
+    --network=tortgua_default \
+    repo.adeo.no:5443/tortuga-hoi
+```
+
+NB: I eksemplene ovenfor forutsettes det at du har klonet prosjektet ned til mappen `tortuga`,
+ettersom dette påvirker navnet Docker gir til nettverket.
 
 Testapiet er satt opp med lokal portmapping `8082`, og du kan opprette testhendelser slik:
 

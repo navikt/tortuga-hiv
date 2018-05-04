@@ -3,7 +3,7 @@ NAIS    := nais
 VERSION := $(shell cat ./VERSION)
 REGISTRY:= repo.adeo.no:5443
 
-.PHONY: all build test docker hiv hoi testapi docker-push bump-version release manifest
+.PHONY: all build test docker docker-push bump-version release manifest
 
 all: build test docker
 release: tag docker-push
@@ -26,24 +26,12 @@ test:
 		-e MAVEN_CONFIG=/var/maven/.m2 \
 		maven:3.5-jdk-8 mvn -Duser.home=/var/maven verify -B -e
 
-docker: hiv hoi testapi
-
-hiv:
-	$(NAIS) validate -f hiv/nais.yaml
-	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-hiv -t $(REGISTRY)/tortuga-hiv:$(VERSION) hiv
-
-hoi:
-	$(NAIS) validate -f hoi/nais.yaml
-	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-hoi -t $(REGISTRY)/tortuga-hoi:$(VERSION) hoi
-
-testapi:
-	$(NAIS) validate -f testapi/nais.yaml
-	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-testapi -t $(REGISTRY)/tortuga-testapi:$(VERSION) testapi
+docker:
+	$(NAIS) validate
+	$(DOCKER) build --pull -t $(REGISTRY)/tortuga-hiv -t $(REGISTRY)/tortuga-hiv:$(VERSION) .
 
 docker-push:
 	$(DOCKER) push $(REGISTRY)/tortuga-hiv:$(VERSION)
-	$(DOCKER) push $(REGISTRY)/tortuga-hoi:$(VERSION)
-	$(DOCKER) push $(REGISTRY)/tortuga-testapi:$(VERSION)
 
 bump-version:
 	@echo $$(($$(cat ./VERSION) + 1)) > ./VERSION
@@ -54,6 +42,4 @@ tag:
 	git tag -a $(VERSION) -m "auto-tag from Makefile"
 
 manifest:
-	nais upload --app tortuga-hiv -v $(VERSION) -f ./hiv/nais.yaml
-	nais upload --app tortuga-hoi -v $(VERSION) -f ./hoi/nais.yaml
-	nais upload --app tortuga-testapi -v $(VERSION) -f ./testapi/nais.yaml
+	nais upload --app tortuga-hiv -v $(VERSION)

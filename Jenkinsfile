@@ -33,7 +33,7 @@ node {
             sh "make release"
 
             withCredentials([string(credentialsId: 'navikt-ci-oauthtoken', variable: 'GITHUB_OAUTH_TOKEN')]) {
-                sh "git push --tags https://$GITHUB_OAUTH_TOKEN@github.com/navikt/tortuga HEAD:master"
+                sh "git push --tags https://${GITHUB_OAUTH_TOKEN}@github.com/navikt/tortuga HEAD:master"
             }
         }
 
@@ -48,31 +48,7 @@ node {
                     job       : 'nais-deploy-pipeline',
                     wait      : false,
                     parameters: [
-                            string(name: 'APP', value: "tortuga-testapi"),
-                            string(name: 'REPO', value: "navikt/tortuga"),
-                            string(name: 'VERSION', value: version),
-                            string(name: 'COMMIT_HASH', value: commitHash),
-                            string(name: 'DEPLOY_ENV', value: 'q0')
-                    ]
-            ])
-
-            build([
-                    job       : 'nais-deploy-pipeline',
-                    wait      : false,
-                    parameters: [
                             string(name: 'APP', value: "tortuga-hiv"),
-                            string(name: 'REPO', value: "navikt/tortuga"),
-                            string(name: 'VERSION', value: version),
-                            string(name: 'COMMIT_HASH', value: commitHash),
-                            string(name: 'DEPLOY_ENV', value: 'q0')
-                    ]
-            ])
-
-            build([
-                    job       : 'nais-deploy-pipeline',
-                    propagate : false,
-                    parameters: [
-                            string(name: 'APP', value: "tortuga-hoi"),
                             string(name: 'REPO', value: "navikt/tortuga"),
                             string(name: 'VERSION', value: version),
                             string(name: 'COMMIT_HASH', value: commitHash),
