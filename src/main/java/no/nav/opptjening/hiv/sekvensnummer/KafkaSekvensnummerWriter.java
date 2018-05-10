@@ -1,4 +1,4 @@
-package no.nav.opptjening.hiv.hendelser;
+package no.nav.opptjening.hiv.sekvensnummer;
 
 import io.prometheus.client.Gauge;
 import org.apache.kafka.clients.producer.Callback;

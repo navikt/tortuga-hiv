@@ -1,4 +1,4 @@
-package no.nav.opptjening.hiv.hendelser;
+package no.nav.opptjening.hiv.sekvensnummer;
 
 public interface SekvensnummerReader {
 

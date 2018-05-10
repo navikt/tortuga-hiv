@@ -1,7 +1,7 @@
 package no.nav.opptjening.hiv;
 
 import io.prometheus.client.Counter;
-import no.nav.opptjening.hiv.hendelser.SekvensnummerWriter;
+import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HendelseKafkaProducer {
-    private static final Logger LOG = LoggerFactory.getLogger(HendelseKafkaProducer.class);
-
-    public static final String BEREGNET_SKATT_HENDELSE_TOPIC = "privat-tortuga-beregnetSkattHendelseHentet";
+public class SkatteoppgjorhendelseProducer {
+    private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelseProducer.class);
 
     private static final Counter antallHendelserSendt = Counter.build()
             .name("hendelser_processed")
@@ -28,18 +26,20 @@ public class HendelseKafkaProducer {
             .help("Antall hendelser bekreftet sendt.").register();
 
     private final Producer<String, Hendelse> producer;
+    private final String topic;
     private final SekvensnummerWriter sekvensnummerWriter;
 
     private final AtomicBoolean shutdownFlag = new AtomicBoolean();
 
-    public HendelseKafkaProducer(Producer<String, Hendelse> producer, SekvensnummerWriter sekvensnummerWriter) {
+    public SkatteoppgjorhendelseProducer(Producer<String, Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter) {
         this.producer = producer;
+        this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
     }
 
     public long sendHendelser(List<Hendelse> hendelseList) {
         for (Hendelse hendelse : hendelseList) {
-            ProducerRecord<String, Hendelse> record = new ProducerRecord<>(BEREGNET_SKATT_HENDELSE_TOPIC, hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse);
+            ProducerRecord<String, Hendelse> record = new ProducerRecord<>(topic, hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse);
             LOG.info("Sending record with sekvensnummer = {}", record.value().getSekvensnummer());
             producer.send(record, new ProducerCallback(producer, record, sekvensnummerWriter, shutdownFlag));
             antallHendelserSendt.inc();
