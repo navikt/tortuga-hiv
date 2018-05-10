@@ -1,9 +1,7 @@
 version: "3"
 services:
   testapi:
-    image: navikt/tortuga-testapi
-    environment:
-      - "LOGGING_CONFIG=classpath:logback-docker.xml"
+    image: repo.adeo.no:5443/tortuga-testapi
     ports:
       - "8082:8080"
   kafka-topics-ui:
