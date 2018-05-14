@@ -1,5 +1,6 @@
 package no.nav.opptjening.hiv;
 
+import no.nav.opptjening.hiv.signals.Signaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 public class ApplicationRunner {
-    private static final int GRACEFUL_TERMINATION_TIMEOUT = 10000;
+    static final int GRACEFUL_TERMINATION_TIMEOUT = 5000;
 
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationRunner.class);
 
@@ -25,24 +26,31 @@ public class ApplicationRunner {
 
     private final List<ApplicationShutdownListener> shutdownListeners;
 
+    private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
+
     public ApplicationRunner(Runnable main, Runnable... tasks) {
         this.main = main;
         this.tasks = tasks;
         this.executorService = new DefaultFixedThreadPoolExecutor(1 + tasks.length);
         this.shutdownListeners = new LinkedList<>();
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
+
+        this.shutdownSignal.addListener(this::shutdownAndAwaitTermination);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.debug("Shutdown hook called, signalling shutdown");
+            shutdown();
+        }));
     }
 
-    private void shutdownHook() {
+    public void shutdown() {
         LOG.debug("Received shutdown signal");
-        shutdownAndAwaitTermination();
+        shutdownSignal.signal();
     }
 
     public void addShutdownListener(ApplicationShutdownListener l) {
         shutdownListeners.add(l);
     }
 
-    public void shutdownAndAwaitTermination() {
+    private void shutdownAndAwaitTermination() {
         executorService.shutdownNow();
         try {
             LOG.info("Waiting up to {} ms before shutting down", GRACEFUL_TERMINATION_TIMEOUT);
@@ -88,7 +96,7 @@ public class ApplicationRunner {
         return future;
     }
 
-    private boolean runTasksAndWait() {
+    public boolean runTasksAndWait() {
         Future<?> mainTask = scheduleTasks();
 
         while (!executorService.isShutdown() && !mainTask.isDone()) {
