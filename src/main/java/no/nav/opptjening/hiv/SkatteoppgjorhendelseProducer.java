@@ -2,7 +2,7 @@ package no.nav.opptjening.hiv;
 
 import io.prometheus.client.Counter;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
-import no.nav.opptjening.hiv.signals.Signaller;
+import no.nav.opptjening.nais.signals.Signaller;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;

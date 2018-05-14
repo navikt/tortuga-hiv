@@ -2,6 +2,8 @@ package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
+import no.nav.opptjening.nais.ApplicationRunner;
+import no.nav.opptjening.nais.NaisHttpServer;
 import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetSkattHendelserClient;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;

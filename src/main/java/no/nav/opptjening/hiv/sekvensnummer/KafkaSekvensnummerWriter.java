@@ -1,7 +1,7 @@
 package no.nav.opptjening.hiv.sekvensnummer;
 
 import io.prometheus.client.Gauge;
-import no.nav.opptjening.hiv.signals.Signaller;
+import no.nav.opptjening.nais.signals.Signaller;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
