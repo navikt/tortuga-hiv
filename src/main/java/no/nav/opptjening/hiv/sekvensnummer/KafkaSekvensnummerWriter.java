@@ -1,6 +1,7 @@
 package no.nav.opptjening.hiv.sekvensnummer;
 
 import io.prometheus.client.Gauge;
+import no.nav.opptjening.hiv.signals.Signaller;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -8,8 +9,6 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
 
 public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
@@ -27,9 +26,20 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
             .name("next_sekvensnummer_written_offset")
             .help("Offset til det siste 'neste sekvensnummer' vi forventer å få hendelser på, som er skrevet til Kafka").register();
 
+    private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
+
     public KafkaSekvensnummerWriter(Producer<String, Long> producer, TopicPartition topicPartition) {
         this.producer = producer;
         this.topicPartition = topicPartition;
+        shutdownSignal.addListener(() -> {
+            LOG.error("Received shutdown signal. Shutting down.");
+            shutdown();
+        });
+    }
+
+    public void shutdown() {
+        LOG.info("Shutting down KafkaSekvensnummerWriter");
+        producer.close();
     }
 
     public void writeSekvensnummer(long sekvensnummer) {
@@ -37,22 +47,26 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
         ProducerRecord<String, Long> record = new ProducerRecord<>(topicPartition.topic(),
                 topicPartition.partition(), NEXT_SEKVENSNUMMER_KEY, sekvensnummer);
-        producer.send(record, new ProducerCallback(producer, record));
+        producer.send(record, new ProducerCallback(record, shutdownSignal));
     }
 
     private static class ProducerCallback implements Callback {
-        private final Producer<String, Long> producer;
         private final ProducerRecord<String, Long> record;
+        private final Signaller shutdownSignal;
 
-        private ProducerCallback(Producer<String, Long> producer, ProducerRecord<String, Long> record) {
-            this.producer = producer;
+        private ProducerCallback(ProducerRecord<String, Long> record, Signaller shutdownSignal) {
             this.record = record;
+            this.shutdownSignal = shutdownSignal;
         }
 
         public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+            if (shutdownSignal.signalled()) {
+                return;
+            }
+
             if (e != null) {
-                LOG.error("Error while sending sekvensnummer={}. Shutting down.", record.value(), e);
-                producer.close(0, TimeUnit.MILLISECONDS);
+                LOG.error("Error while sending sekvensnummer={}. Signalling shutdown.", record.value(), e);
+                shutdownSignal.signal();
             } else {
                 LOG.info("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
                 nextSekvensnummerOffsetGauge.set(recordMetadata.offset());

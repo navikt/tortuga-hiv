@@ -32,6 +32,10 @@ public class Application {
             SkatteoppgjorhendelseTask consumer = new SkatteoppgjorhendelseTask(poller, hendelseProducer);
 
             appRunner = new ApplicationRunner(consumer, naisHttpServer);
+
+            appRunner.addShutdownListener(reader::shutdown);
+            appRunner.addShutdownListener(writer::shutdown);
+            appRunner.addShutdownListener(hendelseProducer::shutdown);
         } catch (Exception e) {
             LOG.error("Application failed to start", e);
             return;

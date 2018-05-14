@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
 
@@ -23,6 +24,21 @@ public class SkatteoppgjorhendelseProducerTest {
     public void setUp() {
         producer = new MockProducer<>();
         writer = new DummySekvensnummerWriter();
+    }
+
+    private void waitForCondition(Callable<Boolean> callable) {
+        long timeStart = System.currentTimeMillis();
+        try {
+            while (!callable.call()) {
+                long now = System.currentTimeMillis();
+
+                if ((now - timeStart) > 250) {
+                    throw new RuntimeException("Waited for 250 milliseconds for callable to be true.");
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -79,6 +95,8 @@ public class SkatteoppgjorhendelseProducerTest {
 
         producer.completeNext();
         producer.errorNext(new RuntimeException("Failed to send record"));
+
+        waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
         List<ProducerRecord<String, Hendelse>> history = producer.history();
@@ -118,6 +136,7 @@ public class SkatteoppgjorhendelseProducerTest {
         Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.flush();
+        waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
         List<ProducerRecord<String, Hendelse>> history = producer.history();
@@ -139,7 +158,7 @@ public class SkatteoppgjorhendelseProducerTest {
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
 
         Assert.assertFalse(producer.closed());
-        skatteoppgjorhendelseProducer.close();
+        skatteoppgjorhendelseProducer.shutdown();
         Assert.assertTrue(producer.closed());
     }
 

@@ -3,6 +3,8 @@ package no.nav.opptjening.hiv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class ApplicationRunner {
@@ -21,16 +23,23 @@ public class ApplicationRunner {
      */
     private final Runnable[] tasks;
 
+    private final List<ApplicationShutdownListener> shutdownListeners;
+
     public ApplicationRunner(Runnable main, Runnable... tasks) {
         this.main = main;
         this.tasks = tasks;
         this.executorService = new DefaultFixedThreadPoolExecutor(1 + tasks.length);
+        this.shutdownListeners = new LinkedList<>();
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
     }
 
     private void shutdownHook() {
         LOG.debug("Received shutdown signal");
         shutdownAndAwaitTermination();
+    }
+
+    public void addShutdownListener(ApplicationShutdownListener l) {
+        shutdownListeners.add(l);
     }
 
     public void shutdownAndAwaitTermination() {
@@ -45,6 +54,16 @@ public class ApplicationRunner {
         } catch (InterruptedException e) {
             LOG.error("Got interrupted while awaiting termination", e);
         }
+
+        LOG.debug("Calling shutdown listeners");
+        for (ApplicationShutdownListener l : shutdownListeners) {
+            try {
+                l.onShutdown();
+            } catch (Exception e) {
+                LOG.error("Shutdown listener threw exception", e);
+            }
+        }
+
         LOG.info("Exiting app, goodbye");
     }
 
@@ -74,6 +93,7 @@ public class ApplicationRunner {
 
         while (!executorService.isShutdown() && !mainTask.isDone()) {
             /* do nothing while mainTask is running */
+            Thread.yield();
         }
 
         /* main task should never exit, only in case of failure */
@@ -85,7 +105,7 @@ public class ApplicationRunner {
         private static final Logger LOG = LoggerFactory.getLogger(DefaultFixedThreadPoolExecutor.class);
 
         public DefaultFixedThreadPoolExecutor(int poolSize) {
-           super(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
+            super(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<Runnable>());
         }
 
@@ -122,5 +142,9 @@ public class ApplicationRunner {
             super.terminated();
             LOG.debug("Thread pool executor terminated");
         }
+    }
+
+    public interface ApplicationShutdownListener {
+        void onShutdown();
     }
 }

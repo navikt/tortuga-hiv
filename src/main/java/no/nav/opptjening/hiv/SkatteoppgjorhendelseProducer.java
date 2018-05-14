@@ -2,6 +2,7 @@ package no.nav.opptjening.hiv;
 
 import io.prometheus.client.Counter;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
+import no.nav.opptjening.hiv.signals.Signaller;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -11,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SkatteoppgjorhendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelseProducer.class);
@@ -29,56 +28,56 @@ public class SkatteoppgjorhendelseProducer {
     private final String topic;
     private final SekvensnummerWriter sekvensnummerWriter;
 
-    private final AtomicBoolean shutdownFlag = new AtomicBoolean();
+    private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
 
     public SkatteoppgjorhendelseProducer(Producer<String, Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter) {
         this.producer = producer;
         this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
+        this.shutdownSignal.addListener(() -> {
+            LOG.info("Shutting signalled received, shutting down hendelse producer");
+            shutdown();
+        });
     }
 
     public long sendHendelser(List<Hendelse> hendelseList) {
         for (Hendelse hendelse : hendelseList) {
             ProducerRecord<String, Hendelse> record = new ProducerRecord<>(topic, hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse);
             LOG.info("Sending record with sekvensnummer = {}", record.value().getSekvensnummer());
-            producer.send(record, new ProducerCallback(producer, record, sekvensnummerWriter, shutdownFlag));
+            producer.send(record, new ProducerCallback(record, sekvensnummerWriter, shutdownSignal));
             antallHendelserSendt.inc();
         }
 
         return hendelseList.get(hendelseList.size() - 1).getSekvensnummer();
     }
 
-    public void close() {
+    public void shutdown() {
+        LOG.info("Shutting down SkatteoppgjorhendelseProducer");
         producer.close();
     }
 
     private static class ProducerCallback implements Callback {
-        private final Producer<String, Hendelse> producer;
-        private final Thread callingThread;
         private final ProducerRecord<String, Hendelse> record;
         private final SekvensnummerWriter sekvensnummerWriter;
-        private final AtomicBoolean shutdownFlag;
+        private final Signaller shutdownSignal;
 
-        private ProducerCallback(Producer<String, Hendelse> producer, ProducerRecord<String, Hendelse> record,
-                                 SekvensnummerWriter sekvensnummerWriter, AtomicBoolean shutdownFlag) {
-            this.producer = producer;
-            this.callingThread = Thread.currentThread();
+        private ProducerCallback(ProducerRecord<String, Hendelse> record, SekvensnummerWriter sekvensnummerWriter, Signaller shutdownSignal) {
             this.record = record;
             this.sekvensnummerWriter = sekvensnummerWriter;
-            this.shutdownFlag = shutdownFlag;
+            this.shutdownSignal = shutdownSignal;
         }
 
         @Override
         public void onCompletion(RecordMetadata metadata, Exception exception) {
             // do not persist sekvensnummer after we have begun shutdown
-            if (shutdownFlag.get()) {
+            if (shutdownSignal.signalled()) {
                 LOG.warn("Skipping persisting of sekvensnummer = {} because we have initiated shutdown", record.value().getSekvensnummer());
                 return;
             }
 
             if (exception != null) {
                 LOG.error("Unrecoverable error when sending record with sekvensnummer = {}, shutting down", record.value().getSekvensnummer(), exception);
-                shutdownProducer();
+                shutdownSignal.signal();
             } else {
                 antallHendelserPersisted.inc();
 
@@ -87,16 +86,8 @@ public class SkatteoppgjorhendelseProducer {
                     sekvensnummerWriter.writeSekvensnummer(record.value().getSekvensnummer() + 1);
                 } catch (Exception e) {
                     LOG.error("Error while writing sekvensnummer, shutting down", e);
-                    shutdownProducer();
+                    shutdownSignal.signal();
                 }
-            }
-        }
-
-        private void shutdownProducer() {
-            if (shutdownFlag.compareAndSet(false,true)) {
-                LOG.info("Shutting down hendelse producer");
-                producer.close(0, TimeUnit.MILLISECONDS);
-                callingThread.interrupt();
             }
         }
     }

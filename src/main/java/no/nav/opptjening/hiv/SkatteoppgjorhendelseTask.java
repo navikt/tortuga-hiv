@@ -53,8 +53,6 @@ public class SkatteoppgjorhendelseTask implements Runnable {
             LOG.error("Error while consuming or producing data on Kafka", e);
         } catch (Exception e) {
             LOG.error("Unknown error", e);
-        } finally {
-            hendelseProducer.close();
         }
 
         LOG.info("Skatteetaten task stopped");

@@ -150,4 +150,9 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
 
         return recordToKeep;
     }
+
+    public void shutdown() {
+        LOG.info("Shutting down KafkaSekvensnummerReader");
+        consumer.close();
+    }
 }
