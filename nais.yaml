@@ -19,3 +19,7 @@ fasitResources:
       propertyMap:
         username: KAFKA_USERNAME
         password: KAFKA_PASSWORD
+    - alias: tortuga-hiv-eksternapp-skatt-datasamarbeid.api.skatteoppegjoer-apiKey
+      resourceType: credential
+      propertyMap:
+        password: SKATT_API_KEY

@@ -4,7 +4,7 @@ import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
 import no.nav.opptjening.nais.ApplicationRunner;
 import no.nav.opptjening.nais.NaisHttpServer;
-import no.nav.opptjening.skatt.api.beregnetskatt.BeregnetSkattHendelserClient;
+import no.nav.opptjening.skatt.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +24,14 @@ public class Application {
 
             KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
-            BeregnetSkattHendelserClient beregnetSkattHendelserClient = new BeregnetSkattHendelserClient(env.getOrDefault("SKATT_API_URL", "http://tortuga-testapi/ekstern/skatt/datasamarbeid/api/formueinntekt/skatteoppegjoer/"));
+            String hendelserUrl = env.getOrDefault("SKATT_API_URL", "https://api-gw-q0.adeo.no/ekstern/skatt/datasamarbeid/api/formueinntekt/skatteoppgjoer/");
+            SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, env.get("SKATT_API_KEY"));
+
             TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
             KafkaSekvensnummerReader reader = new KafkaSekvensnummerReader(kafkaConfiguration.offsetConsumer(), partition);
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(kafkaConfiguration.offsetProducer(), partition);
 
-            SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(beregnetSkattHendelserClient, reader);
+            SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader);
             SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(kafkaConfiguration.hendelseProducer(), KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
             SkatteoppgjorhendelseTask consumer = new SkatteoppgjorhendelseTask(poller, hendelseProducer);
 
