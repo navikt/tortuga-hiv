@@ -87,14 +87,13 @@ public class KafkaConfiguration {
         configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
 
-        configs.put(ConsumerConfig.GROUP_ID_CONFIG, "hiv-consumer-group1");
+        configs.put(ConsumerConfig.GROUP_ID_CONFIG, "hiv-consumer-group");
         //configs.put(ConsumerConfig.CLIENT_ID_CONFIG, "client-id2");
         configs.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         configs.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         configs.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 10);
 
-        //return new MockConsumer<>(null);
         return new KafkaConsumer<>(configs);
     }
 
@@ -106,7 +105,6 @@ public class KafkaConfiguration {
         configs.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
         configs.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1);
 
-        //return new MockProducer<>();
         return new KafkaProducer<>(configs);
     }
 
@@ -119,7 +117,6 @@ public class KafkaConfiguration {
         configs.put(ProducerConfig.ACKS_CONFIG, "all");
         configs.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
 
-        //return new MockProducer<>();
         return new KafkaProducer<>(configs);
     }
 
