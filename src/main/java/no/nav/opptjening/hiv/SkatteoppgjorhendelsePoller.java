@@ -63,6 +63,9 @@ public class SkatteoppgjorhendelsePoller {
 
         try {
             Hendelsesliste hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
+            if (hendelsesliste.getHendelser().size() == 0) {
+                throw new EmptyResultException("Skatteetaten returned 0 hendelser", null);
+            }
             LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
             antallHendelserHentet.inc(hendelsesliste.getHendelser().size());
 
