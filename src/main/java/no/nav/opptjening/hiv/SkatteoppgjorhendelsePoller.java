@@ -7,6 +7,7 @@ import no.nav.opptjening.skatt.api.hendelseliste.HendelserClient;
 import no.nav.opptjening.skatt.api.hendelseliste.exceptions.EmptyResultException;
 import no.nav.opptjening.skatt.exceptions.HttpException;
 import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Sekvensnummer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,6 @@ public class SkatteoppgjorhendelsePoller {
     private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelsePoller.class);
 
     private static final int ANTALL_HENDELSER_PER_REQUEST = 1000;
-    private static final long FIRST_VALID_SEKVENSNUMMER = 1;
 
     private static final Counter pollCounter = Counter.build()
             .name("hendelser_poll_count")
@@ -53,9 +53,10 @@ public class SkatteoppgjorhendelsePoller {
             this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
 
             if (nextSekvensnummer == -1) {
+                Sekvensnummer firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvens();
                 LOG.info("We did not find any nextSekvensnummer record, and assume that the log is empty." +
-                        "Setting nextSekvensnummer={}", FIRST_VALID_SEKVENSNUMMER);
-                nextSekvensnummer = FIRST_VALID_SEKVENSNUMMER;
+                        "Setting nextSekvensnummer={}", firstValidSekvensnummer.getSekvensnummer());
+                nextSekvensnummer = firstValidSekvensnummer.getSekvensnummer();
             }
         }
 
