@@ -1,7 +1,7 @@
 package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelse;
+import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Assert;
@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 
 public class SkatteoppgjorhendelseProducerTest {
-    private MockProducer<String, Hendelse> producer;
+    private MockProducer<String, Hendelsesliste.Hendelse> producer;
     private DummySekvensnummerWriter writer;
 
     private final String topic = "my-test-topic";
@@ -43,17 +43,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_SekvensnummerIsWritten_When_RecordsAreSentOk() {
-        List<Hendelse> hendelseList = Arrays.asList(
-                Hendelse.newBuilder().setSekvensnummer(1).setIdentifikator("123456789")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(2).setIdentifikator("234567890")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(3).setIdentifikator("345678901")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(4).setIdentifikator("456789012")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(5).setIdentifikator("567890123")
-                        .setGjelderPeriode("2018").build()
+        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
+                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
+                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
+                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
+                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
+                new Hendelsesliste.Hendelse(5, "567890123", "2018")
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
@@ -61,8 +56,8 @@ public class SkatteoppgjorhendelseProducerTest {
 
         producer.flush();
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> history = producer.history();
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> expected = Arrays.asList(
                 new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
                 new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
                 new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
@@ -77,17 +72,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_SekvensnummerIsNotWritten_When_RecordsAreNotSentOk() {
-        List<Hendelse> hendelseList = Arrays.asList(
-                Hendelse.newBuilder().setSekvensnummer(1).setIdentifikator("123456789")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(2).setIdentifikator("234567890")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(3).setIdentifikator("345678901")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(4).setIdentifikator("456789012")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(5).setIdentifikator("567890123")
-                        .setGjelderPeriode("2018").build()
+        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
+                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
+                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
+                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
+                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
+                new Hendelsesliste.Hendelse(5, "567890123", "2018")
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
@@ -99,8 +89,8 @@ public class SkatteoppgjorhendelseProducerTest {
         waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> history = producer.history();
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> expected = Arrays.asList(
                 new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
                 new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
                 new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
@@ -115,17 +105,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_ProducerIsShutdown_When_SekvensnummerIsNotSentOk() {
-        List<Hendelse> hendelseList = Arrays.asList(
-                Hendelse.newBuilder().setSekvensnummer(1).setIdentifikator("123456789")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(2).setIdentifikator("234567890")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(3).setIdentifikator("345678901")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(4).setIdentifikator("456789012")
-                        .setGjelderPeriode("2018").build(),
-                Hendelse.newBuilder().setSekvensnummer(5).setIdentifikator("567890123")
-                        .setGjelderPeriode("2018").build()
+        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
+                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
+                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
+                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
+                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
+                new Hendelsesliste.Hendelse(5, "567890123", "2018")
         );
 
 
@@ -139,8 +124,8 @@ public class SkatteoppgjorhendelseProducerTest {
         waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> history = producer.history();
+        List<ProducerRecord<String, Hendelsesliste.Hendelse>> expected = Arrays.asList(
                 new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
                 new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
                 new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
