@@ -83,6 +83,7 @@
             <groupId>no.nav.common</groupId>
             <artifactId>embedded.kafka</artifactId>
             <version>0.6.3</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
