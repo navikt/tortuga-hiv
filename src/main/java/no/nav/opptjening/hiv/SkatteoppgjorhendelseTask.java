@@ -1,10 +1,10 @@
 package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.CouldNotFindNextSekvensnummerRecord;
-import no.nav.opptjening.skatt.api.hendelseliste.exceptions.EmptyResultException;
-import no.nav.opptjening.skatt.exceptions.HttpException;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.skatt.client.Hendelsesliste;
+import no.nav.opptjening.skatt.client.exceptions.HttpException;
 import org.apache.kafka.common.KafkaException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class SkatteoppgjorhendelseTask implements Runnable {
     private final SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller;
     private final SkatteoppgjorhendelseProducer hendelseProducer;
 
-    public SkatteoppgjorhendelseTask(SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller, SkatteoppgjorhendelseProducer hendelseProducer) {
+    public SkatteoppgjorhendelseTask(@NotNull SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller, @NotNull SkatteoppgjorhendelseProducer hendelseProducer) {
         this.skatteoppgjorhendelsePoller = skatteoppgjorhendelsePoller;
         this.hendelseProducer = hendelseProducer;
     }

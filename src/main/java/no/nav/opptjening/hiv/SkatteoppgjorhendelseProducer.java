@@ -3,11 +3,13 @@ package no.nav.opptjening.hiv;
 import io.prometheus.client.Counter;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
 import no.nav.opptjening.nais.signals.Signaller;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
+import no.nav.opptjening.skatt.client.Hendelsesliste;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +26,15 @@ public class SkatteoppgjorhendelseProducer {
             .name("hendelser_persisted")
             .help("Antall hendelser bekreftet sendt.").register();
 
-    private final Producer<String, Hendelsesliste.Hendelse> producer;
+    private final Producer<String, Hendelse> producer;
     private final String topic;
     private final SekvensnummerWriter sekvensnummerWriter;
 
     private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
 
-    public SkatteoppgjorhendelseProducer(Producer<String, Hendelsesliste.Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter) {
+    private final HendelseProducerRecordMapper hendelseProducerRecordMapper = new HendelseProducerRecordMapper();
+
+    public SkatteoppgjorhendelseProducer(@NotNull Producer<String, Hendelse> producer, @NotNull String topic, @NotNull SekvensnummerWriter sekvensnummerWriter) {
         this.producer = producer;
         this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
@@ -40,9 +44,9 @@ public class SkatteoppgjorhendelseProducer {
         });
     }
 
-    public long sendHendelser(List<Hendelsesliste.Hendelse> hendelseList) {
+    public long sendHendelser(@NotNull List<Hendelsesliste.Hendelse> hendelseList) {
         for (Hendelsesliste.Hendelse hendelse : hendelseList) {
-            ProducerRecord<String, Hendelsesliste.Hendelse> record = new ProducerRecord<>(topic, hendelse.getGjelderPeriode() + "-" + hendelse.getIdentifikator(), hendelse);
+            ProducerRecord<String, Hendelse> record = hendelseProducerRecordMapper.mapToProducerRecord(topic, hendelse);
             LOG.info("Sending record with sekvensnummer = {}", record.value().getSekvensnummer());
             producer.send(record, new ProducerCallback(record, sekvensnummerWriter, shutdownSignal));
             antallHendelserSendt.inc();
@@ -57,11 +61,11 @@ public class SkatteoppgjorhendelseProducer {
     }
 
     private static class ProducerCallback implements Callback {
-        private final ProducerRecord<String, Hendelsesliste.Hendelse> record;
+        private final ProducerRecord<String, Hendelse> record;
         private final SekvensnummerWriter sekvensnummerWriter;
         private final Signaller shutdownSignal;
 
-        private ProducerCallback(ProducerRecord<String, Hendelsesliste.Hendelse> record, SekvensnummerWriter sekvensnummerWriter, Signaller shutdownSignal) {
+        private ProducerCallback(@NotNull ProducerRecord<String, Hendelse> record, @NotNull SekvensnummerWriter sekvensnummerWriter, @NotNull Signaller shutdownSignal) {
             this.record = record;
             this.sekvensnummerWriter = sekvensnummerWriter;
             this.shutdownSignal = shutdownSignal;

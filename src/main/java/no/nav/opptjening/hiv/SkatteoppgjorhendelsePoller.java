@@ -3,11 +3,11 @@ package no.nav.opptjening.hiv;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerReader;
-import no.nav.opptjening.skatt.api.hendelseliste.HendelserClient;
-import no.nav.opptjening.skatt.api.hendelseliste.exceptions.EmptyResultException;
-import no.nav.opptjening.skatt.exceptions.HttpException;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Sekvensnummer;
+import no.nav.opptjening.skatt.client.Hendelsesliste;
+import no.nav.opptjening.skatt.client.Sekvensnummer;
+import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
+import no.nav.opptjening.skatt.client.exceptions.HttpException;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,17 +43,18 @@ public class SkatteoppgjorhendelsePoller {
     private final SekvensnummerReader sekvensnummerReader;
     private long nextSekvensnummer = -1;
 
-    public SkatteoppgjorhendelsePoller(HendelserClient beregnetskattHendelserClient, SekvensnummerReader sekvensnummerReader) {
+    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) {
         this.beregnetskattHendelserClient = beregnetskattHendelserClient;
         this.sekvensnummerReader = sekvensnummerReader;
     }
 
+    @NotNull
     public Hendelsesliste poll() throws IOException {
         if (nextSekvensnummer == -1) {
             this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
 
             if (nextSekvensnummer == -1) {
-                Sekvensnummer firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvens();
+                Sekvensnummer firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummer();
                 LOG.info("We did not find any nextSekvensnummer record, and assume that the log is empty." +
                         "Setting nextSekvensnummer={}", firstValidSekvensnummer.getSekvensnummer());
                 nextSekvensnummer = firstValidSekvensnummer.getSekvensnummer();
@@ -65,7 +66,7 @@ public class SkatteoppgjorhendelsePoller {
         try {
             Hendelsesliste hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
             if (hendelsesliste.getHendelser().size() == 0) {
-                throw new EmptyResultException("Skatteetaten returned 0 hendelser", null);
+                throw new EmptyResultException("Skatteetaten returned 0 hendelser");
             }
             LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
             antallHendelserHentet.inc(hendelsesliste.getHendelser().size());

@@ -2,7 +2,7 @@ package no.nav.opptjening.hiv;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
-import no.nav.opptjening.skatt.schema.hendelsesliste.Hendelsesliste;
+import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -108,7 +108,7 @@ public class KafkaConfiguration {
         return new KafkaProducer<>(configs);
     }
 
-    public Producer<String, Hendelsesliste.Hendelse> hendelseProducer() {
+    public Producer<String, Hendelse> hendelseProducer() {
         Map<String, Object> configs = getCommonConfigs();
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);

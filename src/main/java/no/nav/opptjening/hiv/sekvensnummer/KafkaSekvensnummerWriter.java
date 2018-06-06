@@ -7,6 +7,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
     private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
 
-    public KafkaSekvensnummerWriter(Producer<String, Long> producer, TopicPartition topicPartition) {
+    public KafkaSekvensnummerWriter(@NotNull Producer<String, Long> producer, @NotNull TopicPartition topicPartition) {
         this.producer = producer;
         this.topicPartition = topicPartition;
         shutdownSignal.addListener(() -> {
@@ -54,7 +55,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
         private final ProducerRecord<String, Long> record;
         private final Signaller shutdownSignal;
 
-        private ProducerCallback(ProducerRecord<String, Long> record, Signaller shutdownSignal) {
+        private ProducerCallback(@NotNull ProducerRecord<String, Long> record, @NotNull Signaller shutdownSignal) {
             this.record = record;
             this.shutdownSignal = shutdownSignal;
         }

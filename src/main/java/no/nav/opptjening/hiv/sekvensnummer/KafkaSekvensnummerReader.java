@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,7 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
             .name("next_sekvensnummer_persisted_offset")
             .help("Offset til neste sekvensnummer vi forventer å få hendelser på, som er lagret på Kafka").register();
 
-    public KafkaSekvensnummerReader(Consumer<String, Long> consumer, TopicPartition topicPartition) {
+    public KafkaSekvensnummerReader(@NotNull Consumer<String, Long> consumer, @NotNull TopicPartition topicPartition) {
         this.consumer = consumer;
         this.topicPartition = topicPartition;
     }
@@ -105,6 +107,7 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
     }
 
     /* drain the assigned topics, reading as much as possible */
+    @Nullable
     private List<ConsumerRecords<String, Long>> drain() {
         List<ConsumerRecords<String, Long>> recordsList = new ArrayList<>();
 
@@ -128,7 +131,8 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
     }
 
     /* read as much as possible, and return latest record with the given key */
-    private ConsumerRecord<String, Long> drain(TopicPartition partition, String key) {
+    @Nullable
+    private ConsumerRecord<String, Long> drain(@NotNull TopicPartition partition, @NotNull String key) {
         List<ConsumerRecords<String, Long>> recordsList = drain();
         if (recordsList == null) {
             throw new NoNextSekvensnummerRecordsToConsume("Did not receive any records, " +
