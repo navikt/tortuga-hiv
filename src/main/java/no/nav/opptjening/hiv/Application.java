@@ -2,9 +2,11 @@ package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
-import no.nav.opptjening.nais.ApplicationRunner;
 import no.nav.opptjening.nais.NaisHttpServer;
+import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
 import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
+import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,33 +20,41 @@ public class Application {
     public static void main(String[] args) {
         Map<String, String> env = System.getenv();
 
-        ApplicationRunner appRunner;
+        final SkatteoppgjorhendelseTask app;
         try {
-            NaisHttpServer naisHttpServer = new NaisHttpServer();
+            final NaisHttpServer naisHttpServer = new NaisHttpServer();
+            naisHttpServer.run();
 
-            KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
+            final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
             String hendelserUrl = env.getOrDefault("SKATT_API_URL", "https://api-gw-q0.adeo.no/ekstern/skatt/datasamarbeid/api/formueinntekt/skatteoppgjoer/");
-            SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, env.get("SKATT_API_KEY"));
+            final SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, env.get("SKATT_API_KEY"));
 
             TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
-            KafkaSekvensnummerReader reader = new KafkaSekvensnummerReader(kafkaConfiguration.offsetConsumer(), partition);
-            KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(kafkaConfiguration.offsetProducer(), partition);
 
-            SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader);
-            SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(kafkaConfiguration.hendelseProducer(), KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
-            SkatteoppgjorhendelseTask consumer = new SkatteoppgjorhendelseTask(poller, hendelseProducer);
 
-            appRunner = new ApplicationRunner(consumer, naisHttpServer);
+            Consumer<String, Long> offsetConsumer = kafkaConfiguration.offsetConsumer();
+            KafkaSekvensnummerReader reader = new KafkaSekvensnummerReader(offsetConsumer, partition);
 
-            appRunner.addShutdownListener(reader::shutdown);
-            appRunner.addShutdownListener(writer::shutdown);
-            appRunner.addShutdownListener(hendelseProducer::shutdown);
+            Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
+            KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
+
+            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader);
+            Producer<String, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
+            final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
+            app = new SkatteoppgjorhendelseTask(poller, hendelseProducer);
+
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                offsetConsumer.close();
+                offsetProducer.close();
+                hendelseKafkaProducer.close();
+            }));
         } catch (Exception e) {
             LOG.error("Application failed to start", e);
+            System.exit(1);
             return;
         }
 
-        appRunner.run();
+        app.run();
     }
 }

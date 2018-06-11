@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class SkatteoppgjorhendelseTask implements Runnable {
+public class SkatteoppgjorhendelseTask {
 
     private static final int POLL_TIMEOUT_MS = 5000;
 
