@@ -74,10 +74,16 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
-            <version>10</version>
+            <version>14</version>
         </dependency>
 
         <!-- test -->
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>2.18.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>embedded.kafka</artifactId>
