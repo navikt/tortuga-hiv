@@ -4,7 +4,6 @@ import io.prometheus.client.Counter;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
 import no.nav.opptjening.nais.signals.Signaller;
 import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
-import no.nav.opptjening.skatt.client.Hendelsesliste;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -44,13 +43,13 @@ public class SkatteoppgjorhendelseProducer {
         });
     }
 
-    public long sendHendelser(@NotNull List<Hendelsesliste.Hendelse> hendelseList) {
-        for (Hendelsesliste.Hendelse hendelse : hendelseList) {
-            ProducerRecord<String, Hendelse> record = hendelseProducerRecordMapper.mapToProducerRecord(topic, hendelse);
-            LOG.info("Sending record with sekvensnummer = {}", record.value().getSekvensnummer());
-            producer.send(record, new ProducerCallback(record, sekvensnummerWriter, shutdownSignal));
-            antallHendelserSendt.inc();
-        }
+    public long sendHendelser(@NotNull List<Hendelse> hendelseList) {
+        hendelseList.stream()
+                .map((h) -> hendelseProducerRecordMapper.mapToProducerRecord(topic, h))
+                .forEach((r) -> {
+                    producer.send(r, new ProducerCallback(r, sekvensnummerWriter, shutdownSignal));
+                    antallHendelserSendt.inc();
+                });
 
         return hendelseList.get(hendelseList.size() - 1).getSekvensnummer();
     }

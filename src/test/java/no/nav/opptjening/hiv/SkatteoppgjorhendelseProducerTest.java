@@ -2,7 +2,6 @@ package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
 import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
-import no.nav.opptjening.skatt.client.Hendelsesliste;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Assert;
@@ -20,8 +19,6 @@ public class SkatteoppgjorhendelseProducerTest {
     private DummySekvensnummerWriter writer;
 
     private final String topic = "my-test-topic";
-
-    private final HendelseMapper hendelseMapper = new HendelseMapper();
 
     @Before
     public void setUp() {
@@ -46,12 +43,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_SekvensnummerIsWritten_When_RecordsAreSentOk() {
-        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
-                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
-                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
-                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
-                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
-                new Hendelsesliste.Hendelse(5, "567890123", "2018")
+        List<Hendelse> hendelseList = Arrays.asList(
+                new Hendelse(1L, "123456789", "2018"),
+                new Hendelse(2L, "234567890", "2018"),
+                new Hendelse(3L, "345678901", "2018"),
+                new Hendelse(4L, "456789012", "2018"),
+                new Hendelse(5L, "567890123", "2018")
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
@@ -61,11 +58,11 @@ public class SkatteoppgjorhendelseProducerTest {
 
         List<ProducerRecord<String, Hendelse>> history = producer.history();
         List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseMapper.mapToHendelse(hendelseList.get(0))),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseMapper.mapToHendelse(hendelseList.get(1))),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseMapper.mapToHendelse(hendelseList.get(2))),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseMapper.mapToHendelse(hendelseList.get(3))),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseMapper.mapToHendelse(hendelseList.get(4)))
+                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
+                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
+                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
+                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
+                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
         );
 
         assertEquals(expected, history);
@@ -75,12 +72,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_SekvensnummerIsNotWritten_When_RecordsAreNotSentOk() {
-        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
-                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
-                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
-                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
-                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
-                new Hendelsesliste.Hendelse(5, "567890123", "2018")
+        List<Hendelse> hendelseList = Arrays.asList(
+                new Hendelse(1L, "123456789", "2018"),
+                new Hendelse(2L, "234567890", "2018"),
+                new Hendelse(3L, "345678901", "2018"),
+                new Hendelse(4L, "456789012", "2018"),
+                new Hendelse(5L, "567890123", "2018")
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
@@ -94,11 +91,11 @@ public class SkatteoppgjorhendelseProducerTest {
 
         List<ProducerRecord<String, Hendelse>> history = producer.history();
         List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseMapper.mapToHendelse(hendelseList.get(0))),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseMapper.mapToHendelse(hendelseList.get(1))),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseMapper.mapToHendelse(hendelseList.get(2))),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseMapper.mapToHendelse(hendelseList.get(3))),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseMapper.mapToHendelse(hendelseList.get(4)))
+                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
+                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
+                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
+                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
+                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
         );
 
         assertEquals(expected, history);
@@ -108,12 +105,12 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void that_ProducerIsShutdown_When_SekvensnummerIsNotSentOk() {
-        List<Hendelsesliste.Hendelse> hendelseList = Arrays.asList(
-                new Hendelsesliste.Hendelse(1, "123456789", "2018"),
-                new Hendelsesliste.Hendelse(2, "234567890", "2018"),
-                new Hendelsesliste.Hendelse(3, "345678901", "2018"),
-                new Hendelsesliste.Hendelse(4, "456789012", "2018"),
-                new Hendelsesliste.Hendelse(5, "567890123", "2018")
+        List<Hendelse> hendelseList = Arrays.asList(
+                new Hendelse(1L, "123456789", "2018"),
+                new Hendelse(2L, "234567890", "2018"),
+                new Hendelse(3L, "345678901", "2018"),
+                new Hendelse(4L, "456789012", "2018"),
+                new Hendelse(5L, "567890123", "2018")
         );
 
 
@@ -129,11 +126,11 @@ public class SkatteoppgjorhendelseProducerTest {
 
         List<ProducerRecord<String, Hendelse>> history = producer.history();
         List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseMapper.mapToHendelse(hendelseList.get(0))),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseMapper.mapToHendelse(hendelseList.get(1))),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseMapper.mapToHendelse(hendelseList.get(2))),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseMapper.mapToHendelse(hendelseList.get(3))),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseMapper.mapToHendelse(hendelseList.get(4)))
+                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
+                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
+                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
+                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
+                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
         );
 
         assertEquals(expected, history);
