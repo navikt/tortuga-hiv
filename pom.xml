@@ -39,7 +39,6 @@
             <groupId>com.intellij</groupId>
             <artifactId>annotations</artifactId>
             <version>12.0</version>
-            <scope>compile</scope>
         </dependency>
 
         <!-- kafka -->
