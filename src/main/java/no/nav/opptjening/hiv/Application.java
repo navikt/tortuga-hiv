@@ -38,7 +38,7 @@ public class Application {
         final Application app;
         try {
             final NaisHttpServer naisHttpServer = new NaisHttpServer();
-            naisHttpServer.run();
+            naisHttpServer.start();
 
             final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
@@ -71,6 +71,7 @@ public class Application {
         }
 
         app.run();
+        System.exit(0);
     }
 
     public Application(@NotNull SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller, @NotNull SkatteoppgjorhendelseProducer hendelseProducer) {
