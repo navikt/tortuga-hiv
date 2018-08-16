@@ -68,7 +68,7 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>avro-schemas</artifactId>
-            <version>3</version>
+            <version>4</version>
         </dependency>
 
         <dependency>
