@@ -23,3 +23,8 @@ fasitResources:
       resourceType: credential
       propertyMap:
         password: SKATT_API_KEY
+    - alias: tortuga-hiv-eksternapp-skatt-datasamarbeid.api.skatteoppegjoer-hendelseApiUrl
+      resourceType: restservice
+      propertyMap:
+        url: SKATT_API_URL
+
