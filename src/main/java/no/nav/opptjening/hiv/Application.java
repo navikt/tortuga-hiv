@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Application {
@@ -42,8 +43,13 @@ public class Application {
 
             final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
-            String hendelserUrl = env.getOrDefault("SKATT_API_URL", "https://api-gw-q0.adeo.no/ekstern/skatt/datasamarbeid/api/formueinntekt/skatteoppgjoer/");
-            final SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, env.get("SKATT_API_KEY"));
+            String hendelserUrl = Optional.ofNullable(env.get("SKATT_API_URL"))
+                    .orElseThrow(() -> new MissingSkattConfiguration("SKATT_API_URL not found in env"));
+
+            String skattApiKey = Optional.ofNullable(env.get("SKATT_API_KEY"))
+                    .orElseThrow(() -> new MissingSkattConfiguration("SKATT_API_KEY not found in env"));
+
+            final SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, skattApiKey);
 
             TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
 
