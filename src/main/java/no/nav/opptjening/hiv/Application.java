@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Application {
@@ -43,11 +42,8 @@ public class Application {
 
             final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
 
-            String hendelserUrl = Optional.ofNullable(env.get("SKATT_API_URL"))
-                    .orElseThrow(() -> new MissingSkattConfiguration("SKATT_API_URL not found in env"));
-
-            String skattApiKey = Optional.ofNullable(env.get("SKATT_API_KEY"))
-                    .orElseThrow(() -> new MissingSkattConfiguration("SKATT_API_KEY not found in env"));
+            String hendelserUrl = env.get("SKATT_API_URL");
+            String skattApiKey = env.get("SKATT_API_KEY");
 
             final SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, skattApiKey);
 
