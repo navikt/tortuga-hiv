@@ -14,6 +14,8 @@ prometheus:
   enabled: true
 fasitResources:
   used:
+    - alias: tortuga-hiv-properties
+      resourceType: applicationproperties
     - alias: srvtortuga-hiv
       resourceType: credential
       propertyMap:
@@ -23,7 +25,7 @@ fasitResources:
       resourceType: credential
       propertyMap:
         password: SKATT_API_KEY
-    - alias: tortuga-hiv-eksternapp-skatt-datasamarbeid.api.skatteoppegjoer-hendelseApiUrl
+    - alias: eksternapp-skatt-datasamarbeid.api.skatteoppegjoer
       resourceType: restservice
       propertyMap:
         url: SKATT_API_URL
