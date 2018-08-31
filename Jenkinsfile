@@ -52,7 +52,7 @@ node {
                             string(name: 'REPO', value: "navikt/tortuga-hiv"),
                             string(name: 'VERSION', value: version),
                             string(name: 'COMMIT_HASH', value: commitHash),
-                            string(name: 'DEPLOY_ENV', value: 'q0')
+                            string(name: 'DEPLOY_ENV', value: 'p')
                     ]
             ])
         }
