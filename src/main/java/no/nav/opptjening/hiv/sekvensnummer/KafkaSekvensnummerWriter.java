@@ -69,7 +69,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
                 LOG.error("Error while sending sekvensnummer={}. Signalling shutdown.", record.value(), e);
                 shutdownSignal.signal();
             } else {
-                LOG.info("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
+                LOG.debug("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
                 nextSekvensnummerOffsetGauge.set(recordMetadata.offset());
                 nextSekvensnummerGauge.set(record.value());
             }
