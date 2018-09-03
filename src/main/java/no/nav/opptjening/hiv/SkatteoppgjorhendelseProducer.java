@@ -84,7 +84,7 @@ public class SkatteoppgjorhendelseProducer {
             } else {
                 antallHendelserPersisted.inc();
 
-                LOG.info("Record sent ok, persisting sekvensnummer = {}", record.value().getSekvensnummer());
+                LOG.trace("Record sent ok, persisting sekvensnummer = {}", record.value().getSekvensnummer());
                 try {
                     sekvensnummerWriter.writeSekvensnummer(record.value().getSekvensnummer() + 1);
                 } catch (Exception e) {

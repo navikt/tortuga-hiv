@@ -44,7 +44,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
     }
 
     public void writeSekvensnummer(long sekvensnummer) {
-        LOG.info("Writing sekvensnummer={}", sekvensnummer);
+        LOG.trace("Writing sekvensnummer={}", sekvensnummer);
 
         ProducerRecord<String, Long> record = new ProducerRecord<>(topicPartition.topic(),
                 topicPartition.partition(), NEXT_SEKVENSNUMMER_KEY, sekvensnummer);
@@ -69,7 +69,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
                 LOG.error("Error while sending sekvensnummer={}. Signalling shutdown.", record.value(), e);
                 shutdownSignal.signal();
             } else {
-                LOG.debug("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
+                LOG.trace("Sekvensnummer={} sent with offset = {}", record.value(), recordMetadata.offset());
                 nextSekvensnummerOffsetGauge.set(recordMetadata.offset());
                 nextSekvensnummerGauge.set(record.value());
             }
