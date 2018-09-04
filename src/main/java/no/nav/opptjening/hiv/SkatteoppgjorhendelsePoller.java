@@ -29,7 +29,12 @@ public class SkatteoppgjorhendelsePoller {
 
     private static final Counter antallHendelserHentet = Counter.build()
             .name("hendelser_received")
+            .labelNames("year")
             .help("Antall hendelser hentet.").register();
+
+    private static final Counter antallHendelserHentetTotalt = Counter.build()
+            .name("hendelser_received_total")
+            .help("Antall hendelser hentet totalt.").register();
 
     private static final Gauge skatteetatenEmptyResultCounter = Gauge.build()
             .name("skatteetaten_empty_result_count")
@@ -69,7 +74,9 @@ public class SkatteoppgjorhendelsePoller {
                 throw new EmptyResultException("Skatteetaten returned 0 hendelser");
             }
             LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
-            antallHendelserHentet.inc(hendelsesliste.getHendelser().size());
+            antallHendelserHentetTotalt.inc(hendelsesliste.getHendelser().size());
+            hendelsesliste.getHendelser()
+                    .forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
 
             long lastReceivedSekvensnummer = hendelsesliste.getHendelser()
                     .get(hendelsesliste.getHendelser().size() - 1)
