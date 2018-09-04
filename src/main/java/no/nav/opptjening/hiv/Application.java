@@ -108,7 +108,7 @@ public class Application {
             LOG.error(e.getMessage(), e);
         } catch (KafkaException e) {
             LOG.error("Error while consuming or producing data on Kafka", e);
-        } catch (Exception e) {
+        } catch (Error | Exception e) {
             LOG.error("Unknown error", e);
         }
 
