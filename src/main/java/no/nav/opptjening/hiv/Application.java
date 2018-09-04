@@ -28,6 +28,8 @@ public class Application {
 
     private static final int POLL_TIMEOUT_MS = 5000;
 
+    private static final int EARLIEST_VALID_HENDELSE_YEAR = 2017;
+
     private final SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller;
     private final SkatteoppgjorhendelseProducer hendelseProducer;
 
@@ -89,10 +91,15 @@ public class Application {
                     Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
                     List<Hendelse> hendelser = hendelsesliste.getHendelser().stream()
+                            .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= EARLIEST_VALID_HENDELSE_YEAR)
                             .map(hendelseMapper::mapToHendelse)
                             .collect(Collectors.toList());
 
-                    hendelseProducer.sendHendelser(hendelser);
+                    if (hendelser.size() > 0) {
+                        hendelseProducer.sendHendelser(hendelser);
+                    } else {
+                        LOG.info("No hendelser to send after filtering away unwanted hendelser");
+                    }
                 } catch (EmptyResultException e) {
                     LOG.debug("Skatteetaten reported no new records, waiting a bit before trying again", e);
                     Thread.sleep(POLL_TIMEOUT_MS);
