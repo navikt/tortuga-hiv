@@ -11,9 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class KafkaSekvensnummerReader implements SekvensnummerReader {
@@ -106,43 +104,21 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
         }
     }
 
-    /* drain the assigned topics, reading as much as possible */
-    @Nullable
-    private List<ConsumerRecords<String, Long>> drain() {
-        List<ConsumerRecords<String, Long>> recordsList = new ArrayList<>();
-
-        while (!Thread.currentThread().isInterrupted()) {
-            ConsumerRecords<String, Long> records = consumer.poll(POLL_TIMEOUT_MS);
-
-            LOG.info("Poll returned {} records", records.count());
-
-            if (records.count() == 0) {
-                break;
-            }
-
-            recordsList.add(records);
-        }
-
-        if (recordsList.isEmpty()) {
-            return null;
-        }
-
-        return recordsList;
-    }
-
     /* read as much as possible, and return latest record with the given key */
     @Nullable
     private ConsumerRecord<String, Long> drain(@NotNull TopicPartition partition, @NotNull String key) {
-        List<ConsumerRecords<String, Long>> recordsList = drain();
-        if (recordsList == null) {
+        ConsumerRecords<String, Long> records = consumer.poll(POLL_TIMEOUT_MS);
+
+        if (records.count() == 0) {
             throw new NoNextSekvensnummerRecordsToConsume("Did not receive any records, " +
                     "the log is empty or current position is at the end of the log");
         }
 
         ConsumerRecord<String, Long> recordToKeep = null;
+        while (!Thread.currentThread().isInterrupted() && records.count() > 0) {
+            LOG.info("Poll returned {} records", records.count());
 
-        for (ConsumerRecords<String, Long> consumerRecords : recordsList) {
-            for (ConsumerRecord<String, Long> record : consumerRecords.records(partition)) {
+            for (ConsumerRecord<String, Long> record : records.records(partition)) {
                 if (!key.equals(record.key())) {
                     LOG.warn("Log contains unexpected key {} at offset {} in {}-{}", record.key(),
                             record.offset(), record.topic(), record.partition());
@@ -150,6 +126,8 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
                 }
                 recordToKeep = record;
             }
+
+            records = consumer.poll(POLL_TIMEOUT_MS);
         }
 
         return recordToKeep;
