@@ -15,11 +15,13 @@ import org.apache.kafka.common.TopicPartition;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Application {
@@ -88,6 +90,7 @@ public class Application {
         try {
             while (true) {
                 try {
+                    MDC.put("requestId", UUID.randomUUID().toString());
                     Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
                     List<Hendelse> hendelser = hendelsesliste.getHendelser().stream()
@@ -109,6 +112,8 @@ public class Application {
                 } catch (HttpException e) {
                     LOG.error("Error while contacting Skatteetaten", e);
                     Thread.sleep(POLL_TIMEOUT_MS);
+                } finally {
+                    MDC.remove("requestId");
                 }
             }
         } catch (IOException e) {
