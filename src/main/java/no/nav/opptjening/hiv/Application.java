@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -94,6 +95,9 @@ public class Application {
                     hendelseProducer.sendHendelser(hendelser);
                 } catch (EmptyResultException e) {
                     LOG.debug("Skatteetaten reported no new records, waiting a bit before trying again", e);
+                    Thread.sleep(POLL_TIMEOUT_MS);
+                } catch (SocketTimeoutException e) {
+                    LOG.debug("Socket timeout, waiting a bit before trying again", e);
                     Thread.sleep(POLL_TIMEOUT_MS);
                 } catch (HttpException e) {
                     LOG.error("Error while contacting Skatteetaten", e);
