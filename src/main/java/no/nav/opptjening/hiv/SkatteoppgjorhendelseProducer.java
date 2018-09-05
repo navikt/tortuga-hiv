@@ -13,9 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SkatteoppgjorhendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelseProducer.class);
+
+    private static final int EARLIEST_VALID_HENDELSE_YEAR = 2017;
 
     private static final Counter antallHendelserSendt = Counter.build()
             .name("hendelser_processed")
@@ -44,14 +47,25 @@ public class SkatteoppgjorhendelseProducer {
     }
 
     public long sendHendelser(@NotNull List<Hendelse> hendelseList) {
-        hendelseList.stream()
+        List<Hendelse> hendelser = hendelseList.stream()
+                .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= EARLIEST_VALID_HENDELSE_YEAR)
+                .collect(Collectors.toList());
+
+        hendelser.stream()
                 .map((h) -> hendelseProducerRecordMapper.mapToProducerRecord(topic, h))
                 .forEach((r) -> {
                     producer.send(r, new ProducerCallback(r, sekvensnummerWriter, shutdownSignal));
                     antallHendelserSendt.inc();
                 });
 
-        return hendelseList.get(hendelseList.size() - 1).getSekvensnummer();
+        long sisteSekvensnummer = hendelseList.get(hendelseList.size() - 1).getSekvensnummer();
+
+        if (hendelser.size() == 0) {
+            LOG.info("No hendelser to send after filtering away unwanted hendelser");
+            sekvensnummerWriter.writeSekvensnummer(sisteSekvensnummer + 1);
+        }
+
+        return sisteSekvensnummer;
     }
 
     public void shutdown() {
