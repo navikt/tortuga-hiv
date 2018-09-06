@@ -2,6 +2,7 @@ package no.nav.opptjening.hiv;
 
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerWriter;
 import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
+import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Assert;
@@ -15,7 +16,7 @@ import java.util.concurrent.Callable;
 import static org.junit.Assert.assertEquals;
 
 public class SkatteoppgjorhendelseProducerTest {
-    private MockProducer<String, Hendelse> producer;
+    private MockProducer<HendelseKey, Hendelse> producer;
     private DummySekvensnummerWriter writer;
 
     private final String topic = "my-test-topic";
@@ -56,13 +57,28 @@ public class SkatteoppgjorhendelseProducerTest {
 
         producer.flush();
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
+        List<ProducerRecord<HendelseKey, Hendelse>> history = producer.history();
+        List<ProducerRecord<HendelseKey, Hendelse>> expected = Arrays.asList(
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("123456789")
+                        .build(), hendelseList.get(0)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("234567890")
+                        .build(), hendelseList.get(1)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("345678901")
+                        .build(), hendelseList.get(2)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("456789012")
+                        .build(), hendelseList.get(3)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("567890123")
+                        .build(), hendelseList.get(4))
         );
 
         assertEquals(expected, history);
@@ -89,13 +105,28 @@ public class SkatteoppgjorhendelseProducerTest {
         waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
+        List<ProducerRecord<HendelseKey, Hendelse>> history = producer.history();
+        List<ProducerRecord<HendelseKey, Hendelse>> expected = Arrays.asList(
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("123456789")
+                        .build(), hendelseList.get(0)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("234567890")
+                        .build(), hendelseList.get(1)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("345678901")
+                        .build(), hendelseList.get(2)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("456789012")
+                        .build(), hendelseList.get(3)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("567890123")
+                        .build(), hendelseList.get(4))
         );
 
         assertEquals(expected, history);
@@ -124,13 +155,28 @@ public class SkatteoppgjorhendelseProducerTest {
         waitForCondition(producer::closed);
         Assert.assertTrue(producer.closed());
 
-        List<ProducerRecord<String, Hendelse>> history = producer.history();
-        List<ProducerRecord<String, Hendelse>> expected = Arrays.asList(
-                new ProducerRecord<>(topic, "2018-123456789", hendelseList.get(0)),
-                new ProducerRecord<>(topic, "2018-234567890", hendelseList.get(1)),
-                new ProducerRecord<>(topic, "2018-345678901", hendelseList.get(2)),
-                new ProducerRecord<>(topic, "2018-456789012", hendelseList.get(3)),
-                new ProducerRecord<>(topic, "2018-567890123", hendelseList.get(4))
+        List<ProducerRecord<HendelseKey, Hendelse>> history = producer.history();
+        List<ProducerRecord<HendelseKey, Hendelse>> expected = Arrays.asList(
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("123456789")
+                        .build(), hendelseList.get(0)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("234567890")
+                        .build(), hendelseList.get(1)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("345678901")
+                        .build(), hendelseList.get(2)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("456789012")
+                        .build(), hendelseList.get(3)),
+                new ProducerRecord<>(topic, HendelseKey.newBuilder()
+                        .setGjelderPeriode("2018")
+                        .setIdentifikator("567890123")
+                        .build(), hendelseList.get(4))
         );
 
         assertEquals(expected, history);

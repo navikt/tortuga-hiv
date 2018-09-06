@@ -5,6 +5,7 @@ import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
 import no.nav.opptjening.nais.NaisHttpServer;
 import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
+import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
 import no.nav.opptjening.skatt.client.Hendelsesliste;
 import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
 import no.nav.opptjening.skatt.client.exceptions.HttpException;
@@ -60,7 +61,7 @@ public class Application {
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
             final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader);
-            Producer<String, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
+            Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
             app = new Application(poller, hendelseProducer);
 
