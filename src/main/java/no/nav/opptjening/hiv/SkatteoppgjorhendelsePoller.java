@@ -28,6 +28,10 @@ public class SkatteoppgjorhendelsePoller {
             .name("next_sekvensnummer")
             .help("Neste sekvensnummer vi forventer å få hendelser på").register();
 
+    private static final Gauge latestSekvensnummerGauge = Gauge.build()
+            .name("latest_sekvensnummer")
+            .help("Siste sekvensnummer for dagens dato").register();
+
     private static final Counter antallHendelserHentet = Counter.build()
             .name("hendelser_received")
             .labelNames("year")
@@ -72,6 +76,8 @@ public class SkatteoppgjorhendelsePoller {
         try {
             Sekvensnummer latestSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummerEtter(LocalDate.now());
             LOG.info("Latest sekvensnummer for date={} is {}", LocalDate.now(), latestSekvensnummer);
+            latestSekvensnummerGauge.set(latestSekvensnummer.getSekvensnummer());
+
             Hendelsesliste hendelsesliste = null;
 
             while (nextSekvensnummer < latestSekvensnummer.getSekvensnummer()) {
