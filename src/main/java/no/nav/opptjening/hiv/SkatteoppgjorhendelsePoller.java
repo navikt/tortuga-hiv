@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalDate;
 
 public class SkatteoppgjorhendelsePoller {
 
@@ -69,11 +70,27 @@ public class SkatteoppgjorhendelsePoller {
         pollCounter.inc();
 
         try {
-            Hendelsesliste hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
-            if (hendelsesliste.getHendelser().size() == 0) {
-                throw new EmptyResultException("Skatteetaten returned 0 hendelser");
+            Sekvensnummer latestSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummerEtter(LocalDate.now());
+            LOG.info("Latest sekvensnummer for date={} is {}", LocalDate.now(), latestSekvensnummer);
+            Hendelsesliste hendelsesliste = null;
+
+            while (nextSekvensnummer < latestSekvensnummer.getSekvensnummer()) {
+                hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
+
+                LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
+
+                if (hendelsesliste.getHendelser().size() > 0) {
+                    break;
+                }
+
+                nextSekvensnummer = nextSekvensnummer + ANTALL_HENDELSER_PER_REQUEST + 1;
             }
-            LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
+
+            if (hendelsesliste == null || nextSekvensnummer >= latestSekvensnummer.getSekvensnummer()) {
+                throw new EmptyResultException("We have reached the end of the hendelseliste");
+            }
+
+
             antallHendelserHentetTotalt.inc(hendelsesliste.getHendelser().size());
             hendelsesliste.getHendelser()
                     .forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
