@@ -43,7 +43,21 @@ node {
             }
         }
 
-        stage("deploy") {
+        stage("deploy preprod") {
+            build([
+                    job       : 'nais-deploy-pipeline',
+                    wait      : false,
+                    parameters: [
+                            string(name: 'APP', value: "tortuga-hiv"),
+                            string(name: 'REPO', value: "navikt/tortuga-hiv"),
+                            string(name: 'VERSION', value: version),
+                            string(name: 'COMMIT_HASH', value: commitHash),
+                            string(name: 'DEPLOY_ENV', value: 'q0')
+                    ]
+            ])
+        }
+
+        stage("deploy prod") {
             build([
                     job       : 'nais-deploy-pipeline',
                     wait      : false,
