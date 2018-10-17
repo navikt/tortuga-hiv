@@ -47,7 +47,6 @@ node {
             build([
                     job       : 'nais-deploy-pipeline',
                     propagate : true,
-                    wait      : true,
                     parameters: [
                             string(name: 'APP', value: "tortuga-hiv"),
                             string(name: 'REPO', value: "navikt/tortuga-hiv"),
@@ -61,8 +60,7 @@ node {
         stage("deploy prod") {
             build([
                     job       : 'nais-deploy-pipeline',
-                    propagate : true,
-                    wait      : true,
+                    wait      : false,
                     parameters: [
                             string(name: 'APP', value: "tortuga-hiv"),
                             string(name: 'REPO', value: "navikt/tortuga-hiv"),
