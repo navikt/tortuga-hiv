@@ -1,6 +1,6 @@
 name: tortuga-hiv
 image: repo.adeo.no:5443/tortuga-hiv
-team: peon
+team: teampeon
 replicas:
   min: 1
   max: 1
