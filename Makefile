@@ -15,7 +15,7 @@ build:
 		-u $(shell id -u) \
 		-v ${HOME}/.m2:/var/maven/.m2 \
 		-e MAVEN_CONFIG=/var/maven/.m2 \
-		maven:3.5-jdk-8 mvn -Duser.home=/var/maven clean package -DskipTests=true -B -V
+		maven:3.5-jdk-11 mvn -Duser.home=/var/maven clean package -DskipTests=true -B -V
 
 test:
 	$(DOCKER) run --rm -t \
@@ -24,7 +24,7 @@ test:
 		-u $(shell id -u) \
 		-v ${HOME}/.m2:/var/maven/.m2 \
 		-e MAVEN_CONFIG=/var/maven/.m2 \
-		maven:3.5-jdk-8 mvn -Duser.home=/var/maven verify -B -e
+		maven:3.5-jdk-11 mvn -Duser.home=/var/maven verify -B -e
 
 docker:
 	$(NAIS) validate
