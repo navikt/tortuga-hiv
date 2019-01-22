@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 
@@ -46,8 +47,6 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
         LOG.info("Committed offset = {}", committedOffset);
 
         if (committedOffset == null) {
-            // AUTO_OFFSET_RESET_CONFIG kicks in.
-            // TODO: should we test that it's set to "earliest"?
             LOG.info("Committed offset is null");
         } else {
             Map<TopicPartition, Long> endOffsets = consumer.endOffsets(Collections.singletonList(topicPartition));
@@ -79,7 +78,6 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
                         "but found none with the correct key. Cannot continue.");
             }
 
-            /* sync once we have a nextSekvensnummer record */
             OffsetAndMetadata offsetToCommit = new OffsetAndMetadata(nextSekvensnummer.offset() + 1);
             consumer.commitSync(Collections.singletonMap(topicPartition, offsetToCommit));
             LOG.info("Offset={} committed (committed offset = {})", offsetToCommit.offset(),
@@ -91,9 +89,6 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
             return nextSekvensnummer.value();
         } catch (NoNextSekvensnummerRecordsToConsume e) {
             if (committedOffset == null) {
-                /* if committedOffset is null, and we have configured the consumer
-                    with AUTO_OFFSET_RESET_CONFIG=earliest, we can now assume that the log is actually empty */
-                // TODO: should we assume AUTO_OFFSET_RESET_CONFIG=earliest or handle the seeking ourselves?
                 LOG.info("No records were consumed, and committed offset was null, so we assume the log is empty");
                 return INDETERMINATE;
             }
@@ -107,7 +102,7 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
     /* read as much as possible, and return latest record with the given key */
     @Nullable
     private ConsumerRecord<String, Long> drain(@NotNull TopicPartition partition, @NotNull String key) {
-        ConsumerRecords<String, Long> records = consumer.poll(POLL_TIMEOUT_MS);
+        ConsumerRecords<String, Long> records = consumer.poll(Duration.ofMillis(POLL_TIMEOUT_MS));
 
         if (records.count() == 0) {
             throw new NoNextSekvensnummerRecordsToConsume("Did not receive any records, " +
@@ -127,14 +122,9 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
                 recordToKeep = record;
             }
 
-            records = consumer.poll(POLL_TIMEOUT_MS);
+            records = consumer.poll(Duration.ofMillis(POLL_TIMEOUT_MS));
         }
 
         return recordToKeep;
-    }
-
-    public void shutdown() {
-        LOG.info("Shutting down KafkaSekvensnummerReader");
-        consumer.close();
     }
 }
