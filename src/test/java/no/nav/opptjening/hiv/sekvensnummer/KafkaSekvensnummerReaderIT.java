@@ -30,7 +30,7 @@ public class KafkaSekvensnummerReaderIT {
 
     @Before
     public void setUp() {
-        kafkaEnvironment = new KafkaEnvironment(NUMBER_OF_BROKERS, TOPICS, false, false, false);
+        kafkaEnvironment = new KafkaEnvironment(NUMBER_OF_BROKERS, TOPICS, false, false, Collections.emptyList(),false);
         kafkaEnvironment.start();
 
         Map<String, String> env = new HashMap<>();

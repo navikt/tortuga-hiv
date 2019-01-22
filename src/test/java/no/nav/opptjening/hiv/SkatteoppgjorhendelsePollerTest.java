@@ -27,7 +27,7 @@ public class SkatteoppgjorhendelsePollerTest {
     private HendelserClient hendelserClient;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.hendelserClient = new SkatteoppgjoerhendelserClient("http://localhost:" + wireMockRule.port() + "/", "apikey");
     }
 
