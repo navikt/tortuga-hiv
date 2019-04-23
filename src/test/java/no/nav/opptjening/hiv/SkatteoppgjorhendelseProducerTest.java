@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 public class SkatteoppgjorhendelseProducerTest {
@@ -53,7 +54,7 @@ public class SkatteoppgjorhendelseProducerTest {
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
-        Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
+        assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.flush();
 
@@ -83,7 +84,7 @@ public class SkatteoppgjorhendelseProducerTest {
 
         assertEquals(expected, history);
 
-        Assert.assertEquals(hendelseList.get(hendelseList.size() - 1).getSekvensnummer() + 1, writer.lastWrittenSekvensnummer);
+        assertEquals(hendelseList.get(hendelseList.size() - 1).getSekvensnummer() + 1, writer.lastWrittenSekvensnummer);
     }
 
     @Test
@@ -97,13 +98,13 @@ public class SkatteoppgjorhendelseProducerTest {
         );
 
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
-        Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
+        assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.completeNext();
         producer.errorNext(new RuntimeException("Failed to send record"));
 
         waitForCondition(producer::closed);
-        Assert.assertTrue(producer.closed());
+        assertTrue(producer.closed());
 
         List<ProducerRecord<HendelseKey, Hendelse>> history = producer.history();
         List<ProducerRecord<HendelseKey, Hendelse>> expected = Arrays.asList(
@@ -131,7 +132,7 @@ public class SkatteoppgjorhendelseProducerTest {
 
         assertEquals(expected, history);
 
-        Assert.assertEquals(2, writer.lastWrittenSekvensnummer);
+        assertEquals(2, writer.lastWrittenSekvensnummer);
     }
 
     @Test
@@ -149,11 +150,11 @@ public class SkatteoppgjorhendelseProducerTest {
         ExceptionThrowerSekvensnummerWriter evilWriter = new ExceptionThrowerSekvensnummerWriter(exception);
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, evilWriter);
 
-        Assert.assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
+        assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.flush();
         waitForCondition(producer::closed);
-        Assert.assertTrue(producer.closed());
+        assertTrue(producer.closed());
 
         List<ProducerRecord<HendelseKey, Hendelse>> history = producer.history();
         List<ProducerRecord<HendelseKey, Hendelse>> expected = Arrays.asList(
@@ -181,16 +182,16 @@ public class SkatteoppgjorhendelseProducerTest {
 
         assertEquals(expected, history);
 
-        Assert.assertEquals(-1, writer.lastWrittenSekvensnummer);
+        assertEquals(-1, writer.lastWrittenSekvensnummer);
     }
 
     @Test
     public void close() {
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
 
-        Assert.assertFalse(producer.closed());
+        assertFalse(producer.closed());
         skatteoppgjorhendelseProducer.shutdown();
-        Assert.assertTrue(producer.closed());
+        assertTrue(producer.closed());
     }
 
     private class DummySekvensnummerWriter implements SekvensnummerWriter {

@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.*;
+
 public class SkatteoppgjorhendelsePollerTest {
 
     @Rule
@@ -59,15 +61,15 @@ public class SkatteoppgjorhendelsePollerTest {
         SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(-1));
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-        Assert.assertEquals(2, hendelsesliste.getHendelser().size());
+        assertEquals(2, hendelsesliste.getHendelser().size());
 
-        Assert.assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        Assert.assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
 
-        Assert.assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        Assert.assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        Assert.assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
     }
 
     @Test
@@ -94,15 +96,15 @@ public class SkatteoppgjorhendelsePollerTest {
         SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10));
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-        Assert.assertEquals(2, hendelsesliste.getHendelser().size());
+        assertEquals(2, hendelsesliste.getHendelser().size());
 
-        Assert.assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        Assert.assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
 
-        Assert.assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        Assert.assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        Assert.assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
     }
 
     @Test
@@ -140,17 +142,17 @@ public class SkatteoppgjorhendelsePollerTest {
         SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1));
 
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        Assert.assertEquals(1, hendelsesliste.getHendelser().size());
-        Assert.assertEquals(1, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        Assert.assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(1, hendelsesliste.getHendelser().size());
+        assertEquals(1, hendelsesliste.getHendelser().get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
 
 
         hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        Assert.assertEquals(1, hendelsesliste.getHendelser().size());
-        Assert.assertEquals(2, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("67891", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        Assert.assertEquals("2017", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(1, hendelsesliste.getHendelser().size());
+        assertEquals(2, hendelsesliste.getHendelser().get(0).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.getHendelser().get(0).getIdentifikator());
+        assertEquals("2017", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
     }
 
     @Test
@@ -185,14 +187,14 @@ public class SkatteoppgjorhendelsePollerTest {
         SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1));
 
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        Assert.assertEquals(2, hendelsesliste.getHendelser().size());
-        Assert.assertEquals(1002, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        Assert.assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        Assert.assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(2, hendelsesliste.getHendelser().size());
+        assertEquals(1002, hendelsesliste.getHendelser().get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
 
-        Assert.assertEquals(1003, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        Assert.assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        Assert.assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(1003, hendelsesliste.getHendelser().get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
     }
 
     @Test
@@ -217,7 +219,7 @@ public class SkatteoppgjorhendelsePollerTest {
 
         try {
             Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
-            Assert.fail("Expected EmptyResultException to be thrown when nextSekvensnummer >= latestSekvensnummer");
+            fail("Expected EmptyResultException to be thrown when nextSekvensnummer >= latestSekvensnummer");
         } catch (EmptyResultException e) {
             // ok
         }
