@@ -62,6 +62,7 @@ public class SkatteoppgjorhendelsePoller {
     public Hendelsesliste poll() throws IOException {
         if (nextSekvensnummer == -1) {
             this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
+            LOG.info("Next sekvensnummer read from topic is: {}", nextSekvensnummer);
 
             if (nextSekvensnummer == -1) {
                 Sekvensnummer firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummer();
@@ -75,7 +76,7 @@ public class SkatteoppgjorhendelsePoller {
 
         try {
             Sekvensnummer latestSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummerEtter(LocalDate.now());
-            LOG.info("Latest sekvensnummer for date={} is {}. Next Sekvensnummer is: {}", LocalDate.now(), latestSekvensnummer, nextSekvensnummer);
+            LOG.info("Latest sekvensnummer for date={} is {}.", LocalDate.now(), latestSekvensnummer);
             latestSekvensnummerGauge.set(latestSekvensnummer.getSekvensnummer());
 
             Hendelsesliste hendelsesliste = null;
