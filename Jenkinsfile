@@ -55,7 +55,7 @@ node {
                     ]
             ])
         }
-        
+        /*
         stage("deploy prod") {
             build([
                     job       : 'nais-deploy-pipeline',
@@ -68,7 +68,7 @@ node {
                             string(name: 'DEPLOY_ENV', value: 'p')
                     ]
             ])
-        }
+        }*/
 
         github.commitStatus("success", "navikt/tortuga-hiv", appToken, commitHash)
     } catch (err) {
