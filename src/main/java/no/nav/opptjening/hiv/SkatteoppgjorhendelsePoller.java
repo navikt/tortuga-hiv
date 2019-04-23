@@ -75,7 +75,7 @@ public class SkatteoppgjorhendelsePoller {
 
         try {
             Sekvensnummer latestSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummerEtter(LocalDate.now());
-            LOG.info("Latest sekvensnummer for date={} is {}", LocalDate.now(), latestSekvensnummer);
+            LOG.info("Latest sekvensnummer for date={} is {}. Next Sekvensnummer is: {}", LocalDate.now(), latestSekvensnummer, nextSekvensnummer);
             latestSekvensnummerGauge.set(latestSekvensnummer.getSekvensnummer());
 
             Hendelsesliste hendelsesliste = null;

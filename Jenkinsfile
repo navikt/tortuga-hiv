@@ -55,7 +55,7 @@ node {
                     ]
             ])
         }
-
+        
         stage("deploy prod") {
             build([
                     job       : 'nais-deploy-pipeline',
