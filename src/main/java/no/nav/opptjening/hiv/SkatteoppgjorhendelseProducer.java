@@ -53,9 +53,9 @@ public class SkatteoppgjorhendelseProducer {
                 .collect(Collectors.toList());
 
         hendelser.stream()
-                .map((h) -> hendelseProducerRecordMapper.mapToProducerRecord(topic, h))
-                .forEach((r) -> {
-                    producer.send(r, new ProducerCallback(r, sekvensnummerWriter, shutdownSignal));
+                .map((hendelse) -> hendelseProducerRecordMapper.mapToProducerRecord(topic, hendelse))
+                .forEach((record) -> {
+                    producer.send(record, new ProducerCallback(record, sekvensnummerWriter, shutdownSignal));
                     antallHendelserSendt.inc();
                 });
 

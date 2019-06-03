@@ -5,16 +5,16 @@ import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
 import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SkatteoppgjorhendelseProducerTest {
     private MockProducer<HendelseKey, Hendelse> producer;
@@ -22,7 +22,7 @@ public class SkatteoppgjorhendelseProducerTest {
 
     private final String topic = "my-test-topic";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         producer = new MockProducer<>();
         writer = new DummySekvensnummerWriter();

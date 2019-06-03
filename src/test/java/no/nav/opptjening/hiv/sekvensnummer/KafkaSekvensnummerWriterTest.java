@@ -4,22 +4,22 @@ import no.nav.opptjening.hiv.KafkaConfiguration;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KafkaSekvensnummerWriterTest {
 
-    private MockProducer<String, Long> producer;
-    private TopicPartition partition;
-    private KafkaSekvensnummerWriter writer;
+    private static MockProducer<String, Long> producer;
+    private static TopicPartition partition;
+    private static KafkaSekvensnummerWriter writer;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         producer = new MockProducer<>();
         partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);

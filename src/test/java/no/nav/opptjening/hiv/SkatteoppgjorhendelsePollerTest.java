@@ -1,6 +1,7 @@
 package no.nav.opptjening.hiv;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerReader;
@@ -8,10 +9,11 @@ import no.nav.opptjening.skatt.client.Hendelsesliste;
 import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
 import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
 import no.nav.opptjening.skatt.client.schema.hendelsesliste.HendelseslisteDto;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,18 +21,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SkatteoppgjorhendelsePollerTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule();
-
     private HendelserClient hendelserClient;
+    private static WireMockServer wireMockServer = new WireMockServer(8080);
 
-    @Before
+    @BeforeAll
     public void setUp() {
-        this.hendelserClient = new SkatteoppgjoerhendelserClient("http://localhost:" + wireMockRule.port() + "/", "apikey");
+        wireMockServer.start();
+        this.hendelserClient = new SkatteoppgjoerhendelserClient("http://localhost:" + wireMockServer.port() + "/", "apikey");
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        wireMockServer.stop();
     }
 
     @Test
