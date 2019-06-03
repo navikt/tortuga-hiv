@@ -14,6 +14,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class KafkaSekvensnummerReaderIT {
 
     private static final int NUMBER_OF_BROKERS = 3;
@@ -28,8 +29,8 @@ public class KafkaSekvensnummerReaderIT {
     private static final TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
     private static final List<TopicPartition> partitionList = Collections.singletonList(partition);
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         kafkaEnvironment = new KafkaEnvironment(NUMBER_OF_BROKERS, TOPICS, false, false, Collections.emptyList(),false);
         kafkaEnvironment.start();
 
@@ -43,8 +44,8 @@ public class KafkaSekvensnummerReaderIT {
         sekvensnummerConsumer = kafkaConfiguration.offsetConsumer();
     }
 
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         kafkaEnvironment.tearDown();
     }
 
@@ -81,6 +82,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
+    @Order(1)
     public void when_CommittedIsNullAndNoRecords_Then_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
@@ -88,6 +90,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
+    @Order(2)
     public void when_CommittedIsNullAndNoRecords_Then_ReReading_Should_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
@@ -96,12 +99,26 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
+    @Order(3)
     public void when_CommittedIsNotNullAndNoRecords_Then_Throw() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
         sekvensnummerConsumer.assign(partitionList);
         sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
 
         assertThrows(NoNextSekvensnummerRecordsToConsume.class, reader::readSekvensnummer);
+    }
+
+    @Test
+    @Order(4)
+    public void when_CommittedIsNotNullAndNoRecordsWithCorrectKey_Then_Throw() {
+        createBadRecords();
+
+        KafkaSekvensnummerReader reader = getSekvensnummerReader();
+
+        sekvensnummerConsumer.assign(partitionList);
+        sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
+
+        assertThrows(CouldNotFindNextSekvensnummerRecord.class, reader::readSekvensnummer);
     }
 
     @Test
@@ -187,15 +204,4 @@ public class KafkaSekvensnummerReaderIT {
         assertThrows(CouldNotFindNextSekvensnummerRecord.class, reader::readSekvensnummer);
     }
 
-    @Test
-    public void when_CommittedIsNotNullAndNoRecordsWithCorrectKey_Then_Throw() {
-        createBadRecords();
-
-        KafkaSekvensnummerReader reader = getSekvensnummerReader();
-
-        sekvensnummerConsumer.assign(partitionList);
-        sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
-
-        assertThrows(CouldNotFindNextSekvensnummerRecord.class, reader::readSekvensnummer);
-    }
 }
