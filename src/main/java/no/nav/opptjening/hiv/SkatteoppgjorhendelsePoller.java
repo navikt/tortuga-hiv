@@ -48,29 +48,21 @@ public class SkatteoppgjorhendelsePoller {
     private static final Counter skatteetatenErrorCounter = Counter.build()
             .name("skatteetaten_error_count")
             .help("Antall feil vi har fått fra Skatteetaten sitt API").register();
+    public static final int INDETERMINATE_SEKVENSNUMMER = -1;
 
     private final HendelserClient beregnetskattHendelserClient;
     private final SekvensnummerReader sekvensnummerReader;
     private long nextSekvensnummer = -1;
 
-    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) {
+    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) throws IOException {
         this.beregnetskattHendelserClient = beregnetskattHendelserClient;
         this.sekvensnummerReader = sekvensnummerReader;
+        initNextSekvensnummer();
+
     }
 
     @NotNull
     public Hendelsesliste poll() throws IOException {
-        if (nextSekvensnummer == -1) {
-            this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
-            LOG.info("Next sekvensnummer read from topic is: {}", nextSekvensnummer);
-
-            if (nextSekvensnummer == -1) {
-                Sekvensnummer firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummer();
-                LOG.info("We did not find any nextSekvensnummer record, and assume that the log is empty." +
-                        "Setting nextSekvensnummer={}", firstValidSekvensnummer.getSekvensnummer());
-                nextSekvensnummer = firstValidSekvensnummer.getSekvensnummer();
-            }
-        }
 
         pollCounter.inc();
 
@@ -116,6 +108,18 @@ public class SkatteoppgjorhendelsePoller {
             throw e;
         } finally {
             nextSekvensnummerGauge.set(nextSekvensnummer);
+        }
+    }
+
+    private void initNextSekvensnummer() throws IOException {
+        this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
+        LOG.info("Next sekvensnummer read from topic is: {}", nextSekvensnummer);
+
+        if (nextSekvensnummer == INDETERMINATE_SEKVENSNUMMER) {
+            long firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummer().getSekvensnummer();
+            LOG.info("We did not find any nextSekvensnummer record, and assume that the log is empty." +
+                "Setting nextSekvensnummer={}", firstValidSekvensnummer);
+            nextSekvensnummer = firstValidSekvensnummer;
         }
     }
 }

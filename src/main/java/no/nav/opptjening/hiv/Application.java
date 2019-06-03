@@ -110,8 +110,6 @@ public class Application {
                     MDC.remove("requestId");
                 }
             }
-        } catch (IOException e) {
-            LOG.warn("IO exception, exiting", e);
         } catch (InterruptedException e) {
             LOG.warn("Thread got interrupted during sleep, exiting", e);
         } catch (CouldNotFindNextSekvensnummerRecord e) {
