@@ -3,9 +3,7 @@ package no.nav.opptjening.hiv;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerReader;
-import no.nav.opptjening.skatt.client.Hendelsesliste;
 import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
 import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
 import no.nav.opptjening.skatt.client.schema.hendelsesliste.HendelseslisteDto;
@@ -13,16 +11,17 @@ import no.nav.opptjening.skatt.client.schema.hendelsesliste.HendelseslisteDto;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class SkatteoppgjorhendelsePollerTest {
 
+    public static final Supplier<LocalDate> SPECIFIC_DATE = () -> LocalDate.of(2019, 5, 6);
     private static HendelserClient hendelserClient;
     private static WireMockServer wireMockServer = new WireMockServer(8080);
 
@@ -43,7 +42,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 10}")));
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/hendelser/start"))
-                .withQueryParam("dato", WireMock.equalTo(LocalDate.now().toString()))
+                .withQueryParam("dato", WireMock.equalTo(SPECIFIC_DATE.get().toString()))
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 11}")));
 
@@ -62,18 +61,18 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(null));
-        Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(null), SPECIFIC_DATE);
+        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-        assertEquals(2, hendelsesliste.getHendelser().size());
+        assertEquals(2, hendelsesliste.size());
 
-        assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(10, hendelsesliste.get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.get(0).getGjelderPeriode());
 
-        assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(11, hendelsesliste.get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.get(1).getGjelderPeriode());
     }
 
     @Test
@@ -93,22 +92,22 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/hendelser/start"))
-                .withQueryParam("dato", WireMock.equalTo(LocalDate.now().toString()))
+                .withQueryParam("dato", WireMock.equalTo(SPECIFIC_DATE.get().toString()))
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 12}")));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10L));
-        Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10L), SPECIFIC_DATE);
+        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-        assertEquals(2, hendelsesliste.getHendelser().size());
+        assertEquals(2, hendelsesliste.size());
 
-        assertEquals(10, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(10, hendelsesliste.get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.get(0).getGjelderPeriode());
 
-        assertEquals(11, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(11, hendelsesliste.get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.get(1).getGjelderPeriode());
     }
 
     @Test
@@ -127,7 +126,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/hendelser/start"))
-                .withQueryParam("dato", WireMock.equalTo(LocalDate.now().toString()))
+                .withQueryParam("dato", WireMock.equalTo(SPECIFIC_DATE.get().toString()))
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 3}")));
 
@@ -143,20 +142,20 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE);
 
-        Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertEquals(1, hendelsesliste.getHendelser().size());
-        assertEquals(1, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
+        assertEquals(1, hendelsesliste.size());
+        assertEquals(1, hendelsesliste.get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.get(0).getGjelderPeriode());
 
 
         hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertEquals(1, hendelsesliste.getHendelser().size());
-        assertEquals(2, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        assertEquals("67891", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        assertEquals("2017", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        assertEquals(1, hendelsesliste.size());
+        assertEquals(2, hendelsesliste.get(0).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.get(0).getIdentifikator());
+        assertEquals("2017", hendelsesliste.get(0).getGjelderPeriode());
     }
 
     @Test
@@ -173,7 +172,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/hendelser/start"))
-                .withQueryParam("dato", WireMock.equalTo(LocalDate.now().toString()))
+                .withQueryParam("dato", WireMock.equalTo(SPECIFIC_DATE.get().toString()))
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 1003}")));
 
@@ -188,17 +187,17 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE);
 
-        Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertEquals(2, hendelsesliste.getHendelser().size());
-        assertEquals(1002, hendelsesliste.getHendelser().get(0).getSekvensnummer());
-        assertEquals("12345", hendelsesliste.getHendelser().get(0).getIdentifikator());
-        assertEquals("2016", hendelsesliste.getHendelser().get(0).getGjelderPeriode());
+        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
+        assertEquals(2, hendelsesliste.size());
+        assertEquals(1002, hendelsesliste.get(0).getSekvensnummer());
+        assertEquals("12345", hendelsesliste.get(0).getIdentifikator());
+        assertEquals("2016", hendelsesliste.get(0).getGjelderPeriode());
 
-        assertEquals(1003, hendelsesliste.getHendelser().get(1).getSekvensnummer());
-        assertEquals("67891", hendelsesliste.getHendelser().get(1).getIdentifikator());
-        assertEquals("2017", hendelsesliste.getHendelser().get(1).getGjelderPeriode());
+        assertEquals(1003, hendelsesliste.get(1).getSekvensnummer());
+        assertEquals("67891", hendelsesliste.get(1).getIdentifikator());
+        assertEquals("2017", hendelsesliste.get(1).getGjelderPeriode());
     }
 
     @Test
@@ -215,14 +214,14 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/hendelser/start"))
-                .withQueryParam("dato", WireMock.equalTo(LocalDate.now().toString()))
+                .withQueryParam("dato", WireMock.equalTo(SPECIFIC_DATE.get().toString()))
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 1}")));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE);
 
         try {
-            Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
+            var hendelsesliste = skatteoppgjorhendelsePoller.poll();
             fail("Expected EmptyResultException to be thrown when nextSekvensnummer >= latestSekvensnummer");
         } catch (EmptyResultException e) {
             // ok

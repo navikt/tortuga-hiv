@@ -20,6 +20,7 @@ import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,7 +61,7 @@ public class Application {
             Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
-            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader);
+            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader, LocalDate::now);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
             app = new Application(poller, hendelseProducer);
@@ -90,9 +91,9 @@ public class Application {
             while (true) {
                 try {
                     MDC.put("requestId", UUID.randomUUID().toString());
-                    Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
+                    List<Hendelsesliste.Hendelse> hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-                    List<Hendelse> hendelser = hendelsesliste.getHendelser().stream()
+                    List<Hendelse> hendelser = hendelsesliste.stream()
                             .map(hendelseMapper::mapToHendelse)
                             .collect(Collectors.toList());
 

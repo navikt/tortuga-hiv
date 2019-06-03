@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class SkatteoppgjorhendelsePoller {
 
@@ -52,50 +55,38 @@ public class SkatteoppgjorhendelsePoller {
 
     private final HendelserClient beregnetskattHendelserClient;
     private final SekvensnummerReader sekvensnummerReader;
+    private final Supplier<LocalDate> dateSupplier;
     private long nextSekvensnummer = -1;
 
-    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) {
+    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader, Supplier<LocalDate> dateSupplier) {
         this.beregnetskattHendelserClient = beregnetskattHendelserClient;
         this.sekvensnummerReader = sekvensnummerReader;
+        this.dateSupplier = dateSupplier;
         initNextSekvensnummer();
-
     }
 
     @NotNull
-    public Hendelsesliste poll() throws IOException {
+    public List<Hendelsesliste.Hendelse> poll() throws IOException {
 
         pollCounter.inc();
 
+        long sekvensnummerLimit = sekvensnummerLimit().getSekvensnummer();
         try {
-            Sekvensnummer latestSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummerEtter(LocalDate.now());
-            LOG.info("Latest sekvensnummer for date={} is {}.", LocalDate.now(), latestSekvensnummer);
-            latestSekvensnummerGauge.set(latestSekvensnummer.getSekvensnummer());
+            LOG.info("Latest sekvensnummer for date={} is {}.", dateSupplier.get(), sekvensnummerLimit);
+            latestSekvensnummerGauge.set(sekvensnummerLimit);
 
-            Hendelsesliste hendelsesliste = null;
+            List<Hendelsesliste.Hendelse> hendelsesliste = fetchHendelserUntilLimit(sekvensnummerLimit);
 
-            while (nextSekvensnummer < latestSekvensnummer.getSekvensnummer()) {
-                hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
-
-                LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
-
-                if (hendelsesliste.getHendelser().size() > 0) {
-                    break;
-                }
-
-                nextSekvensnummer = nextSekvensnummer + ANTALL_HENDELSER_PER_REQUEST + 1;
-            }
-
-            if (hendelsesliste == null || nextSekvensnummer >= latestSekvensnummer.getSekvensnummer()) {
+            if (hendelsesliste.isEmpty() || reachedSekvensnummerLimit(sekvensnummerLimit)) {
                 throw new EmptyResultException("We have reached the end of the hendelseliste");
             }
 
 
-            antallHendelserHentetTotalt.inc(hendelsesliste.getHendelser().size());
-            hendelsesliste.getHendelser()
-                    .forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
+            antallHendelserHentetTotalt.inc(hendelsesliste.size());
+            hendelsesliste.forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
 
-            long lastReceivedSekvensnummer = hendelsesliste.getHendelser()
-                    .get(hendelsesliste.getHendelser().size() - 1)
+            long lastReceivedSekvensnummer = hendelsesliste
+                    .get(hendelsesliste.size() - 1)
                     .getSekvensnummer();
             nextSekvensnummer = lastReceivedSekvensnummer + 1;
 
@@ -109,6 +100,28 @@ public class SkatteoppgjorhendelsePoller {
         } finally {
             nextSekvensnummerGauge.set(nextSekvensnummer);
         }
+    }
+
+    private List<Hendelsesliste.Hendelse> fetchHendelserUntilLimit(long sekvensnummerLimit) throws IOException {
+        while (!reachedSekvensnummerLimit(sekvensnummerLimit)) {
+            var hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST).getHendelser();
+            LOG.info("Fetched {} hendelser", hendelsesliste.size());
+            if (hendelsesliste.isEmpty()) {
+                nextSekvensnummer = nextSekvensnummer + ANTALL_HENDELSER_PER_REQUEST + 1;
+            } else{
+                return hendelsesliste;
+            }
+        }
+        return Collections.emptyList();
+    }
+
+    private boolean reachedSekvensnummerLimit(long sekvensnummerLimit) {
+        return nextSekvensnummer >= sekvensnummerLimit;
+    }
+
+    @NotNull
+    private Sekvensnummer sekvensnummerLimit() throws IOException {
+        return beregnetskattHendelserClient.forsteSekvensnummerEtter(dateSupplier.get());
     }
 
     private void initNextSekvensnummer() {
