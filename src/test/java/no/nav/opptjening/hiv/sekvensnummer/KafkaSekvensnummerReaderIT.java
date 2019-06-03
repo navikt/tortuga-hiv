@@ -86,7 +86,7 @@ public class KafkaSekvensnummerReaderIT {
     public void when_CommittedIsNullAndNoRecords_Then_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(-1, reader.readSekvensnummer());
+        assertEquals(Optional.empty(), reader.readSekvensnummer());
     }
 
     @Test
@@ -94,8 +94,8 @@ public class KafkaSekvensnummerReaderIT {
     public void when_CommittedIsNullAndNoRecords_Then_ReReading_Should_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(-1, reader.readSekvensnummer());
-        assertEquals(-1, reader.readSekvensnummer());
+        assertEquals(Optional.empty(), reader.readSekvensnummer());
+        assertEquals(Optional.empty(), reader.readSekvensnummer());
     }
 
     @Test
@@ -127,7 +127,7 @@ public class KafkaSekvensnummerReaderIT {
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -136,8 +136,8 @@ public class KafkaSekvensnummerReaderIT {
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(21, reader.readSekvensnummer());
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class KafkaSekvensnummerReaderIT {
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -155,8 +155,8 @@ public class KafkaSekvensnummerReaderIT {
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
-        assertEquals(21, reader.readSekvensnummer());
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class KafkaSekvensnummerReaderIT {
         sekvensnummerConsumer.assign(partitionList);
         sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
 
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -180,8 +180,8 @@ public class KafkaSekvensnummerReaderIT {
         sekvensnummerConsumer.assign(partitionList);
         sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
 
-        assertEquals(21, reader.readSekvensnummer());
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test
@@ -193,7 +193,7 @@ public class KafkaSekvensnummerReaderIT {
         sekvensnummerConsumer.assign(partitionList);
         sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
 
-        assertEquals(21, reader.readSekvensnummer());
+        assertEquals(Optional.of(21L), reader.readSekvensnummer());
     }
 
     @Test

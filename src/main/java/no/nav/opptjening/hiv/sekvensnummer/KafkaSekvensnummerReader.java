@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 public class KafkaSekvensnummerReader implements SekvensnummerReader {
 
@@ -22,8 +23,6 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
     private static final int POLL_TIMEOUT_MS = 1000;
 
     static final String NEXT_SEKVENSNUMMER_KEY = "nextSekvensnummer";
-
-    private static final long INDETERMINATE = -1;
 
     private final Consumer<String, Long> consumer;
     private final TopicPartition topicPartition;
@@ -40,7 +39,7 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
         this.topicPartition = topicPartition;
     }
 
-    public long readSekvensnummer() {
+    public Optional<Long> readSekvensnummer() {
         consumer.assign(Collections.singletonList(topicPartition));
 
         OffsetAndMetadata committedOffset = consumer.committed(topicPartition);
@@ -86,11 +85,11 @@ public class KafkaSekvensnummerReader implements SekvensnummerReader {
             nextSekvensnummerOffsetGauge.set(nextSekvensnummer.offset());
             nextSekvensnummerGauge.set(nextSekvensnummer.value());
 
-            return nextSekvensnummer.value();
+            return Optional.of(nextSekvensnummer.value());
         } catch (NoNextSekvensnummerRecordsToConsume e) {
             if (committedOffset == null) {
                 LOG.info("No records were consumed, and committed offset was null, so we assume the log is empty");
-                return INDETERMINATE;
+                return Optional.empty();
             }
 
             throw e;

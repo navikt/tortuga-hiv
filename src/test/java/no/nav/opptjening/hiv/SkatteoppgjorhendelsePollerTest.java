@@ -16,24 +16,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SkatteoppgjorhendelsePollerTest {
 
-    private HendelserClient hendelserClient;
+    private static HendelserClient hendelserClient;
     private static WireMockServer wireMockServer = new WireMockServer(8080);
 
     @BeforeAll
-    public void setUp() {
+    public static void setUp() {
         wireMockServer.start();
-        this.hendelserClient = new SkatteoppgjoerhendelserClient("http://localhost:" + wireMockServer.port() + "/", "apikey");
+        hendelserClient = new SkatteoppgjoerhendelserClient("http://localhost:" + wireMockServer.port() + "/", "apikey");
     }
 
     @AfterAll
@@ -66,7 +62,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(-1));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(null));
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
         assertEquals(2, hendelsesliste.getHendelser().size());
@@ -101,7 +97,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 12}")));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10L));
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
         assertEquals(2, hendelsesliste.getHendelser().size());
@@ -147,7 +143,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
 
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
         assertEquals(1, hendelsesliste.getHendelser().size());
@@ -192,7 +188,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson(jsonBody)));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
 
         Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
         assertEquals(2, hendelsesliste.getHendelser().size());
@@ -223,7 +219,7 @@ public class SkatteoppgjorhendelsePollerTest {
                 .withHeader("X-Nav-Apikey", WireMock.equalTo("apikey"))
                 .willReturn(WireMock.okJson("{\"sekvensnummer\": 1}")));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1));
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L));
 
         try {
             Hendelsesliste hendelsesliste = skatteoppgjorhendelsePoller.poll();
@@ -234,15 +230,15 @@ public class SkatteoppgjorhendelsePollerTest {
     }
 
     private class ReturnSpecificSekvensnummer implements SekvensnummerReader {
-        private final long sekvensnummer;
+        private final Long sekvensnummer;
 
-        public ReturnSpecificSekvensnummer(long sekvensnummer) {
+        public ReturnSpecificSekvensnummer(Long sekvensnummer) {
             this.sekvensnummer = sekvensnummer;
         }
 
         @Override
-        public long readSekvensnummer() {
-            return sekvensnummer;
+        public Optional<Long> readSekvensnummer() {
+            return Optional.ofNullable(sekvensnummer);
         }
     }
 }

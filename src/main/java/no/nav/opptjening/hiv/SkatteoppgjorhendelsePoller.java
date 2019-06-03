@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class SkatteoppgjorhendelsePoller {
 
@@ -48,13 +49,12 @@ public class SkatteoppgjorhendelsePoller {
     private static final Counter skatteetatenErrorCounter = Counter.build()
             .name("skatteetaten_error_count")
             .help("Antall feil vi har fått fra Skatteetaten sitt API").register();
-    public static final int INDETERMINATE_SEKVENSNUMMER = -1;
 
     private final HendelserClient beregnetskattHendelserClient;
     private final SekvensnummerReader sekvensnummerReader;
     private long nextSekvensnummer = -1;
 
-    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) throws IOException {
+    public SkatteoppgjorhendelsePoller(@NotNull HendelserClient beregnetskattHendelserClient, @NotNull SekvensnummerReader sekvensnummerReader) {
         this.beregnetskattHendelserClient = beregnetskattHendelserClient;
         this.sekvensnummerReader = sekvensnummerReader;
         initNextSekvensnummer();
@@ -111,15 +111,26 @@ public class SkatteoppgjorhendelsePoller {
         }
     }
 
-    private void initNextSekvensnummer() throws IOException {
-        this.nextSekvensnummer = sekvensnummerReader.readSekvensnummer();
-        LOG.info("Next sekvensnummer read from topic is: {}", nextSekvensnummer);
+    private void initNextSekvensnummer() {
+        this.nextSekvensnummer = fetchSekvensnummerFromTopic().orElseGet(this::fetchSekvensnummerFromSkatteEtaten);
 
-        if (nextSekvensnummer == INDETERMINATE_SEKVENSNUMMER) {
+    }
+
+    private Long fetchSekvensnummerFromSkatteEtaten() {
+        try {
             long firstValidSekvensnummer = beregnetskattHendelserClient.forsteSekvensnummer().getSekvensnummer();
             LOG.info("We did not find any nextSekvensnummer record, and assume that the log is empty." +
-                "Setting nextSekvensnummer={}", firstValidSekvensnummer);
-            nextSekvensnummer = firstValidSekvensnummer;
+                    "Setting nextSekvensnummer={}", firstValidSekvensnummer);
+            return firstValidSekvensnummer;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private Optional<Long> fetchSekvensnummerFromTopic() {
+        var sekvensnummer = sekvensnummerReader.readSekvensnummer();
+        sekvensnummer.ifPresent(it ->  LOG.info("Next sekvensnummer read from topic is: {}", it));
+        return sekvensnummer;
+
     }
 }
