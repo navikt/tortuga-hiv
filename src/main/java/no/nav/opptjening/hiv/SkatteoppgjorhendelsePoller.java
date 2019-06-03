@@ -81,7 +81,7 @@ public class SkatteoppgjorhendelsePoller {
 
             Hendelsesliste hendelsesliste = null;
 
-            while (nextSekvensnummer <= latestSekvensnummer.getSekvensnummer()) {
+            while (nextSekvensnummer < latestSekvensnummer.getSekvensnummer()) {
                 hendelsesliste = beregnetskattHendelserClient.getHendelser(nextSekvensnummer, ANTALL_HENDELSER_PER_REQUEST);
 
                 LOG.info("Fetched {} hendelser", hendelsesliste.getHendelser().size());
@@ -93,7 +93,7 @@ public class SkatteoppgjorhendelsePoller {
                 nextSekvensnummer = nextSekvensnummer + ANTALL_HENDELSER_PER_REQUEST + 1;
             }
 
-            if (hendelsesliste == null || nextSekvensnummer > latestSekvensnummer.getSekvensnummer()) {
+            if (hendelsesliste == null || nextSekvensnummer >= latestSekvensnummer.getSekvensnummer()) {
                 throw new EmptyResultException("We have reached the end of the hendelseliste");
             }
 
