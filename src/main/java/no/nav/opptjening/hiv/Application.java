@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,6 +30,7 @@ public class Application {
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     private static final int POLL_TIMEOUT_MS = 5000;
+    private static final int AMOUNT_OF_HENDELSER_PER_REQUEST = 1000;
 
     private final SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller;
     private final SkatteoppgjorhendelseProducer hendelseProducer;
@@ -54,14 +54,13 @@ public class Application {
 
             TopicPartition partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
 
-
             Consumer<String, Long> offsetConsumer = kafkaConfiguration.offsetConsumer();
             KafkaSekvensnummerReader reader = new KafkaSekvensnummerReader(offsetConsumer, partition);
 
             Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
-            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader, LocalDate::now);
+            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader, LocalDate::now, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
             app = new Application(poller, hendelseProducer);
