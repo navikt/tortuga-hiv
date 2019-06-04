@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight(%-5level) [%thread] %highlight(%class.%method:%line) - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <logger name="no.nav.opptjening" level="TRACE" />
     <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR" />
 
     <root level="WARN">
-        <appender-ref ref="STDOUT_JSON" />
+        <appender-ref ref="STDOUT" />
     </root>
 
 </configuration>
