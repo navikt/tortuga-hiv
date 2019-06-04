@@ -13,7 +13,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.TopicPartition;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -65,11 +64,7 @@ public class Application {
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
             app = new Application(poller, hendelseProducer);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                offsetConsumer.close();
-                offsetProducer.close();
-                hendelseKafkaProducer.close();
-            }));
+            addShutdownHook(offsetConsumer, offsetProducer, hendelseKafkaProducer);
         } catch (Exception e) {
             LOG.error("Application failed to start", e);
             System.exit(1);
@@ -80,12 +75,14 @@ public class Application {
         System.exit(0);
     }
 
-    public Application(@NotNull SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller, @NotNull SkatteoppgjorhendelseProducer hendelseProducer) {
+
+    private Application(SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller, SkatteoppgjorhendelseProducer hendelseProducer) {
         this.skatteoppgjorhendelsePoller = skatteoppgjorhendelsePoller;
         this.hendelseProducer = hendelseProducer;
     }
 
-    public void run() {
+    @SuppressWarnings("InfiniteLoopStatement")
+    private void run() {
         try {
             while (true) {
                 try {
@@ -121,5 +118,13 @@ public class Application {
         }
 
         LOG.info("Skatteetaten task stopped");
+    }
+
+    private static void addShutdownHook(Consumer<String, Long> offsetConsumer, Producer<String, Long> offsetProducer, Producer<HendelseKey, Hendelse> hendelseKafkaProducer) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            offsetConsumer.close();
+            offsetProducer.close();
+            hendelseKafkaProducer.close();
+        }));
     }
 }
