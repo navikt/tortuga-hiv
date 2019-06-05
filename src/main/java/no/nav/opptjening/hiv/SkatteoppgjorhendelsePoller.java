@@ -55,7 +55,6 @@ class SkatteoppgjorhendelsePoller {
         return sekvensnummer;
     }
 
-
     List<Hendelsesliste.Hendelse> poll() throws IOException {
 
         pollCounter.inc();
@@ -63,7 +62,7 @@ class SkatteoppgjorhendelsePoller {
         long sekvensnummerLimit = sekvensnummerLimit().getSekvensnummer();
 
         try {
-            LOG.info("Latest sekvensnummer for date={} is {}.", dateSupplier.get(), sekvensnummerLimit);
+            LOG.info("Last legal sekvensnummer for date={} is {}.", dateSupplier.get(), sekvensnummerLimit);
             latestSekvensnummerGauge.set(sekvensnummerLimit);
 
             var hendelser = fetchHendelserUntilLimit(sekvensnummerLimit);
