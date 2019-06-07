@@ -35,9 +35,10 @@ class SkeHendelseApiStubs {
                         .withHeader("Content-type", "application/json")));
     }
 
-    static void stub500statusCodesFromSkatteEtaten(LocalDate specificDate) {
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_START_URL))
-                .withQueryParam(DATO_QUERY_PARAM, WireMock.equalTo(specificDate.toString()))
+    static void stub500statusCodesFromSkatteEtaten() {
+        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_URL))
+                .withQueryParam(FRA_SEKVENSNUMMER_QUERY_PARAM, WireMock.equalTo("1"))
+                .withQueryParam(ANTALL_QUERY_PARAM, WireMock.equalTo("1000"))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))
                 .willReturn(WireMock.serverError()
                         .withBody("internal server error")));
