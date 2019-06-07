@@ -35,11 +35,6 @@
     </repositories>
 
     <dependencies>
-        <dependency>
-            <groupId>com.intellij</groupId>
-            <artifactId>annotations</artifactId>
-            <version>12.0</version>
-        </dependency>
 
         <!-- kafka -->
         <dependency>
