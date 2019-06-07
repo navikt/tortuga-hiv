@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class KafkaSekvensnummerReaderIT {
+class KafkaSekvensnummerReaderIT {
 
     private static final int NUMBER_OF_BROKERS = 3;
     private static final List<String> TOPICS = Collections.singletonList(KafkaConfiguration.SEKVENSNUMMER_TOPIC);
@@ -30,8 +30,8 @@ public class KafkaSekvensnummerReaderIT {
     private static final List<TopicPartition> partitionList = Collections.singletonList(partition);
 
     @BeforeAll
-    public static void setUp() {
-        kafkaEnvironment = new KafkaEnvironment(NUMBER_OF_BROKERS, TOPICS, false, false, Collections.emptyList(),false);
+    static void setUp() {
+        kafkaEnvironment = new KafkaEnvironment(NUMBER_OF_BROKERS, TOPICS, Collections.emptyList(), false, false, Collections.emptyList(), false, new Properties());
         kafkaEnvironment.start();
 
         Map<String, String> env = new HashMap<>();
@@ -45,7 +45,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @AfterAll
-    public static void tearDown() {
+    static void tearDown() {
         kafkaEnvironment.tearDown();
     }
 
@@ -83,7 +83,7 @@ public class KafkaSekvensnummerReaderIT {
 
     @Test
     @Order(1)
-    public void when_CommittedIsNullAndNoRecords_Then_ReturnMinusOne() {
+    void when_CommittedIsNullAndNoRecords_Then_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
         assertEquals(Optional.empty(), reader.readSekvensnummer());
@@ -91,7 +91,7 @@ public class KafkaSekvensnummerReaderIT {
 
     @Test
     @Order(2)
-    public void when_CommittedIsNullAndNoRecords_Then_ReReading_Should_ReturnMinusOne() {
+    void when_CommittedIsNullAndNoRecords_Then_ReReading_Should_ReturnMinusOne() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
         assertEquals(Optional.empty(), reader.readSekvensnummer());
@@ -100,7 +100,7 @@ public class KafkaSekvensnummerReaderIT {
 
     @Test
     @Order(3)
-    public void when_CommittedIsNotNullAndNoRecords_Then_Throw() {
+    void when_CommittedIsNotNullAndNoRecords_Then_Throw() {
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
         sekvensnummerConsumer.assign(partitionList);
         sekvensnummerConsumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(1)));
@@ -110,7 +110,7 @@ public class KafkaSekvensnummerReaderIT {
 
     @Test
     @Order(4)
-    public void when_CommittedIsNotNullAndNoRecordsWithCorrectKey_Then_Throw() {
+    void when_CommittedIsNotNullAndNoRecordsWithCorrectKey_Then_Throw() {
         createBadRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -122,7 +122,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNullAndRecords_Then_ReturnLastOne() {
+    void when_CommittedIsNullAndRecords_Then_ReturnLastOne() {
         createTestRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -131,7 +131,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNullAndRecords_Then_ReReading_Should_ReturnLastOne() {
+    void when_CommittedIsNullAndRecords_Then_ReReading_Should_ReturnLastOne() {
         createTestRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -141,7 +141,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNullAndRecordsWithBadRecords_Then_ReturnLastOne() {
+    void when_CommittedIsNullAndRecordsWithBadRecords_Then_ReturnLastOne() {
         createTestRecordsWithBadRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -150,7 +150,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNullAndRecordsWithBadRecords_Then_ReReading_ReturnLastOne() {
+    void when_CommittedIsNullAndRecordsWithBadRecords_Then_ReReading_ReturnLastOne() {
         createTestRecordsWithBadRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -160,7 +160,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNotNullAndRecords_Then_ReturnLastOne() {
+    void when_CommittedIsNotNullAndRecords_Then_ReturnLastOne() {
         createTestRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -172,7 +172,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNotNullAndRecords_Then_ReReading_ReturnLastOne() {
+    void when_CommittedIsNotNullAndRecords_Then_ReReading_ReturnLastOne() {
         createTestRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -185,7 +185,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNotNullAndRecordsWithBadRecords_Then_ReturnLastOne() {
+    void when_CommittedIsNotNullAndRecordsWithBadRecords_Then_ReturnLastOne() {
         createTestRecordsWithBadRecords();
 
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
@@ -197,7 +197,7 @@ public class KafkaSekvensnummerReaderIT {
     }
 
     @Test
-    public void when_CommittedIsNullAndNoRecordsWithCorrectKey_Then_Throw() {
+    void when_CommittedIsNullAndNoRecordsWithCorrectKey_Then_Throw() {
         createBadRecords();
         KafkaSekvensnummerReader reader = getSekvensnummerReader();
 
