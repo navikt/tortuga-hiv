@@ -13,14 +13,13 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Matchers.any;
 
 /* Stubs https://skatteetaten.github.io/datasamarbeid-api-dokumentasjon/reference_feed */
 class SkeHendelseApiStubs {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String HENDELSER_START_URL = "/hendelser/start";
     private static final int FIRST_SEKVENSNUMMER_FROM_SKE = 1;
-    private static final String HENDELSER_PATH = "/hendelser/";
+    private static final String HENDELSER_URL = "/hendelser/";
     private static final String API_KEY = "apikey";
     private static final String NAV_API_KEY_HEADER = "X-Nav-Apikey";
     private static final String DATO_QUERY_PARAM = "dato";
@@ -58,7 +57,7 @@ class SkeHendelseApiStubs {
     }
 
     static void stubHendelser(String fraSekvensnummer, int antallHendelserPerRequest, String jsonHendelse) {
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_PATH))
+        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_URL))
                 .withQueryParam(FRA_SEKVENSNUMMER_QUERY_PARAM, WireMock.equalTo(fraSekvensnummer))
                 .withQueryParam(ANTALL_QUERY_PARAM, WireMock.equalTo(String.valueOf(antallHendelserPerRequest)))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))
@@ -72,7 +71,7 @@ class SkeHendelseApiStubs {
     }
 
     private static void stubHendelse(int fraSekvensnummer, int antallHendelserPerRequest, List<HendelseslisteDto.HendelseDto> mockHendelser, int index) throws Exception {
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_PATH))
+        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_URL))
                 .withQueryParam(FRA_SEKVENSNUMMER_QUERY_PARAM, WireMock.equalTo(String.valueOf(fraSekvensnummer)))
                 .withQueryParam(ANTALL_QUERY_PARAM, WireMock.equalTo(String.valueOf(antallHendelserPerRequest)))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))

@@ -38,57 +38,61 @@ class SkatteoppgjorhendelsePollerTest {
 
 
     @Test
-    void that_ReadingStartsAtStoredSekvensnummer() throws Exception {
+    void reading_starts_at_stored_sekvensnummer() throws Exception {
+        SekvensnummerReader storedSekvensnummer = new SpecificSekvensnummer(10L);
         String validSekvensnummer = "10";
         stubSekvensnummerLimit(11, SPECIFIC_DATE.get());
 
-        var hendelseMockList = List.of(
+        var expectedHendelser = List.of(
                 new HendelseDto(10, "12345", "2016"),
                 new HendelseDto(11, "67891", "2017")
         );
 
-        stubHendelser(validSekvensnummer, ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(hendelseMockList));
+        stubHendelser(validSekvensnummer, ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(expectedHendelser));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(10L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, storedSekvensnummer, SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
         var hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-        assertHendelser(hendelseMockList, hendelsesliste);
-    }
-
-
-    @Test
-    void that_ReadingContinuesWithTheLastSekvensnummerPlusOne() throws Exception {
-        stubSekvensnummerLimit(11, SPECIFIC_DATE.get());
-        List<HendelseDto> hendelser1 = List.of(new HendelseDto(1, "12345", "2016"));
-        stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST,  getJsonMockHendelser(hendelser1));
-        List<HendelseDto> hendelser2 = List.of(new HendelseDto(2, "67891", "2017"));
-        stubHendelser("2", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(hendelser2));
-
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
-
-        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertHendelser(hendelser1, hendelsesliste);
-
-        hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertHendelser(hendelser2, hendelsesliste);
+        assertHendelser(expectedHendelser, hendelsesliste);
     }
 
     @Test
-    void lol() throws Exception {
+    void reading_continues_with_the_last_sekvensnummer_plus_one() throws Exception {
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        stubSekvensnummerLimit(3, SPECIFIC_DATE.get());
+
+        var expectedHendelse = List.of(new HendelseDto(1, "12345", "2016"));
+        stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST,  getJsonMockHendelser(expectedHendelse));
+
+        var hendelser = skatteoppgjorhendelsePoller.poll();
+        assertHendelser(expectedHendelse, hendelser);
+
+        expectedHendelse = List.of(new HendelseDto(2, "67891", "2017"));
+        stubHendelser("2", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(expectedHendelse));
+
+        hendelser = skatteoppgjorhendelsePoller.poll();
+        assertHendelser(expectedHendelse, hendelser);
+    }
+
+    @Test
+    void reading_handles_holes_in_the_hendelselist() throws Exception {
+
         stubSekvensnummerLimit(1003, SPECIFIC_DATE.get());
+
         stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(Collections.emptyList()));
-        stubHendelser("1001", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(List.of(
+        var expectedHendelser = List.of(
                 new HendelseDto(1001, "67891", "2015"),
                 new HendelseDto(1002, "12345", "2016")
-        )));
+        );
+        stubHendelser("1001", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(expectedHendelser));
         stubHendelser("1002", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(List.of(
                 new HendelseDto(1002, "12345", "2016")
         )));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
 
-        var hendelsesliste = skatteoppgjorhendelsePoller.poll();
-        assertEquals(2, hendelsesliste.size());
+        var hendelser = skatteoppgjorhendelsePoller.poll();
+        assertHendelser(expectedHendelser, hendelser);
     }
 
     @Test
@@ -107,7 +111,7 @@ class SkatteoppgjorhendelsePollerTest {
         stubSekvensnummerLimit(3003, SPECIFIC_DATE.get());
         stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(expectedHendelser));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
         var actualHendelser = skatteoppgjorhendelsePoller.poll();
         assertHendelser(expectedHendelser, actualHendelser);
     }
@@ -126,7 +130,7 @@ class SkatteoppgjorhendelsePollerTest {
 
         stubHendelser(fromSekvensnummer, ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(expectedHendelser));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(null), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(null), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
         var actualHendelser = skatteoppgjorhendelsePoller.poll();
 
         assertHendelser(expectedHendelser, actualHendelser);
@@ -149,7 +153,7 @@ class SkatteoppgjorhendelsePollerTest {
         int amountHendelserPerRequest = 1;
         stubHendelseFeed(fromSekvensnummer, amountHendelserPerRequest, expectedHendelser);
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, 1);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, 1);
 
         assertHendelse(expectedHendelser.get(0), skatteoppgjorhendelsePoller.poll().get(0));
         assertHendelse(expectedHendelser.get(1), skatteoppgjorhendelsePoller.poll().get(0));
@@ -159,7 +163,7 @@ class SkatteoppgjorhendelsePollerTest {
 
     @Test
     void poll_throws_httpException_when_status_code_4xx_is_returned() {
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
 
         stub400statusCodesFromSkatteEtaten(SPECIFIC_DATE.get());
 
@@ -168,10 +172,8 @@ class SkatteoppgjorhendelsePollerTest {
 
     @Test
     void poll_throws_httpException_when_status_code_5xx_is_returned() {
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
-
-        stub500statusCodesFromSkatteEtaten(SPECIFIC_DATE.get());
-
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        stub500statusCodesFromSkatteEtaten();
         assertThrows(HttpException.class, skatteoppgjorhendelsePoller::poll);
     }
 
@@ -180,7 +182,7 @@ class SkatteoppgjorhendelsePollerTest {
         stubSekvensnummerLimit(1, SPECIFIC_DATE.get());
         stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(Collections.emptyList()));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
 
         assertThrows(EmptyResultException.class, skatteoppgjorhendelsePoller::poll);
     }
@@ -190,15 +192,15 @@ class SkatteoppgjorhendelsePollerTest {
         stubSekvensnummerLimit(5, SPECIFIC_DATE.get());
         stubHendelser("1", ANTALL_HENDELSER_PER_REQUEST, getJsonMockHendelser(Collections.emptyList()));
 
-        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new ReturnSpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
+        SkatteoppgjorhendelsePoller skatteoppgjorhendelsePoller = new SkatteoppgjorhendelsePoller(hendelserClient, new SpecificSekvensnummer(1L), SPECIFIC_DATE, ANTALL_HENDELSER_PER_REQUEST);
 
         assertThrows(EmptyResultException.class, skatteoppgjorhendelsePoller::poll);
     }
 
-    private class ReturnSpecificSekvensnummer implements SekvensnummerReader {
+    private class SpecificSekvensnummer implements SekvensnummerReader {
         private final Long sekvensnummer;
 
-        private ReturnSpecificSekvensnummer(Long sekvensnummer) {
+        private SpecificSekvensnummer(Long sekvensnummer) {
             this.sekvensnummer = sekvensnummer;
         }
 
