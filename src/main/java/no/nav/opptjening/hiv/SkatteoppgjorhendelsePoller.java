@@ -72,7 +72,7 @@ class SkatteoppgjorhendelsePoller {
             }
 
             antallHendelserHentetTotalt.inc(hendelser.size());
-            hendelser.forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
+            incrementAntallHendelserMetricByYear(hendelser);
 
             incrementNextSekvensnummer(hendelser);
 
@@ -118,6 +118,15 @@ class SkatteoppgjorhendelsePoller {
         return beregnetskattHendelserClient.forsteSekvensnummerEtter(dateSupplier.get());
     }
 
+    private void incrementAntallHendelserMetricByYear(List<Hendelsesliste.Hendelse> hendelser) {
+        hendelser.forEach(hendelse -> antallHendelserHentet.labels(hendelse.getGjelderPeriode()).inc());
+    }
+
+    private static final Counter antallHendelserHentet = Counter.build()
+            .name("hendelser_received")
+            .labelNames("year")
+            .help("Antall hendelser hentet.").register();
+
     private static final Counter pollCounter = Counter.build()
             .name("hendelser_poll_count")
             .help("Hvor mange ganger vi pollet etter hendelser").register();
@@ -130,10 +139,6 @@ class SkatteoppgjorhendelsePoller {
             .name("latest_sekvensnummer")
             .help("Siste sekvensnummer for dagens dato").register();
 
-    private static final Counter antallHendelserHentet = Counter.build()
-            .name("hendelser_received")
-            .labelNames("year")
-            .help("Antall hendelser hentet.").register();
 
     private static final Counter antallHendelserHentetTotalt = Counter.build()
             .name("hendelser_received_total")
