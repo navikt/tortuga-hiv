@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class SkatteoppgjorhendelseProducer {
+class SkatteoppgjorhendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelseProducer.class);
 
     private static final Counter antallHendelserSendt = Counter.build()
@@ -35,7 +35,7 @@ public class SkatteoppgjorhendelseProducer {
     private final HendelseProducerRecordMapper hendelseProducerRecordMapper = new HendelseProducerRecordMapper();
     private final int earliestValidHendelseYear;
 
-    public SkatteoppgjorhendelseProducer(Producer<HendelseKey, Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter, String earliestValidHendelseYear) {
+    SkatteoppgjorhendelseProducer(Producer<HendelseKey, Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter, String earliestValidHendelseYear) {
         this.producer = producer;
         this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
@@ -50,7 +50,7 @@ public class SkatteoppgjorhendelseProducer {
         };
     }
 
-    public long sendHendelser(List<Hendelse> hendelseList) {
+    long sendHendelser(List<Hendelse> hendelseList) {
         List<Hendelse> hendelser = hendelseList.stream()
                 .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= earliestValidHendelseYear)
                 .collect(Collectors.toList());
@@ -72,7 +72,7 @@ public class SkatteoppgjorhendelseProducer {
         return sisteSekvensnummer;
     }
 
-    public void shutdown() {
+    void shutdown() {
         LOG.info("Shutting down SkatteoppgjorhendelseProducer");
         producer.close();
     }

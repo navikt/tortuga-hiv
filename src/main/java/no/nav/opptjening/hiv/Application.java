@@ -90,11 +90,11 @@ public class Application {
                     MDC.put("requestId", UUID.randomUUID().toString());
                     List<Hendelsesliste.Hendelse> hendelsesliste = skatteoppgjorhendelsePoller.poll();
 
-                    List<Hendelse> hendelser = hendelsesliste.stream()
-                            .map(hendelseMapper::mapToHendelse)
+                    List<Hendelse> internalHendelser = hendelsesliste.stream()
+                            .map(hendelseMapper::mapToInternalHendelse)
                             .collect(Collectors.toList());
 
-                    hendelseProducer.sendHendelser(hendelser);
+                    hendelseProducer.sendHendelser(internalHendelser);
                 } catch (EmptyResultException e) {
                     LOG.debug("Skatteetaten reported no new records, waiting a bit before trying again", e);
                     Thread.sleep(POLL_TIMEOUT_MS);
