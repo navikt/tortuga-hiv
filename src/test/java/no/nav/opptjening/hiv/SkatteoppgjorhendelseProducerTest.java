@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SkatteoppgjorhendelseProducerTest {
+class SkatteoppgjorhendelseProducerTest {
     private MockProducer<HendelseKey, Hendelse> producer;
     private DummySekvensnummerWriter writer;
 
@@ -23,7 +23,7 @@ public class SkatteoppgjorhendelseProducerTest {
     private final static String EARLIEST_VALID_HENDELSE_YEAR = "2017";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         producer = new MockProducer<>();
         writer = new DummySekvensnummerWriter();
     }
@@ -44,7 +44,7 @@ public class SkatteoppgjorhendelseProducerTest {
     }
 
     @Test
-    public void that_SekvensnummerIsWritten_When_RecordsAreSentOk() {
+    void that_SekvensnummerIsWritten_When_RecordsAreSentOk() {
         List<Hendelse> hendelseList = Arrays.asList(
                 new Hendelse(1L, "123456789", "2018"),
                 new Hendelse(2L, "234567890", "2018"),
@@ -88,7 +88,7 @@ public class SkatteoppgjorhendelseProducerTest {
     }
 
     @Test
-    public void that_SekvensnummerIsNotWritten_When_RecordsAreNotSentOk() {
+    void that_SekvensnummerIsNotWritten_When_RecordsAreNotSentOk() {
         List<Hendelse> hendelseList = Arrays.asList(
                 new Hendelse(1L, "123456789", "2018"),
                 new Hendelse(2L, "234567890", "2018"),
@@ -136,7 +136,7 @@ public class SkatteoppgjorhendelseProducerTest {
     }
 
     @Test
-    public void that_ProducerIsShutdown_When_SekvensnummerIsNotSentOk() {
+    void that_ProducerIsShutdown_When_SekvensnummerIsNotSentOk() {
         List<Hendelse> hendelseList = Arrays.asList(
                 new Hendelse(1L, "123456789", "2018"),
                 new Hendelse(2L, "234567890", "2018"),
@@ -186,7 +186,7 @@ public class SkatteoppgjorhendelseProducerTest {
     }
 
     @Test
-    public void close() {
+    void close() {
         SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer, EARLIEST_VALID_HENDELSE_YEAR);
 
         assertFalse(producer.closed());
@@ -195,7 +195,7 @@ public class SkatteoppgjorhendelseProducerTest {
     }
 
     private class DummySekvensnummerWriter implements SekvensnummerWriter {
-        public long lastWrittenSekvensnummer = -1;
+        long lastWrittenSekvensnummer = -1;
 
         public void writeSekvensnummer(long nextSekvensnummer) {
             this.lastWrittenSekvensnummer = nextSekvensnummer;
@@ -205,7 +205,7 @@ public class SkatteoppgjorhendelseProducerTest {
     private class ExceptionThrowerSekvensnummerWriter implements SekvensnummerWriter {
         private final RuntimeException exception;
 
-        public ExceptionThrowerSekvensnummerWriter(RuntimeException exception) {
+        ExceptionThrowerSekvensnummerWriter(RuntimeException exception) {
             this.exception = exception;
         }
 
