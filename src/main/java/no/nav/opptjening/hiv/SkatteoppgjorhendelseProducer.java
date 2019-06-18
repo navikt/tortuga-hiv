@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 public class SkatteoppgjorhendelseProducer {
     private static final Logger LOG = LoggerFactory.getLogger(SkatteoppgjorhendelseProducer.class);
 
-    private static final int EARLIEST_VALID_HENDELSE_YEAR = 2017;
-
     private static final Counter antallHendelserSendt = Counter.build()
             .name("hendelser_processed")
             .help("Antall hendelser sendt.").register();
@@ -36,11 +34,13 @@ public class SkatteoppgjorhendelseProducer {
     private final Signaller.CallbackSignaller shutdownSignal = new Signaller.CallbackSignaller();
 
     private final HendelseProducerRecordMapper hendelseProducerRecordMapper = new HendelseProducerRecordMapper();
+    private final int earliestValidHendelseYear;
 
-    public SkatteoppgjorhendelseProducer(@NotNull Producer<HendelseKey, Hendelse> producer, @NotNull String topic, @NotNull SekvensnummerWriter sekvensnummerWriter) {
+    public SkatteoppgjorhendelseProducer(@NotNull Producer<HendelseKey, Hendelse> producer, @NotNull String topic, @NotNull SekvensnummerWriter sekvensnummerWriter, String earliestValidHendelseYear) {
         this.producer = producer;
         this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
+        this.earliestValidHendelseYear = Integer.parseInt(earliestValidHendelseYear);
         this.shutdownSignal.addListener(() -> {
             LOG.info("Shutting signalled received, shutting down hendelse producer");
             shutdown();
@@ -49,7 +49,7 @@ public class SkatteoppgjorhendelseProducer {
 
     public long sendHendelser(@NotNull List<Hendelse> hendelseList) {
         List<Hendelse> hendelser = hendelseList.stream()
-                .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= EARLIEST_VALID_HENDELSE_YEAR)
+                .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= earliestValidHendelseYear)
                 .collect(Collectors.toList());
 
         hendelser.stream()

@@ -48,6 +48,7 @@ public class Application {
 
             String hendelserUrl = env.get("SKATT_API_URL");
             String skattApiKey = env.get("SKATT_API_KEY");
+            String earliestValidHendelseYear = env.get("EARLIEST_VALID_HENDELSE_YEAR");
 
             final SkatteoppgjoerhendelserClient skatteoppgjoerhendelserClient = new SkatteoppgjoerhendelserClient(hendelserUrl, skattApiKey);
 
@@ -61,7 +62,7 @@ public class Application {
 
             final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader, LocalDate::now, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
-            final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer);
+            final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer, earliestValidHendelseYear);
             app = new Application(poller, hendelseProducer);
 
             addShutdownHook(offsetConsumer, offsetProducer, hendelseKafkaProducer);

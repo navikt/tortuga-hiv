@@ -7,7 +7,6 @@ import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 
 import java.util.Arrays;
@@ -21,6 +20,7 @@ public class SkatteoppgjorhendelseProducerTest {
     private DummySekvensnummerWriter writer;
 
     private final String topic = "my-test-topic";
+    private final static String EARLIEST_VALID_HENDELSE_YEAR = "2017";
 
     @BeforeEach
     public void setUp() {
@@ -53,7 +53,7 @@ public class SkatteoppgjorhendelseProducerTest {
                 new Hendelse(5L, "567890123", "2018")
         );
 
-        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
+        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer, EARLIEST_VALID_HENDELSE_YEAR);
         assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.flush();
@@ -97,7 +97,7 @@ public class SkatteoppgjorhendelseProducerTest {
                 new Hendelse(5L, "567890123", "2018")
         );
 
-        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
+        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer, EARLIEST_VALID_HENDELSE_YEAR);
         assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
         producer.completeNext();
@@ -148,7 +148,7 @@ public class SkatteoppgjorhendelseProducerTest {
 
         RuntimeException exception = new RuntimeException("Failed to write sekvensnummer");
         ExceptionThrowerSekvensnummerWriter evilWriter = new ExceptionThrowerSekvensnummerWriter(exception);
-        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, evilWriter);
+        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, evilWriter, EARLIEST_VALID_HENDELSE_YEAR);
 
         assertEquals((long)hendelseList.get(hendelseList.size() - 1).getSekvensnummer(), skatteoppgjorhendelseProducer.sendHendelser(hendelseList));
 
@@ -187,7 +187,7 @@ public class SkatteoppgjorhendelseProducerTest {
 
     @Test
     public void close() {
-        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer);
+        SkatteoppgjorhendelseProducer skatteoppgjorhendelseProducer = new SkatteoppgjorhendelseProducer(producer, topic, writer, EARLIEST_VALID_HENDELSE_YEAR);
 
         assertFalse(producer.closed());
         skatteoppgjorhendelseProducer.shutdown();
