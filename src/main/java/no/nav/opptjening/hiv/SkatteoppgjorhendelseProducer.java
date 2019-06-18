@@ -9,7 +9,6 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,18 +35,22 @@ public class SkatteoppgjorhendelseProducer {
     private final HendelseProducerRecordMapper hendelseProducerRecordMapper = new HendelseProducerRecordMapper();
     private final int earliestValidHendelseYear;
 
-    public SkatteoppgjorhendelseProducer(@NotNull Producer<HendelseKey, Hendelse> producer, @NotNull String topic, @NotNull SekvensnummerWriter sekvensnummerWriter, String earliestValidHendelseYear) {
+    public SkatteoppgjorhendelseProducer(Producer<HendelseKey, Hendelse> producer, String topic, SekvensnummerWriter sekvensnummerWriter, String earliestValidHendelseYear) {
         this.producer = producer;
         this.topic = topic;
         this.sekvensnummerWriter = sekvensnummerWriter;
         this.earliestValidHendelseYear = Integer.parseInt(earliestValidHendelseYear);
-        this.shutdownSignal.addListener(() -> {
-            LOG.info("Shutting signalled received, shutting down hendelse producer");
-            shutdown();
-        });
+        this.shutdownSignal.addListener(shutdownListener());
     }
 
-    public long sendHendelser(@NotNull List<Hendelse> hendelseList) {
+    private Signaller.SignalListener shutdownListener() {
+        return () -> {
+            LOG.info("Shutting signal received, shutting down hendelse producer");
+            shutdown();
+        };
+    }
+
+    public long sendHendelser(List<Hendelse> hendelseList) {
         List<Hendelse> hendelser = hendelseList.stream()
                 .filter(hendelse -> Integer.parseInt(hendelse.getGjelderPeriode()) >= earliestValidHendelseYear)
                 .collect(Collectors.toList());
@@ -79,7 +82,7 @@ public class SkatteoppgjorhendelseProducer {
         private final SekvensnummerWriter sekvensnummerWriter;
         private final Signaller shutdownSignal;
 
-        private ProducerCallback(@NotNull ProducerRecord<HendelseKey, Hendelse> record, @NotNull SekvensnummerWriter sekvensnummerWriter, @NotNull Signaller shutdownSignal) {
+        private ProducerCallback(ProducerRecord<HendelseKey, Hendelse> record, SekvensnummerWriter sekvensnummerWriter, Signaller shutdownSignal) {
             this.record = record;
             this.sekvensnummerWriter = sekvensnummerWriter;
             this.shutdownSignal = shutdownSignal;
