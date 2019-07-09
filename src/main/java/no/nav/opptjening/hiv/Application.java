@@ -3,6 +3,7 @@ package no.nav.opptjening.hiv;
 import no.nav.opptjening.hiv.sekvensnummer.CouldNotFindNextSekvensnummerRecord;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
 import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
+import no.nav.opptjening.hiv.sekvensnummer.Sekvensnummer;
 import no.nav.opptjening.nais.NaisHttpServer;
 import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
 import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
@@ -60,7 +61,8 @@ public class Application {
             Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
-            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, reader, LocalDate::now, AMOUNT_OF_HENDELSER_PER_REQUEST);
+            final Sekvensnummer sekvensnummer = new Sekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
+            final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, sekvensnummer, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer, earliestValidHendelseYear);
             app = new Application(poller, hendelseProducer);
