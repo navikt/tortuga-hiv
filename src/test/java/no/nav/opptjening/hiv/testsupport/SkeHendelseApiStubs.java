@@ -44,7 +44,7 @@ class SkeHendelseApiStubs {
                         .withBody("internal server error")));
     }
 
-    static void stubFirstSekvensnummerFromSkatteEtaten() {
+    public static void stubFirstSekvensnummerFromSkatteEtaten() {
         WireMock.stubFor(WireMock.get(WireMock.urlEqualTo(HENDELSER_START_URL))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))
                 .willReturn(WireMock.okJson(getSekvensnummerJson(FIRST_SEKVENSNUMMER_FROM_SKE))));
