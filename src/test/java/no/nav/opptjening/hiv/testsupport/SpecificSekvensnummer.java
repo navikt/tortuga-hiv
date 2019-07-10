@@ -1,4 +1,6 @@
-package no.nav.opptjening.hiv.sekvensnummer;
+package no.nav.opptjening.hiv.testsupport;
+
+import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerReader;
 
 import java.util.Optional;
 

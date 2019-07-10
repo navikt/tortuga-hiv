@@ -1,4 +1,4 @@
-package no.nav.opptjening.hiv;
+package no.nav.opptjening.hiv.testsupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -15,7 +15,7 @@ import java.util.stream.IntStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /* Stubs https://skatteetaten.github.io/datasamarbeid-api-dokumentasjon/reference_feed */
-class SkeHendelseApiStubs {
+public class SkeHendelseApiStubs {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String HENDELSER_START_URL = "/hendelser/start";
     private static final int FIRST_SEKVENSNUMMER_FROM_SKE = 1;
@@ -26,7 +26,7 @@ class SkeHendelseApiStubs {
     private static final String FRA_SEKVENSNUMMER_QUERY_PARAM = "fraSekvensnummer";
     private static final String ANTALL_QUERY_PARAM = "antall";
 
-    static void stub400statusCodesFromSkatteEtaten(LocalDate specificDate) {
+    public static void stub400statusCodesFromSkatteEtaten(LocalDate specificDate) {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_START_URL))
                 .withQueryParam(DATO_QUERY_PARAM, WireMock.equalTo(specificDate.toString()))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))
@@ -35,7 +35,7 @@ class SkeHendelseApiStubs {
                         .withHeader("Content-type", "application/json")));
     }
 
-    static void stub500statusCodesFromSkatteEtaten() {
+    public static void stub500statusCodesFromSkatteEtaten() {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_URL))
                 .withQueryParam(FRA_SEKVENSNUMMER_QUERY_PARAM, WireMock.equalTo("1"))
                 .withQueryParam(ANTALL_QUERY_PARAM, WireMock.equalTo("1000"))
@@ -50,14 +50,14 @@ class SkeHendelseApiStubs {
                 .willReturn(WireMock.okJson(getSekvensnummerJson(FIRST_SEKVENSNUMMER_FROM_SKE))));
     }
 
-    static void stubSekvensnummerLimit(int sekvensnummerLimit, LocalDate specificDate) {
+    public static void stubSekvensnummerLimit(int sekvensnummerLimit, LocalDate specificDate) {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_START_URL))
                 .withQueryParam(DATO_QUERY_PARAM, WireMock.equalTo(specificDate.toString()))
                 .withHeader(NAV_API_KEY_HEADER, WireMock.equalTo(API_KEY))
                 .willReturn(WireMock.okJson(getSekvensnummerJson(sekvensnummerLimit))));
     }
 
-    static void stubHendelser(String fraSekvensnummer, int antallHendelserPerRequest, String jsonHendelse) {
+    public static void stubHendelser(String fraSekvensnummer, int antallHendelserPerRequest, String jsonHendelse) {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(HENDELSER_URL))
                 .withQueryParam(FRA_SEKVENSNUMMER_QUERY_PARAM, WireMock.equalTo(fraSekvensnummer))
                 .withQueryParam(ANTALL_QUERY_PARAM, WireMock.equalTo(String.valueOf(antallHendelserPerRequest)))
@@ -65,7 +65,7 @@ class SkeHendelseApiStubs {
                 .willReturn(WireMock.okJson(jsonHendelse)));
     }
 
-    static void stubHendelseFeed(int fromSekvensnummer, int amountHendelserPerRequest, List<HendelseslisteDto.HendelseDto> mockHendelser) throws Exception {
+    public static void stubHendelseFeed(int fromSekvensnummer, int amountHendelserPerRequest, List<HendelseslisteDto.HendelseDto> mockHendelser) throws Exception {
         stubHendelse(fromSekvensnummer++, amountHendelserPerRequest, mockHendelser, 0);
         stubHendelse(fromSekvensnummer++, amountHendelserPerRequest, mockHendelser, 1);
         stubHendelse(fromSekvensnummer, amountHendelserPerRequest, mockHendelser, 2);
@@ -79,18 +79,18 @@ class SkeHendelseApiStubs {
                 .willReturn(WireMock.okJson(getJsonHendelse(mockHendelser.get(index)))));
     }
 
-    static String getJsonMockHendelser(List<HendelseslisteDto.HendelseDto> mockHendelser) throws Exception {
+    public static String getJsonMockHendelser(List<HendelseslisteDto.HendelseDto> mockHendelser) throws Exception {
         Map<String, List<HendelseslisteDto.HendelseDto>> response = new HashMap<>();
         response.put("hendelser", mockHendelser);
         return OBJECT_MAPPER.writeValueAsString(response);
     }
 
-    static void assertHendelser(List<HendelseslisteDto.HendelseDto> expected, List<Hendelsesliste.Hendelse> actual) {
+    public static void assertHendelser(List<HendelseslisteDto.HendelseDto> expected, List<Hendelsesliste.Hendelse> actual) {
         assertEquals(expected.size(), actual.size());
         IntStream.range(0, actual.size()).forEach(index -> assertHendelse(expected.get(index), actual.get(index)));
     }
 
-    static void assertHendelse(HendelseslisteDto.HendelseDto expected, Hendelsesliste.Hendelse actual) {
+    public static void assertHendelse(HendelseslisteDto.HendelseDto expected, Hendelsesliste.Hendelse actual) {
         assertEquals(expected.getSekvensnummer(), actual.getSekvensnummer());
         assertEquals(expected.getIdentifikator(), actual.getIdentifikator());
         assertEquals(expected.getGjelderPeriode(), actual.getGjelderPeriode());

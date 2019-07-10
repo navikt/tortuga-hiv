@@ -31,7 +31,9 @@ public class Sekvensnummer {
 
     private long fetchSekvensnummerLimit(LocalDate date) {
         try {
-            return beregnetskattHendelserClient.forsteSekvensnummerEtter(date).getSekvensnummer();
+            long sekvensnummerLimit =  beregnetskattHendelserClient.forsteSekvensnummerEtter(date).getSekvensnummer();
+            latestSekvensnummerGauge.set(sekvensnummerLimit);
+            return sekvensnummerLimit;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -66,7 +68,7 @@ public class Sekvensnummer {
     }
 
     public void incrementSekvensnummer(long sekvensnummerCount) {
-        nextSekvensnummer = nextSekvensnummer + sekvensnummerCount;
+        nextSekvensnummer += sekvensnummerCount;
         nextSekvensnummerGauge.set(nextSekvensnummer);
     }
 
