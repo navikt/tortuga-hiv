@@ -13,15 +13,15 @@ public class SaslSecurityConfig implements KafkaConfiguration.KafkaSecurtyConfig
         class Properties {
             static final String USERNAME = "KAFKA_USERNAME";
             static final String PASSWORD = "KAFKA_PASSWORD";
-            static final String TRUSTSTORE_LOCATION = "KAFKA_SSL_TRUSTSTORE_LOCATION";
-            static final String TRUSTSTORE_PASSWORD = "KAFKA_SSL_TRUSTSTORE_PASSWORD";
+            static final String TRUSTSTORE_LOCATION = "NAV_TRUSTSTORE_PATH";
+            static final String TRUSTSTORE_PASSWORD = "NAV_TRUSTSTORE_PASSWORD";
         }
 
         private final File truststoreLocation;
         private final String truststorePassword;
         private final String saslJaasConfig;
 
-        public SaslSecurityConfig(Map<String, String> env) {
+        SaslSecurityConfig(Map<String, String> env) {
             this.saslJaasConfig = createPlainLoginModule(env.get(Properties.USERNAME), env.get(Properties.PASSWORD));
             this.truststoreLocation = resourceToFile(env.get(Properties.TRUSTSTORE_LOCATION));
             this.truststorePassword = env.get(Properties.TRUSTSTORE_PASSWORD);
