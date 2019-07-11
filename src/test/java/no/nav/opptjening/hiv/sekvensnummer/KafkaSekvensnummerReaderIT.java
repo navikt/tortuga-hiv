@@ -2,6 +2,7 @@ package no.nav.opptjening.hiv.sekvensnummer;
 
 import no.nav.common.KafkaEnvironment;
 import no.nav.opptjening.hiv.KafkaConfiguration;
+import no.nav.opptjening.hiv.testsupport.PlainTextSecurityConfig;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.Producer;
@@ -36,9 +37,8 @@ class KafkaSekvensnummerReaderIT {
 
         Map<String, String> env = new HashMap<>();
         env.put(KafkaConfiguration.Properties.BOOTSTRAP_SERVERS, kafkaEnvironment.getBrokersURL());
-        env.put(KafkaConfiguration.Properties.SECURITY_PROTOCOL, "PLAINTEXT");
 
-        kafkaConfiguration = new KafkaConfiguration(env);
+        kafkaConfiguration = new KafkaConfiguration(env, environment -> new PlainTextSecurityConfig());
 
         sekvensnummerProducer = kafkaConfiguration.offsetProducer();
         sekvensnummerConsumer = kafkaConfiguration.offsetConsumer();

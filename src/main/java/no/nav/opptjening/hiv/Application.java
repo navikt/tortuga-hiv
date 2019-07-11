@@ -45,7 +45,7 @@ public class Application {
             final NaisHttpServer naisHttpServer = new NaisHttpServer();
             naisHttpServer.start();
 
-            final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env);
+            final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env, SaslSecurityConfig::new);
 
             String hendelserUrl = env.get("SKATT_API_URL");
             String skattApiKey = env.get("SKATT_API_KEY");
