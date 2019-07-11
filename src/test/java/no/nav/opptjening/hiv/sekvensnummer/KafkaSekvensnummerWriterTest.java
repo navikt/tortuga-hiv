@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class KafkaSekvensnummerWriterTest {
 
@@ -36,29 +35,5 @@ public class KafkaSekvensnummerWriterTest {
         List<ProducerRecord<String, Long>> expected = Collections.singletonList(new ProducerRecord<>(partition.topic(), partition.partition(), KafkaSekvensnummerReader.NEXT_SEKVENSNUMMER_KEY, (long) 1));
 
         assertEquals(expected, history);
-    }
-
-    @Test
-    public void failedWrite() {
-        writer.writeSekvensnummer(1);
-
-        RuntimeException exception = new RuntimeException("Failed to write");
-        producer.errorNext(exception);
-
-        List<ProducerRecord<String, Long>> history = producer.history();
-        List<ProducerRecord<String, Long>> expected = Collections.singletonList(new ProducerRecord<>(partition.topic(), partition.partition(), KafkaSekvensnummerReader.NEXT_SEKVENSNUMMER_KEY, (long) 1));
-
-        assertEquals(expected, history);
-
-        long timeStart = System.currentTimeMillis();
-        while (!producer.closed()) {
-            long now = System.currentTimeMillis();
-
-            if ((now - timeStart) > 500) {
-                throw new RuntimeException("Waited for 500 milliseconds for producer to get closed.");
-            }
-        }
-
-        assertTrue(producer.closed());
     }
 }
