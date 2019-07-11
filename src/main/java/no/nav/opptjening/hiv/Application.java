@@ -64,7 +64,7 @@ public class Application {
             final Sekvensnummer sekvensnummer = new Sekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
             final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, sekvensnummer, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
-            final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJØRHENDELSE_TOPIC, writer, earliestValidHendelseYear);
+            final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJORHENDELSE_TOPIC, writer, earliestValidHendelseYear);
             app = new Application(poller, hendelseProducer);
 
             addShutdownHook(offsetConsumer, offsetProducer, hendelseKafkaProducer);

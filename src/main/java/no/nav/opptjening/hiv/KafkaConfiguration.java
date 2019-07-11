@@ -31,7 +31,7 @@ import static no.nav.opptjening.hiv.KafkaConfiguration.KafkaSecurtyConfig.Proper
 
 public class KafkaConfiguration {
 
-    public static final String SKATTEOPPGJØRHENDELSE_TOPIC = "privat-tortuga-skatteoppgjorhendelse";
+    public static final String SKATTEOPPGJORHENDELSE_TOPIC = "privat-tortuga-skatteoppgjorhendelse";
     public static final String SEKVENSNUMMER_TOPIC = "privat-tortuga-sekvensnummerTilstand";
 
     public static class Properties {
