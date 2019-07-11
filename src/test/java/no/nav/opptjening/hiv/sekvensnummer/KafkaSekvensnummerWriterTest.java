@@ -54,8 +54,8 @@ public class KafkaSekvensnummerWriterTest {
         while (!producer.closed()) {
             long now = System.currentTimeMillis();
 
-            if ((now - timeStart) > 250) {
-                throw new RuntimeException("Waited for 250 milliseconds for producer to get closed.");
+            if ((now - timeStart) > 500) {
+                throw new RuntimeException("Waited for 500 milliseconds for producer to get closed.");
             }
         }
 
