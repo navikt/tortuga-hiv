@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Application {
+class Application {
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 

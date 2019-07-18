@@ -12,21 +12,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class KafkaSekvensnummerWriterTest {
+class KafkaSekvensnummerWriterTest {
 
     private static MockProducer<String, Long> producer;
     private static TopicPartition partition;
     private static KafkaSekvensnummerWriter writer;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         producer = new MockProducer<>();
         partition = new TopicPartition(KafkaConfiguration.SEKVENSNUMMER_TOPIC, 0);
         writer = new KafkaSekvensnummerWriter(producer, partition);
     }
 
     @Test
-    public void successfulWrite() {
+    void successfulWrite() {
         writer.writeSekvensnummer(1);
 
         producer.completeNext();

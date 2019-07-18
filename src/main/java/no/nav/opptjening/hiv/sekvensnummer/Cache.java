@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Function;
 
-public class Cache<K, V> implements Function<K, V> {
+class Cache<K, V> implements Function<K, V> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Cache.class);
 

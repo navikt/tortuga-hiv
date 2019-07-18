@@ -22,7 +22,6 @@ class KafkaSekvensnummerReaderIT {
     private static final List<String> TOPICS = Collections.singletonList(KafkaConfiguration.SEKVENSNUMMER_TOPIC);
 
     private static KafkaEnvironment kafkaEnvironment;
-    private static KafkaConfiguration kafkaConfiguration;
 
     private static Producer<String, Long> sekvensnummerProducer;
     private static Consumer<String, Long> sekvensnummerConsumer;
@@ -38,7 +37,7 @@ class KafkaSekvensnummerReaderIT {
         Map<String, String> env = new HashMap<>();
         env.put(KafkaConfiguration.Properties.BOOTSTRAP_SERVERS, kafkaEnvironment.getBrokersURL());
 
-        kafkaConfiguration = new KafkaConfiguration(env, environment -> new PlainTextSecurityConfig());
+        KafkaConfiguration kafkaConfiguration = new KafkaConfiguration(env, environment -> new PlainTextSecurityConfig());
 
         sekvensnummerProducer = kafkaConfiguration.offsetProducer();
         sekvensnummerConsumer = kafkaConfiguration.offsetConsumer();

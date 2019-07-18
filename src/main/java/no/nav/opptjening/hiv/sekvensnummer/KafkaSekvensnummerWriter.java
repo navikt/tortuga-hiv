@@ -15,7 +15,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaSekvensnummerWriter.class);
 
-    static final String NEXT_SEKVENSNUMMER_KEY = "nextSekvensnummer";
+    private static final String NEXT_SEKVENSNUMMER_KEY = "nextSekvensnummer";
 
     private final Producer<String, Long> producer;
     private final TopicPartition topicPartition;
@@ -38,7 +38,7 @@ public class KafkaSekvensnummerWriter implements SekvensnummerWriter {
         });
     }
 
-    public void shutdown() {
+    private void shutdown() {
         LOG.info("Shutting down KafkaSekvensnummerWriter");
         producer.close();
     }

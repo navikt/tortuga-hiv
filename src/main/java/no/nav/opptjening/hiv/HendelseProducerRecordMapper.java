@@ -5,7 +5,7 @@ import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.jetbrains.annotations.NotNull;
 
-public class HendelseProducerRecordMapper {
+class HendelseProducerRecordMapper {
 
     @NotNull
     public ProducerRecord<HendelseKey, Hendelse> mapToProducerRecord(@NotNull String topic, @NotNull Hendelse hendelse) {

@@ -11,32 +11,24 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static no.nav.opptjening.hiv.KafkaConfiguration.KafkaSecurtyConfig.Properties.SECURITY_PROTOCOL;
-
 public class KafkaConfiguration {
 
-    public static final String SKATTEOPPGJORHENDELSE_TOPIC = "privat-tortuga-skatteoppgjorhendelse";
+    static final String SKATTEOPPGJORHENDELSE_TOPIC = "privat-tortuga-skatteoppgjorhendelse";
     public static final String SEKVENSNUMMER_TOPIC = "privat-tortuga-sekvensnummerTilstand";
 
     public static class Properties {
         public static final String BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
-        public static final String SCHEMA_REGISTRY_URL = "SCHEMA_REGISTRY_URL";
+        static final String SCHEMA_REGISTRY_URL = "SCHEMA_REGISTRY_URL";
     }
 
     private final String bootstrapServers;
