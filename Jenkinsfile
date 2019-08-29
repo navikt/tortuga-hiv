@@ -65,6 +65,7 @@ pipeline {
                     latestStage = env.STAGE_NAME
                     deployments = [
                             ["dev-fss", "default"],
+                            ["prod-fss", "default", "nais-prod.yaml"]
                     ]
                     for (deployment in deployments) {
                         latestDeploy = [deployment]
@@ -91,5 +92,4 @@ pipeline {
         }
     }
 }
-
 
