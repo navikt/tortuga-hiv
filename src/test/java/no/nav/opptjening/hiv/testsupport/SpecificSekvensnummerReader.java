@@ -4,10 +4,10 @@ import no.nav.opptjening.hiv.sekvensnummer.SekvensnummerReader;
 
 import java.util.Optional;
 
-public class SpecificSekvensnummer implements SekvensnummerReader {
+public class SpecificSekvensnummerReader implements SekvensnummerReader {
         private final Long sekvensnummer;
 
-        public SpecificSekvensnummer(Long sekvensnummer) {
+        public SpecificSekvensnummerReader(Long sekvensnummer) {
             this.sekvensnummer = sekvensnummer;
         }
 
