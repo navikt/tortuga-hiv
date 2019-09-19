@@ -1,15 +1,12 @@
 package no.nav.opptjening.hiv;
 
-import no.nav.opptjening.hiv.sekvensnummer.CouldNotFindNextSekvensnummerRecord;
-import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
-import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
-import no.nav.opptjening.hiv.sekvensnummer.Sekvensnummer;
-import no.nav.opptjening.nais.NaisHttpServer;
-import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
-import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
-import no.nav.opptjening.skatt.client.Hendelsesliste;
-import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
-import no.nav.opptjening.skatt.client.exceptions.HttpException;
+import java.net.SocketTimeoutException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.common.KafkaException;
@@ -18,12 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.net.SocketTimeoutException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import no.nav.opptjening.hiv.sekvensnummer.CouldNotFindNextSekvensnummerRecord;
+import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerReader;
+import no.nav.opptjening.hiv.sekvensnummer.KafkaSekvensnummerWriter;
+import no.nav.opptjening.hiv.sekvensnummer.SpecificSekvensnummer;
+import no.nav.opptjening.nais.NaisHttpServer;
+import no.nav.opptjening.schema.skatt.hendelsesliste.Hendelse;
+import no.nav.opptjening.schema.skatt.hendelsesliste.HendelseKey;
+import no.nav.opptjening.skatt.client.Hendelsesliste;
+import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
+import no.nav.opptjening.skatt.client.exceptions.HttpException;
 
 class Application {
 
@@ -61,7 +62,7 @@ class Application {
             Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
-            final Sekvensnummer sekvensnummer = new Sekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
+            final SpecificSekvensnummer sekvensnummer = new SpecificSekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
             final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, sekvensnummer, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJORHENDELSE_TOPIC, writer, earliestValidHendelseYear);

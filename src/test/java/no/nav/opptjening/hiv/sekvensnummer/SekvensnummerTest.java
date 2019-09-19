@@ -1,20 +1,25 @@
 package no.nav.opptjening.hiv.sekvensnummer;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import no.nav.opptjening.hiv.testsupport.SpecificSekvensnummerReader;
-import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
-import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static no.nav.opptjening.hiv.testsupport.SkeHendelseApiStubs.stubFirstSekvensnummerFromSkatteEtaten;
+import static no.nav.opptjening.hiv.testsupport.SkeHendelseApiStubs.stubSekvensnummerLimit;
 
 import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static no.nav.opptjening.hiv.testsupport.SkeHendelseApiStubs.stubFirstSekvensnummerFromSkatteEtaten;
-import static no.nav.opptjening.hiv.testsupport.SkeHendelseApiStubs.stubSekvensnummerLimit;
-import static org.junit.jupiter.api.Assertions.*;
+import com.github.tomakehurst.wiremock.WireMockServer;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import no.nav.opptjening.hiv.testsupport.SpecificSekvensnummerReader;
+import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
+import no.nav.opptjening.skatt.client.api.skatteoppgjoer.SkatteoppgjoerhendelserClient;
 
 class SekvensnummerTest {
 
@@ -86,5 +91,27 @@ class SekvensnummerTest {
         assertTrue(sekvensnummer.reachedSekvensnummerLimit());
         date.updateAndGet(localdate -> localdate.plusDays(1));
         assertFalse(sekvensnummer.reachedSekvensnummerLimit());
+    }
+
+    @Test
+    void specificSekvensnummer_next_returns_sepecific_number_on_initialization() {
+        SpecificSekvensnummer specificSekvensnummer = new SpecificSekvensnummer(hendelserClient, null, SPECIFIC_DATE);
+        assertEquals(SPECIFIC_SEKVENSNUMER, specificSekvensnummer.next());
+    }
+
+    @Test
+    void specificSekvensnummer_greater_than_limit() {
+        stubSekvensnummerLimit((int) (SPECIFIC_SEKVENSNUMER - 500), SPECIFIC_DATE.get());
+        SpecificSekvensnummer specificSekvensnummer = new SpecificSekvensnummer(hendelserClient, null, SPECIFIC_DATE);
+        assertEquals(SPECIFIC_SEKVENSNUMER, specificSekvensnummer.next());
+        assertTrue(specificSekvensnummer.reachedSekvensnummerLimit());
+    }
+
+    @Test
+    void specificSekvensnummer_sekvensnummer_less_than_limit() {
+        stubSekvensnummerLimit((int) (SPECIFIC_SEKVENSNUMER + 500), SPECIFIC_DATE.get());
+        SpecificSekvensnummer specificSekvensnummer = new SpecificSekvensnummer(hendelserClient, null, SPECIFIC_DATE);
+        assertEquals(SPECIFIC_SEKVENSNUMER, specificSekvensnummer.next());
+        assertFalse(specificSekvensnummer.reachedSekvensnummerLimit());
     }
 }

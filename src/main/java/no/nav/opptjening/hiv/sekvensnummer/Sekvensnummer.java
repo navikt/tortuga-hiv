@@ -1,14 +1,16 @@
 package no.nav.opptjening.hiv.sekvensnummer;
 
-import io.prometheus.client.Gauge;
-import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.prometheus.client.Gauge;
+
+import no.nav.opptjening.skatt.client.api.hendelseliste.HendelserClient;
 
 public class Sekvensnummer {
 
@@ -39,7 +41,7 @@ public class Sekvensnummer {
         }
     }
 
-    private Long initNextSekvensnummer() {
+    protected Long initNextSekvensnummer() {
         Long nextSekvensnummer = fetchSekvensnummerFromTopic().orElseGet(this::fetchFirstSekvensnummerFromSkatteEtaten);
         nextSekvensnummerGauge.set(nextSekvensnummer);
         return nextSekvensnummer;
@@ -80,7 +82,7 @@ public class Sekvensnummer {
         return nextSekvensnummer;
     }
 
-    private static final Gauge nextSekvensnummerGauge = Gauge.build()
+    protected static final Gauge nextSekvensnummerGauge = Gauge.build()
             .name("next_sekvensnummer")
             .help("Neste sekvensnummer vi forventer å få hendelser på").register();
 
