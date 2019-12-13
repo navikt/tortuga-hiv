@@ -63,7 +63,8 @@ class Application {
             Producer<String, Long> offsetProducer = kafkaConfiguration.offsetProducer();
             KafkaSekvensnummerWriter writer = new KafkaSekvensnummerWriter(offsetProducer, partition);
 
-            final Sekvensnummer sekvensnummer = new Sekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
+            //final Sekvensnummer sekvensnummer = new Sekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
+            final SpecificSekvensnummer sekvensnummer = new SpecificSekvensnummer(skatteoppgjoerhendelserClient, reader, LocalDate::now);
             final SkatteoppgjorhendelsePoller poller = new SkatteoppgjorhendelsePoller(skatteoppgjoerhendelserClient, sekvensnummer, AMOUNT_OF_HENDELSER_PER_REQUEST);
             Producer<HendelseKey, Hendelse> hendelseKafkaProducer = kafkaConfiguration.hendelseProducer();
             final SkatteoppgjorhendelseProducer hendelseProducer = new SkatteoppgjorhendelseProducer(hendelseKafkaProducer, KafkaConfiguration.SKATTEOPPGJORHENDELSE_TOPIC, writer, earliestValidHendelseYear);
