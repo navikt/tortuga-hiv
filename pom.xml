@@ -57,19 +57,19 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>nais-support</artifactId>
-            <version>15</version>
+            <version>b60ddc2</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>avro-schemas</artifactId>
-            <version>7</version>
+            <version>d15ce9b</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
-            <version>23</version>
+            <version>fd91dca</version>
         </dependency>
 
         <!-- test -->
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>no.nav</groupId>
             <artifactId>kafka-embedded-env</artifactId>
-            <version>2.1.1</version>
+            <version>2.4.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

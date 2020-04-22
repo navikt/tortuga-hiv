@@ -2,14 +2,14 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: tortuga-hiv
-  namespace: {{namespace}}
+  namespace: default
   labels:
-    team: teampeon
+    team: pensjonsamhandling
 spec:
-  image: repo.adeo.no:5443/tortuga-hiv:{{version}}
+  image: {{ image }}
   port: 8080
   ingresses:
-    - {{ingress}}
+    - https://tortuga-hiv.nais.adeo.no
   liveness:
     path: isAlive
   readiness:
