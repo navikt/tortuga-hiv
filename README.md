@@ -3,22 +3,6 @@ Tortuga HIV
 
 HIV skal lytte på hendelser om beregnet skatt og tilby disse på en Kafka-topic.
 
-## Installasjon og kjøring
-
-### Bygging
-
-For å bygge JAR og tilhørende Docker images:
-
-```
-make
-```
-
-Man kan også bygge med maven:
-
-```
-mvn package
-```
-
 ## Testing
 
 For å sette opp et testmiljø (Kafka-kluster) holder det å kjøre Docker Compose: 

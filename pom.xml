@@ -32,7 +32,32 @@
             <id>confluent</id>
             <url>http://packages.confluent.io/maven/</url>
         </repository>
+        <repository>
+            <id>avro-schemas</id>
+            <name>Tortuga Schema GitHub Package Registry</name>
+            <url>https://maven.pkg.github.com/navikt/tortuga-schema</url>
+        </repository>
+        <repository>
+            <id>skatt-client</id>
+            <name>Tortuga Skatt Client WSDL GitHub Package Registry</name>
+            <url>https://maven.pkg.github.com/navikt/tortuga-skatt-client</url>
+        </repository>
+        <repository>
+            <id>nais-support</id>
+            <name>Tortuga NAIS Support GitHubPackage Registry</name>
+            <url>https://maven.pkg.github.com/navikt/tortuga-nais-support</url>
+        </repository>
     </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub navikt Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/navikt/tortuga-hiv</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+
+    </distributionManagement>
 
     <dependencies>
 
@@ -57,19 +82,19 @@
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>nais-support</artifactId>
-            <version>15</version>
+            <version>b60ddc2</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>avro-schemas</artifactId>
-            <version>7</version>
+            <version>d15ce9b</version>
         </dependency>
 
         <dependency>
             <groupId>no.nav.opptjening</groupId>
             <artifactId>skatt-client</artifactId>
-            <version>23</version>
+            <version>fd91dca</version>
         </dependency>
 
         <!-- test -->

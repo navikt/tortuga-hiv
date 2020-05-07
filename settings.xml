@@ -1,0 +1,19 @@
+<settings>
+    <servers>
+        <server>
+            <id>avro-schemas</id>
+            <username>token</username>
+            <password>${env.GITHUB_TOKEN}</password>
+        </server>
+        <server>
+            <id>nais-support</id>
+            <username>token</username>
+            <password>${env.GITHUB_TOKEN}</password>
+        </server>
+        <server>
+            <id>skatt-client</id>
+            <username>token</username>
+            <password>${env.GITHUB_TOKEN}</password>
+        </server>
+    </servers>
+</settings>
